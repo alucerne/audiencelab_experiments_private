@@ -23,15 +23,6 @@ import { DataTable } from '@kit/ui/enhanced-data-table';
 import { Form, FormControl, FormField, FormItem } from '@kit/ui/form';
 import { If } from '@kit/ui/if';
 import { Input } from '@kit/ui/input';
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from '@kit/ui/select';
 
 import { AdminDeleteAccountDialog } from './admin-delete-account-dialog';
 import { AdminDeleteUserDialog } from './admin-delete-user-dialog';
@@ -40,7 +31,6 @@ import { AdminImpersonateUserDialog } from './admin-impersonate-user-dialog';
 type Account = Database['public']['Tables']['accounts']['Row'];
 
 const FiltersSchema = z.object({
-  type: z.enum(['all', 'team', 'personal']),
   query: z.string().optional(),
 });
 
@@ -50,15 +40,12 @@ export function AdminAccountsTable(
     pageCount: number;
     pageSize: number;
     page: number;
-    filters: {
-      type: 'all' | 'team' | 'personal';
-    };
   }>,
 ) {
   return (
     <div className={'flex flex-col space-y-4'}>
       <div className={'flex justify-end'}>
-        <AccountsTableFilters filters={props.filters} />
+        <AccountsTableFilters />
       </div>
 
       <DataTable
@@ -72,13 +59,11 @@ export function AdminAccountsTable(
   );
 }
 
-function AccountsTableFilters(props: {
-  filters: z.infer<typeof FiltersSchema>;
-}) {
+function AccountsTableFilters() {
   const form = useForm({
     resolver: zodResolver(FiltersSchema),
     defaultValues: {
-      type: props.filters?.type ?? 'all',
+      // type: props.filters?.type ?? 'all',
       query: '',
     },
     mode: 'onChange',
@@ -88,9 +73,8 @@ function AccountsTableFilters(props: {
   const router = useRouter();
   const pathName = usePathname();
 
-  const onSubmit = ({ type, query }: z.infer<typeof FiltersSchema>) => {
+  const onSubmit = ({ query }: z.infer<typeof FiltersSchema>) => {
     const params = new URLSearchParams({
-      account_type: type,
       query: query ?? '',
     });
 
@@ -105,37 +89,6 @@ function AccountsTableFilters(props: {
         className={'flex gap-2.5'}
         onSubmit={form.handleSubmit((data) => onSubmit(data))}
       >
-        <Select
-          value={form.watch('type')}
-          onValueChange={(value) => {
-            form.setValue(
-              'type',
-              value as z.infer<typeof FiltersSchema>['type'],
-              {
-                shouldValidate: true,
-                shouldDirty: true,
-                shouldTouch: true,
-              },
-            );
-
-            return onSubmit(form.getValues());
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder={'Account Type'} />
-          </SelectTrigger>
-
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Account Type</SelectLabel>
-
-              <SelectItem value={'all'}>All accounts</SelectItem>
-              <SelectItem value={'team'}>Team</SelectItem>
-              <SelectItem value={'personal'}>Personal</SelectItem>
-            </SelectGroup>
-          </SelectContent>
-        </Select>
-
         <FormField
           name={'query'}
           render={({ field }) => (
@@ -164,7 +117,7 @@ function getColumns(): ColumnDef<Account>[] {
         return (
           <Link
             className={'hover:underline'}
-            href={`/admin/accounts/${row.original.id}`}
+            href={`/admin/users/${row.original.id}`}
           >
             {row.original.name}
           </Link>
@@ -215,7 +168,7 @@ function getColumns(): ColumnDef<Account>[] {
                 <DropdownMenuItem>
                   <Link
                     className={'h-full w-full'}
-                    href={`/admin/accounts/${userId}`}
+                    href={`/admin/users/${userId}`}
                   >
                     View
                   </Link>

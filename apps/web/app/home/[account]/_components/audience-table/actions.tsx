@@ -21,7 +21,6 @@ import {
 } from '@kit/ui/tooltip';
 import { cn } from '@kit/ui/utils';
 
-import FacebookLogo from '~/components/assets/facebook-logo';
 import { AudienceList } from '~/lib/audience/audience.service';
 
 import AudienceWebhookDialog from './audience-webhook-dialog';
@@ -40,16 +39,6 @@ export default function AudienceTableActions({
   return (
     <div className="flex items-center justify-end">
       <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="size-7" disabled>
-              <FacebookLogo size={14} />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Export to Facebook</p>
-          </TooltipContent>
-        </Tooltip>
         <Tooltip>
           <ScheduleRefreshDialog audience={audience}>
             <TooltipTrigger asChild>
@@ -82,6 +71,25 @@ export default function AudienceTableActions({
           </TooltipContent>
         </Tooltip>
         <Tooltip>
+          <DownloadCsvDialog audience={audience}>
+            <TooltipTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7"
+                disabled={
+                  audience.enqueue_jobs.filter(
+                    (job) => typeof job.csv_url === 'string',
+                  ).length === 0
+                }
+              >
+                <Download className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </DownloadCsvDialog>
+          <TooltipContent>Download CSV</TooltipContent>
+        </Tooltip>
+        <Tooltip>
           <AudienceWebhookDialog audience={audience}>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" className="size-7">
@@ -104,25 +112,6 @@ export default function AudienceTableActions({
           <TooltipContent>
             <p>Duplicate</p>
           </TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <DownloadCsvDialog audience={audience}>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7"
-                disabled={
-                  audience.enqueue_jobs.filter(
-                    (job) => typeof job.csv_url === 'string',
-                  ).length === 0
-                }
-              >
-                <Download className="size-3.5" />
-              </Button>
-            </TooltipTrigger>
-          </DownloadCsvDialog>
-          <TooltipContent>Download CSV</TooltipContent>
         </Tooltip>
         <Tooltip>
           <DeleteAudienceDialog audience={audience}>
