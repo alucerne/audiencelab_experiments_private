@@ -18,20 +18,9 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
-import { ChevronDown } from 'lucide-react';
 
 import { Tables } from '@kit/supabase/database';
 import { Badge } from '@kit/ui/badge';
-import { buttonVariants } from '@kit/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@kit/ui/dropdown-menu';
 import {
   Table,
   TableBody,
@@ -40,7 +29,6 @@ import {
   TableHeader,
   TableRow,
 } from '@kit/ui/table';
-import { cn } from '@kit/ui/utils';
 
 import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
 import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
@@ -49,9 +37,12 @@ import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar'
 import AddAudienceDialog from '../add-audience-dialog';
 import AudienceTableActions from './audience-table-actions';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const nameIdFilterFn: FilterFn<any> = (row, columnId, filterValue: string) => {
-  const fullName = String(row.getValue('name')).toLowerCase();
+const nameIdFilterFn: FilterFn<Tables<'audience'>> = (
+  row,
+  _,
+  filterValue: string,
+) => {
+  const fullName = row.original.name.toLowerCase();
   const searchText = filterValue.toLowerCase();
 
   return fullName.includes(searchText);
@@ -72,76 +63,8 @@ export default function AudienceTable({
         ),
       },
       {
-        accessorKey: 'status',
+        accessorKey: 'Status',
         accessorFn: (audience) => audience.status,
-        header: ({ column }) => {
-          const statusFilter = column.getFilterValue() as
-            | Tables<'audience'>['status']
-            | undefined;
-
-          function updateStatusFilter(
-            value: Tables<'audience'>['status'] | 'reset' | undefined,
-          ) {
-            if (value === 'reset') {
-              column.setFilterValue(undefined);
-            } else {
-              column.setFilterValue(value ?? undefined);
-            }
-          }
-
-          return (
-            <DropdownMenu>
-              <DropdownMenuTrigger
-                className={cn(
-                  buttonVariants({
-                    variant: 'ghost',
-                    size: 'sm',
-                    className: 'h-8 text-sm data-[state=open]:bg-accent',
-                  }),
-                )}
-              >
-                {statusFilter ? (
-                  <AudienceStatusBadge status={statusFilter} />
-                ) : (
-                  'Status'
-                )}
-                <ChevronDown className="ml-2 h-5 w-5" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent>
-                <DropdownMenuRadioGroup
-                  value={statusFilter}
-                  onValueChange={(newStatus) =>
-                    updateStatusFilter(
-                      newStatus as Tables<'audience'>['status'],
-                    )
-                  }
-                >
-                  {(
-                    [
-                      'no data',
-                      'processing',
-                      'completed',
-                      'refreshing',
-                      'refreshed',
-                    ] as const
-                  ).map((statusType, index) => (
-                    <DropdownMenuRadioItem key={index} value={statusType}>
-                      <AudienceStatusBadge status={statusType} />
-                    </DropdownMenuRadioItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem
-                    className="justify-center"
-                    onClick={() => updateStatusFilter('reset')}
-                    disabled={!statusFilter}
-                  >
-                    Reset
-                  </DropdownMenuItem>
-                </DropdownMenuRadioGroup>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          );
-        },
         cell: ({ row: { original } }) => {
           return <AudienceStatusBadge status={original.status} />;
         },
