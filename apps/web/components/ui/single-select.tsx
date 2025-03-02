@@ -1,0 +1,129 @@
+import React from 'react';
+
+import { CaretSortIcon, CheckIcon } from '@radix-ui/react-icons';
+import { X } from 'lucide-react';
+import Select, {
+  ActionMeta,
+  ClearIndicatorProps,
+  DropdownIndicatorProps,
+  OptionProps,
+  SingleValue,
+  components,
+} from 'react-select';
+
+import { cn } from '@kit/ui/utils';
+
+interface StringOption {
+  value: string;
+  label: string;
+}
+
+const createOption = (str: string) => ({
+  value: str,
+  label: str,
+});
+
+function DropdownIndicator(props: DropdownIndicatorProps<StringOption>) {
+  return (
+    <components.DropdownIndicator {...props}>
+      <CaretSortIcon className="h-4 w-4 opacity-50" />
+    </components.DropdownIndicator>
+  );
+}
+
+function ClearIndicator(props: ClearIndicatorProps<StringOption>) {
+  return (
+    <components.ClearIndicator
+      {...props}
+      className="rounded-md border border-transparent p-0.5 opacity-50 hover:cursor-pointer hover:border-destructive hover:bg-destructive/5 hover:text-destructive hover:opacity-100"
+    >
+      <X className="h-4 min-h-4 w-4 min-w-4" />
+    </components.ClearIndicator>
+  );
+}
+
+function Option({ className: _, ...props }: OptionProps<StringOption>) {
+  return (
+    <components.Option {...props}>
+      <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+        <div className="text-sm text-accent-foreground">{props.label}</div>
+        {props.isSelected && (
+          <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
+            <CheckIcon className="h-4 min-h-4 w-4 min-w-4" />
+          </span>
+        )}
+      </div>
+    </components.Option>
+  );
+}
+
+export default function SingleSelect({
+  options,
+  value,
+  onChange,
+}: {
+  options: string[];
+  value: string;
+  onChange: (value: string) => void;
+}) {
+  function handleChange(
+    newValue: SingleValue<StringOption>,
+    _: ActionMeta<StringOption>,
+  ) {
+    onChange(newValue?.value ?? '');
+  }
+
+  return (
+    <Select<StringOption, false>
+      options={options.map(createOption)}
+      value={value ? createOption(value) : null}
+      onChange={handleChange}
+      closeMenuOnSelect={true}
+      hideSelectedOptions={false}
+      placeholder="Select..."
+      unstyled
+      styles={{
+        input: (base) => ({
+          ...base,
+          'input:focus': {
+            boxShadow: 'none',
+          },
+        }),
+        control: (base) => ({
+          ...base,
+          transition: 'none',
+        }),
+      }}
+      components={{
+        DropdownIndicator,
+        ClearIndicator,
+        Option,
+      }}
+      classNames={{
+        container: () => 'w-full',
+        control: ({ isFocused }) =>
+          cn(
+            isFocused && 'outline-none ring-1 ring-ring',
+            'rounded-md border border-input bg-transparent px-3 py-1 shadow-sm ring-offset-background hover:cursor-text',
+          ),
+        placeholder: () => 'text-sm text-muted-foreground',
+        input: () => 'text-sm',
+        valueContainer: () => 'gap-1.5',
+        singleValue: () => 'text-sm',
+        indicatorsContainer: () => 'gap-1.5',
+
+        menu: () =>
+          'p-1 mt-2 rounded-md border bg-popover text-popover-foreground shadow-md overflow-hidden animate-in fade-in-0 zoom-in-100',
+        groupHeading: () =>
+          'py-1.5 px-2 text-sm font-semibold text-accent-foreground',
+        option: ({ isFocused, isDisabled }) =>
+          cn(
+            isFocused && 'bg-secondary',
+            isDisabled && 'opacity-50',
+            'rounded-sm',
+          ),
+        noOptionsMessage: () => 'text-accent-foreground py-1.5 pr-2 text-sm',
+      }}
+    />
+  );
+}

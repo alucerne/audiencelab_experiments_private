@@ -17,14 +17,19 @@ import { Trans } from './trans';
 
 const unslugify = (slug: string) => slug.replace(/-/g, ' ');
 
+const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function AppBreadcrumbs(props: {
   values?: Record<string, string>;
   maxDepth?: number;
+  uuidLabel?: string;
 }) {
   const pathName = usePathname();
   const splitPath = pathName.split('/').filter(Boolean);
   const values = props.values ?? {};
   const maxDepth = props.maxDepth ?? 6;
+  const uuidLabel = props.uuidLabel ?? 'Details';
 
   const Ellipsis = (
     <BreadcrumbItem>
@@ -42,15 +47,25 @@ export function AppBreadcrumbs(props: {
     <Breadcrumb>
       <BreadcrumbList>
         {visiblePaths.map((path, index) => {
-          const label =
-            path in values ? (
-              values[path]
-            ) : (
+          let label;
+
+          if (path in values) {
+            label = values[path];
+          } else if (UUID_PATTERN.test(path)) {
+            label = (
+              <Trans
+                i18nKey={`common:routes.${uuidLabel}`}
+                defaults={uuidLabel}
+              />
+            );
+          } else {
+            label = (
               <Trans
                 i18nKey={`common:routes.${unslugify(path)}`}
                 defaults={unslugify(path)}
               />
             );
+          }
 
           return (
             <Fragment key={index}>

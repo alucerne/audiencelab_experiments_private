@@ -32,3 +32,66 @@ export const createAudienceAction = enhanceAction(
     }),
   },
 );
+
+export const addAudienceFiltersAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.addFilters({
+      id: data.audienceId,
+      filters: data.filters,
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({
+      audienceId: z.string(),
+      filters: audienceFiltersFormSchema,
+    }),
+  },
+);
+
+export const duplicateAudienceAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    const { id } = await service.duplicateAudience({
+      originalId: data.originalId,
+      newName: data.newName,
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+
+    return { id };
+  },
+  {
+    schema: z.object({
+      originalId: z.string(),
+      newName: z.string(),
+    }),
+  },
+);
+
+export const deleteAudienceAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.deleteAudience({
+      audienceId: data.id,
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+    }),
+  },
+);
