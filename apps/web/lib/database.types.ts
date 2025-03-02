@@ -138,6 +138,73 @@ export type Database = {
           },
         ];
       };
+      audience: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          csv_url: string | null;
+          current: number | null;
+          filters: Json;
+          id: string;
+          job_id: string | null;
+          name: string;
+          refreshed_at: string | null;
+          status: string;
+          total: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          csv_url?: string | null;
+          current?: number | null;
+          filters?: Json;
+          id?: string;
+          job_id?: string | null;
+          name: string;
+          refreshed_at?: string | null;
+          status?: string;
+          total?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          csv_url?: string | null;
+          current?: number | null;
+          filters?: Json;
+          id?: string;
+          job_id?: string | null;
+          name?: string;
+          refreshed_at?: string | null;
+          status?: string;
+          total?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'audience_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       billing_customers: {
         Row: {
           account_id: string;
@@ -274,7 +341,6 @@ export type Database = {
         Row: {
           client_token: string;
           created_at: string;
-          description: string | null;
           expires_at: string;
           id: string;
           last_verification_at: string | null;
@@ -286,7 +352,6 @@ export type Database = {
           revoked: boolean;
           revoked_reason: string | null;
           scopes: string[] | null;
-          tags: string[] | null;
           used_at: string | null;
           user_id: string | null;
           verification_attempts: number;
@@ -294,7 +359,6 @@ export type Database = {
         Insert: {
           client_token: string;
           created_at?: string;
-          description?: string | null;
           expires_at: string;
           id?: string;
           last_verification_at?: string | null;
@@ -306,7 +370,6 @@ export type Database = {
           revoked?: boolean;
           revoked_reason?: string | null;
           scopes?: string[] | null;
-          tags?: string[] | null;
           used_at?: string | null;
           user_id?: string | null;
           verification_attempts?: number;
@@ -314,7 +377,6 @@ export type Database = {
         Update: {
           client_token?: string;
           created_at?: string;
-          description?: string | null;
           expires_at?: string;
           id?: string;
           last_verification_at?: string | null;
@@ -326,7 +388,6 @@ export type Database = {
           revoked?: boolean;
           revoked_reason?: string | null;
           scopes?: string[] | null;
-          tags?: string[] | null;
           used_at?: string | null;
           user_id?: string | null;
           verification_attempts?: number;
@@ -746,8 +807,6 @@ export type Database = {
           p_purpose?: string;
           p_expires_in_seconds?: number;
           p_metadata?: Json;
-          p_description?: string;
-          p_tags?: string[];
           p_scopes?: string[];
           p_revoke_previous?: boolean;
         };
