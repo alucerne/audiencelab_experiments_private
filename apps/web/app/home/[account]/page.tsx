@@ -1,13 +1,14 @@
 import { use } from 'react';
 
+import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { PageBody } from '@kit/ui/page';
-import { Trans } from '@kit/ui/trans';
 
+import { createAudienceService } from '~/lib/audience/audience.service';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
-import { DashboardDemo } from './_components/dashboard-demo';
+import AudienceTable from './_components/audience-table';
 import { TeamAccountLayoutPageHeader } from './_components/team-account-layout-page-header';
 
 interface TeamAccountHomePageProps {
@@ -26,16 +27,21 @@ export const generateMetadata = async () => {
 function TeamAccountHomePage({ params }: TeamAccountHomePageProps) {
   const account = use(params).account;
 
+  const client = getSupabaseServerClient();
+  const service = createAudienceService(client);
+
+  const { data: audience } = use(service.getAudience());
+
   return (
     <>
       <TeamAccountLayoutPageHeader
         account={account}
-        title={<Trans i18nKey={'common:routes.dashboard'} />}
+        title="Audience Lists"
         description={<AppBreadcrumbs />}
       />
 
       <PageBody>
-        <DashboardDemo />
+        <AudienceTable audience={audience} />
       </PageBody>
     </>
   );
