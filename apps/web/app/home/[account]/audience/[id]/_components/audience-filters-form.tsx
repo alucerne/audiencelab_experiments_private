@@ -145,6 +145,23 @@ export default function AudienceFiltersForm({
   };
 
   function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
+    const fieldsToCheck = Object.keys(audienceFiltersFormDefaultValues).filter(
+      (key) => key !== 'jobId' && key !== 'dateRange',
+    );
+
+    const hasNoFilters = fieldsToCheck.every((key) => {
+      const typedKey = key as keyof typeof audienceFiltersFormDefaultValues;
+      return (
+        JSON.stringify(values[typedKey]) ===
+        JSON.stringify(audienceFiltersFormDefaultValues[typedKey])
+      );
+    });
+
+    if (hasNoFilters) {
+      toast.error('Please add at least 1 filter.');
+      return;
+    }
+
     startTransition(() => {
       toast.promise(
         addAudienceFiltersAction({
