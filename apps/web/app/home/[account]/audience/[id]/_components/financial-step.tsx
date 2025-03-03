@@ -42,16 +42,16 @@ import DynamicField from './dynamic-field';
 export const financialFields = [
   'filters.profile.incomeRange',
   'filters.profile.netWorth',
-  'filters.attributes.creditRating',
-  'filters.attributes.creditRangeNewCredit',
-  'filters.attributes.creditCardUser',
+  'filters.attributes.credit_rating',
+  'filters.attributes.credit_range_new_credit',
+  'filters.attributes.credit_card_user',
   'filters.attributes.investment',
-  'filters.attributes.mortgageAmount',
-  'filters.attributes.mortgageLoanType',
-  'filters.attributes.mortgageRateType',
-  'filters.attributes.occupationGroup',
-  'filters.attributes.occupationType',
-  'filters.attributes.craCode',
+  'filters.attributes.mortgage_amount',
+  'filters.attributes.mortgage_loan_type',
+  'filters.attributes.mortgage_rate_type',
+  'filters.attributes.occupation_group',
+  'filters.attributes.occupation_type',
+  'filters.attributes.cra_code',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 type FieldRow = {
@@ -142,7 +142,7 @@ export default function FinancialStep() {
             onClick={() => handleDelete(row.original)}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="text-destructive h-4 w-4" />
           </Button>
         </div>
       ),
@@ -366,15 +366,15 @@ const fieldTypeOptions: Array<{
     label: 'Net Worth',
   },
   {
-    value: 'filters.attributes.creditRating',
+    value: 'filters.attributes.credit_rating',
     label: 'Credit Rating',
   },
   {
-    value: 'filters.attributes.creditRangeNewCredit',
+    value: 'filters.attributes.credit_range_new_credit',
     label: 'New Credit Range',
   },
   {
-    value: 'filters.attributes.creditCardUser',
+    value: 'filters.attributes.credit_card_user',
     label: 'Credit Card User',
   },
   {
@@ -382,27 +382,27 @@ const fieldTypeOptions: Array<{
     label: 'Investment',
   },
   {
-    value: 'filters.attributes.mortgageAmount',
+    value: 'filters.attributes.mortgage_amount',
     label: 'Mortgage Amount',
   },
   {
-    value: 'filters.attributes.mortgageLoanType',
+    value: 'filters.attributes.mortgage_loan_type',
     label: 'Mortgage Loan Type',
   },
   {
-    value: 'filters.attributes.mortgageRateType',
+    value: 'filters.attributes.mortgage_rate_type',
     label: 'Mortgage Rate Type',
   },
   {
-    value: 'filters.attributes.occupationGroup',
+    value: 'filters.attributes.occupation_group',
     label: 'Occupation Group',
   },
   {
-    value: 'filters.attributes.occupationType',
+    value: 'filters.attributes.occupation_type',
     label: 'Occupation Type',
   },
   {
-    value: 'filters.attributes.craCode',
+    value: 'filters.attributes.cra_code',
     label: 'CRA Code',
   },
 ] as const;
@@ -437,7 +437,7 @@ const fieldOptions: Partial<
     '$750,000 to $999,999',
     'more than $1,000,000',
   ],
-  'filters.attributes.creditRating': [
+  'filters.attributes.credit_rating': [
     '800+',
     '750 - 799',
     '700 - 749',
@@ -447,11 +447,11 @@ const fieldOptions: Partial<
     '500-549',
     'under 499',
   ],
-  'filters.attributes.creditRangeNewCredit': ['low', 'moderate', 'high'],
-  'filters.attributes.creditCardUser': ['yes', 'no'],
+  'filters.attributes.credit_range_new_credit': ['low', 'moderate', 'high'],
+  'filters.attributes.credit_card_user': ['yes', 'no'],
   'filters.attributes.investment': ['investor', 'non-investor'],
   //!mortage fields
-  'filters.attributes.occupationGroup': [
+  'filters.attributes.occupation_group': [
     'professional / technical',
     'administration / managerial',
     'sales / service',
@@ -479,7 +479,7 @@ const fieldOptions: Partial<
     'medical professional',
     'other',
   ],
-  'filters.attributes.occupationType': [
+  'filters.attributes.occupation_type': [
     'professional',
     'architect',
     'chemist',
@@ -786,7 +786,7 @@ const fieldOptions: Partial<
     'mail/postmaster',
     'police/trooper',
   ],
-  'filters.attributes.craCode': [
+  'filters.attributes.cra_code': [
     'low income',
     'moderate income',
     'middle income',

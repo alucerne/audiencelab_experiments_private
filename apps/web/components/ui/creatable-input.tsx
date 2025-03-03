@@ -59,101 +59,83 @@ export default function CreatableInput({
 }) {
   const [inputValue, setInputValue] = useState('');
 
-  // Modified key handler to prevent form submission
   const handleKeyDown: KeyboardEventHandler = (event) => {
-    // Always prevent default behavior for Enter
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-
-      // Only add the value if there's input content
-      if (inputValue) {
+    if (!inputValue) return;
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        event.preventDefault();
+        event.stopPropagation();
         if (!value.some((v) => v.toLowerCase() === inputValue.toLowerCase())) {
           onChange([...value, inputValue.trim()]);
         }
         setInputValue('');
-      }
-    } else if (event.key === 'Tab' && inputValue) {
-      event.preventDefault();
-      if (!value.some((v) => v.toLowerCase() === inputValue.toLowerCase())) {
-        onChange([...value, inputValue.trim()]);
-      }
-      setInputValue('');
-    }
-  };
-
-  // Wrapper to catch any enter events that bubble up
-  const wrapperKeyDown: KeyboardEventHandler = (event) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
+        break;
     }
   };
 
   return (
-    <div onKeyDown={wrapperKeyDown}>
-      <CreatableSelect
-        inputValue={inputValue}
-        isClearable
-        isMulti
-        menuIsOpen={false}
-        onChange={(newValue) => onChange(optionsToStrings(newValue || []))}
-        onInputChange={(newValue) => setInputValue(newValue)}
-        onKeyDown={handleKeyDown}
-        placeholder={placeholder}
-        value={stringsToOptions(value)}
-        unstyled
-        styles={{
-          input: (base) => ({
-            ...base,
-            'input:focus': {
-              boxShadow: 'none',
-            },
-          }),
-          multiValueLabel: (base) => ({
-            ...base,
-            whiteSpace: 'normal',
-            overflow: 'visible',
-          }),
-          control: (base) => ({
-            ...base,
-            transition: 'none',
-          }),
-        }}
-        components={{
-          DropdownIndicator: null,
-          ClearIndicator,
-          MultiValueRemove,
-        }}
-        classNames={{
-          container: () => cn('w-full', className),
-          control: ({ isFocused }) =>
-            cn(
-              'border-input hover:border-ring/50 flex w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-              isFocused &&
-                'focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-hidden',
-              'hover:cursor-text',
-            ),
-          placeholder: () => 'text-muted-foreground text-sm',
-          input: () => 'text-sm',
-          valueContainer: () => 'gap-1.5 flex-wrap',
-          singleValue: () => 'leading-7 ml-1',
-          multiValue: () =>
-            'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5',
-          multiValueLabel: () => 'py-0.5',
-          multiValueRemove: () =>
-            'border border-transparent hover:bg-destructive/5 hover:text-destructive text-muted-foreground border-muted-foreground hover:border-destructive rounded-md',
-          indicatorsContainer: () => 'gap-1.5',
-          indicatorSeparator: () => 'my-1.5 bg-muted-foreground opacity-50',
-          menu: () =>
-            'p-1 mt-2 rounded-md border bg-popover text-popover-foreground shadow-md overflow-hidden animate-in fade-in-0 zoom-in-100',
-          groupHeading: () =>
-            'py-1.5 px-2 text-sm font-semibold text-accent-foreground',
-          option: ({ isFocused, isDisabled }) =>
-            cn(isFocused && 'bg-secondary', isDisabled && 'opacity-50'),
-          noOptionsMessage: () => 'text-accent-foreground py-1.5 pr-2 text-sm',
-        }}
-      />
-    </div>
+    <CreatableSelect
+      inputValue={inputValue}
+      isClearable
+      isMulti
+      menuIsOpen={false}
+      onChange={(newValue) => onChange(optionsToStrings(newValue || []))}
+      onInputChange={(newValue) => setInputValue(newValue)}
+      onKeyDown={handleKeyDown}
+      placeholder={placeholder}
+      value={stringsToOptions(value)}
+      unstyled
+      styles={{
+        input: (base) => ({
+          ...base,
+          'input:focus': {
+            boxShadow: 'none',
+          },
+        }),
+        multiValueLabel: (base) => ({
+          ...base,
+          whiteSpace: 'normal',
+          overflow: 'visible',
+        }),
+        control: (base) => ({
+          ...base,
+          transition: 'none',
+        }),
+      }}
+      components={{
+        DropdownIndicator: null,
+        ClearIndicator,
+        MultiValueRemove,
+      }}
+      classNames={{
+        container: () => cn('w-full', className),
+        control: ({ isFocused }) =>
+          cn(
+            'border-input hover:border-ring/50 flex w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+            isFocused &&
+              'focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-hidden',
+            'hover:cursor-text',
+          ),
+        placeholder: () => 'text-muted-foreground text-sm',
+        input: () => 'text-sm',
+        valueContainer: () => 'gap-1.5 flex-wrap',
+        singleValue: () => 'leading-7 ml-1',
+        multiValue: () =>
+          'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5',
+        multiValueLabel: () => 'py-0.5',
+        multiValueRemove: () =>
+          'border border-transparent hover:bg-destructive/5 hover:text-destructive text-muted-foreground border-muted-foreground hover:border-destructive rounded-md',
+        indicatorsContainer: () => 'gap-1.5',
+        indicatorSeparator: () => 'my-1.5 bg-muted-foreground opacity-50',
+        menu: () =>
+          'p-1 mt-2 rounded-md border bg-popover text-popover-foreground shadow-md overflow-hidden animate-in fade-in-0 zoom-in-100',
+        groupHeading: () =>
+          'py-1.5 px-2 text-sm font-semibold text-accent-foreground',
+        option: ({ isFocused, isDisabled }) =>
+          cn(isFocused && 'bg-secondary', isDisabled && 'opacity-50'),
+        noOptionsMessage: () => 'text-accent-foreground py-1.5 pr-2 text-sm',
+      }}
+    />
   );
 }

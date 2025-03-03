@@ -1,4 +1,4 @@
-import React, { KeyboardEvent } from 'react';
+import React from 'react';
 
 import { CaretSortIcon } from '@radix-ui/react-icons';
 import { X } from 'lucide-react';
@@ -80,77 +80,67 @@ export default function MultiSelect({
     onChange(newValue.map((option) => option.value));
   }
 
-  // Add a key down handler to prevent form submission on Enter
-  const handleKeyDown = (event: KeyboardEvent) => {
-    if (event.key === 'Enter') {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-  };
-
   return (
-    <div onKeyDown={handleKeyDown}>
-      <Select<StringOption, true>
-        options={options.map(createOption)}
-        value={value.map(createOption)}
-        onChange={handleChange}
-        isMulti
-        closeMenuOnSelect={false}
-        unstyled
-        styles={{
-          input: (base) => ({
-            ...base,
-            'input:focus': {
-              boxShadow: 'none',
-            },
-          }),
-          multiValueLabel: (base) => ({
-            ...base,
-            whiteSpace: 'normal',
-            overflow: 'visible',
-          }),
-          control: (base) => ({
-            ...base,
-            transition: 'colors 0.2s',
-          }),
-        }}
-        components={{
-          DropdownIndicator,
-          ClearIndicator,
-          MultiValueRemove,
-          Option,
-        }}
-        classNames={{
-          container: () => cn('w-full', className),
-          control: ({ isFocused }) =>
-            cn(
-              'border-input hover:border-ring/50 flex w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
-              isFocused &&
-                'focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-hidden',
-            ),
-          placeholder: () => 'text-muted-foreground text-sm',
-          input: () => 'text-sm focus-visible:outline-hidden',
-          valueContainer: () => 'gap-1.5 flex-wrap',
-          singleValue: () => 'leading-7 ml-1 text-foreground',
-          multiValue: () =>
-            'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5',
-          multiValueLabel: () => 'py-0.5',
-          multiValueRemove: () =>
-            'border border-transparent hover:bg-destructive/5 hover:text-destructive text-muted-foreground border-muted-foreground hover:border-destructive rounded-md',
-          indicatorsContainer: () => 'gap-1.5',
-          indicatorSeparator: () => 'my-1.5 bg-muted-foreground opacity-50',
-          menu: () =>
-            'p-1 mt-2 rounded-md border bg-popover text-popover-foreground shadow-md overflow-hidden animate-in fade-in-0 zoom-in-100',
-          groupHeading: () =>
-            'py-1.5 px-2 text-sm font-semibold text-accent-foreground',
-          option: ({ isFocused, isDisabled }) =>
-            cn(
-              isFocused && 'bg-secondary',
-              isDisabled && 'cursor-not-allowed opacity-50',
-            ),
-          noOptionsMessage: () => 'text-accent-foreground py-1.5 pr-2 text-sm',
-        }}
-      />
-    </div>
+    <Select<StringOption, true>
+      options={options.map(createOption)}
+      value={value.map(createOption)}
+      onChange={handleChange}
+      isMulti
+      closeMenuOnSelect={false}
+      unstyled
+      styles={{
+        input: (base) => ({
+          ...base,
+          'input:focus': {
+            boxShadow: 'none',
+          },
+        }),
+        multiValueLabel: (base) => ({
+          ...base,
+          whiteSpace: 'normal',
+          overflow: 'visible',
+        }),
+        control: (base) => ({
+          ...base,
+          transition: 'colors 0.2s',
+        }),
+      }}
+      components={{
+        DropdownIndicator,
+        ClearIndicator,
+        MultiValueRemove,
+        Option,
+      }}
+      classNames={{
+        container: () => cn('w-full', className),
+        control: ({ isFocused }) =>
+          cn(
+            'border-input hover:border-ring/50 flex w-full rounded-md border bg-transparent px-3 py-1 text-base shadow-2xs transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+            isFocused &&
+              'focus-visible:ring-ring focus-visible:ring-1 focus-visible:outline-hidden',
+          ),
+        placeholder: () => 'text-muted-foreground text-sm',
+        input: () => 'text-sm focus-visible:outline-hidden',
+        valueContainer: () => 'gap-1.5 flex-wrap',
+        singleValue: () => 'leading-7 ml-1 text-foreground',
+        multiValue: () =>
+          'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5',
+        multiValueLabel: () => 'py-0.5',
+        multiValueRemove: () =>
+          'border border-transparent hover:bg-destructive/5 hover:text-destructive text-muted-foreground border-muted-foreground hover:border-destructive rounded-md',
+        indicatorsContainer: () => 'gap-1.5',
+        indicatorSeparator: () => 'my-1.5 bg-muted-foreground opacity-50',
+        menu: () =>
+          'p-1 mt-2 rounded-md border bg-popover text-popover-foreground shadow-xs overflow-hidden animate-in fade-in-0 zoom-in-100',
+        groupHeading: () =>
+          'py-1.5 px-2 text-sm font-semibold text-accent-foreground',
+        option: ({ isFocused, isDisabled }) =>
+          cn(
+            isFocused && 'bg-secondary',
+            isDisabled && 'cursor-not-allowed opacity-50',
+          ),
+        noOptionsMessage: () => 'text-accent-foreground py-1.5 pr-2 text-sm',
+      }}
+    />
   );
 }

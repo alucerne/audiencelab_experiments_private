@@ -158,8 +158,17 @@ export default function AudienceFiltersForm({
   return (
     <Form {...form}>
       <form
-        onSubmit={form.handleSubmit(onSubmit)}
         className="relative flex h-full"
+        onSubmit={form.handleSubmit(onSubmit)}
+        onKeyDown={(e) => {
+          if (
+            e.key === 'Enter' &&
+            e.target instanceof HTMLElement &&
+            e.target.tagName !== 'TEXTAREA'
+          ) {
+            e.preventDefault();
+          }
+        }}
       >
         <AudienceFiltersStepper
           steps={steps}
@@ -172,7 +181,7 @@ export default function AudienceFiltersForm({
           <div className="flex-1 px-8">
             <div className="space-y-6">{steps[step]?.component}</div>
           </div>
-          <div className="sticky bottom-0 mt-6 border-t bg-background px-8 py-4">
+          <div className="bg-background sticky bottom-0 mt-6 border-t px-8 py-4">
             <div className="flex w-full flex-row-reverse justify-between">
               {step === steps.length - 1 && (
                 <Button

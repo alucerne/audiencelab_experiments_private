@@ -41,9 +41,9 @@ import DynamicField from './dynamic-field';
 export const familyFields = [
   'filters.profile.married',
   'filters.profile.children',
-  'filters.attributes.maritalStatus',
-  'filters.attributes.singleParent',
-  'filters.attributes.generationsInHouseHold',
+  'filters.attributes.marital_status',
+  'filters.attributes.single_parent',
+  'filters.attributes.generations_in_household',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 type FieldRow = {
@@ -120,7 +120,7 @@ export default function FamilyStep() {
             onClick={() => handleDelete(row.original)}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="text-destructive h-4 w-4" />
           </Button>
         </div>
       ),
@@ -342,27 +342,27 @@ const fieldTypeOptions: Array<{
     label: 'Children',
   },
   {
-    value: 'filters.attributes.maritalStatus',
+    value: 'filters.attributes.marital_status',
     label: 'Marital Status',
   },
   {
-    value: 'filters.attributes.singleParent',
+    value: 'filters.attributes.single_parent',
     label: 'Single Parent',
   },
   {
-    value: 'filters.attributes.generationsInHouseHold',
+    value: 'filters.attributes.generations_in_household',
     label: 'Generations in Household',
   },
 ] as const;
 
 const fieldOptions: Partial<Record<(typeof familyFields)[number], string[]>> = {
   'filters.profile.children': ['0', '1', '2', '3', '4', '5', '6'],
-  'filters.attributes.maritalStatus': [
+  'filters.attributes.marital_status': [
     'inferred married',
     'inferred single',
     'married',
     'single',
   ],
-  'filters.attributes.singleParent': ['yes', 'no'],
-  'filters.attributes.generationsInHouseHold': ['1', '2', '3'],
+  'filters.attributes.single_parent': ['yes', 'no'],
+  'filters.attributes.generations_in_household': ['1', '2', '3'],
 };

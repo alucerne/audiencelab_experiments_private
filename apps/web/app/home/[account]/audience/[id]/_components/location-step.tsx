@@ -74,8 +74,10 @@ export default function LocationStep() {
             <FormLabel>Zip Codes</FormLabel>
             <FormControl>
               <CreatableInput
-                value={field.value}
-                onChange={(newValue) => field.onChange(newValue)}
+                value={field.value.map((val) => val.toString())}
+                onChange={(newValue) =>
+                  field.onChange(newValue.map((val) => parseInt(val, 10)))
+                }
               />
             </FormControl>
             <FormMessage />

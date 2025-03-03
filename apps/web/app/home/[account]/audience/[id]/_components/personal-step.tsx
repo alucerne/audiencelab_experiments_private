@@ -45,8 +45,8 @@ import DynamicField from './dynamic-field';
 export const personalFields = [
   'filters.age',
   'filters.gender',
-  'filters.attributes.ethnicCode',
-  'filters.attributes.languageCode',
+  'filters.attributes.ethnic_code',
+  'filters.attributes.language_code',
   'filters.attributes.education',
   'filters.attributes.smoker',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
@@ -134,7 +134,7 @@ export default function PersonalStep() {
             onClick={() => handleDelete(row.original)}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="text-destructive h-4 w-4" />
           </Button>
         </div>
       ),
@@ -377,11 +377,11 @@ const fieldTypeOptions: Array<{
     label: 'Gender',
   },
   {
-    value: 'filters.attributes.ethnicCode',
+    value: 'filters.attributes.ethnic_code',
     label: 'Ethnicity',
   },
   {
-    value: 'filters.attributes.languageCode',
+    value: 'filters.attributes.language_code',
     label: 'Language',
   },
   {
@@ -396,7 +396,7 @@ const fieldTypeOptions: Array<{
 
 const fieldOptions: Partial<Record<PersonalFieldWithoutAge, string[]>> = {
   'filters.gender': ['both', 'male', 'female', 'unkown'],
-  'filters.attributes.ethnicCode': [
+  'filters.attributes.ethnic_code': [
     'afghani',
     'bengladesh',
     'indian',
@@ -560,7 +560,7 @@ const fieldOptions: Partial<Record<PersonalFieldWithoutAge, string[]>> = {
     'swahili',
     'multi-ethnic',
   ],
-  'filters.attributes.languageCode': [
+  'filters.attributes.language_code': [
     'afrikaans',
     'albanian',
     'amharic',

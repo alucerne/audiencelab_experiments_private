@@ -41,17 +41,17 @@ import DynamicField from './dynamic-field';
 
 export const housingFields = [
   'filters.profile.homeowner',
-  'filters.attributes.dwellingType',
-  'filters.attributes.homeYearBuilt',
-  'filters.attributes.homePurchasePrice',
-  'filters.attributes.homePurchaseYear',
-  'filters.attributes.homeHeat',
-  'filters.attributes.homeSwimmingPool',
-  'filters.attributes.airCon',
-  'filters.attributes.sewer',
-  'filters.attributes.water',
-  'filters.attributes.estimatedHomeValue',
-  'filters.attributes.salesTransactionType',
+  'filters.attributes.dwelling_type',
+  'filters.attributes.home_year_built',
+  'filters.attributes.home_purchase_price',
+  'filters.attributes.home_purchase_year',
+  'filters.attributes.home_heat',
+  'filters.attributes.home_swimming_pool',
+  'filters.attributes.home_aircon',
+  'filters.attributes.home_sewer',
+  'filters.attributes.home_water',
+  'filters.attributes.estimated_home_value',
+  'filters.attributes.sales_transaction_type',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 type FieldRow = {
@@ -142,7 +142,7 @@ export default function HousingStep() {
             onClick={() => handleDelete(row.original)}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="text-destructive h-4 w-4" />
           </Button>
         </div>
       ),
@@ -362,47 +362,47 @@ const fieldTypeOptions: Array<{
     label: 'Homeowner Status',
   },
   {
-    value: 'filters.attributes.dwellingType',
+    value: 'filters.attributes.dwelling_type',
     label: 'Dwelling Type',
   },
   {
-    value: 'filters.attributes.homeYearBuilt',
+    value: 'filters.attributes.home_year_built',
     label: 'Year Built',
   },
   {
-    value: 'filters.attributes.homePurchasePrice',
+    value: 'filters.attributes.home_purchase_price',
     label: 'Purchase Price',
   },
   {
-    value: 'filters.attributes.homePurchaseYear',
+    value: 'filters.attributes.home_purchase_year',
     label: 'Purchase Year',
   },
   {
-    value: 'filters.attributes.homeHeat',
+    value: 'filters.attributes.home_heat',
     label: 'Heating Type',
   },
   {
-    value: 'filters.attributes.homeSwimmingPool',
+    value: 'filters.attributes.home_swimming_pool',
     label: 'Swimming Pool',
   },
   {
-    value: 'filters.attributes.airCon',
+    value: 'filters.attributes.home_aircon',
     label: 'Air Conditioning',
   },
   {
-    value: 'filters.attributes.sewer',
+    value: 'filters.attributes.home_sewer',
     label: 'Sewer Type',
   },
   {
-    value: 'filters.attributes.water',
+    value: 'filters.attributes.home_water',
     label: 'Water Type',
   },
   {
-    value: 'filters.attributes.estimatedHomeValue',
+    value: 'filters.attributes.estimated_home_value',
     label: 'Estimated Home Value',
   },
   {
-    value: 'filters.attributes.salesTransactionType',
+    value: 'filters.attributes.sales_transaction_type',
     label: 'Sales Transaction Type',
   },
 ];
@@ -414,14 +414,14 @@ const fieldOptions: Partial<Record<(typeof housingFields)[number], string[]>> =
       'homeowner',
       'renter',
     ],
-    'filters.attributes.dwellingType': ['multi-family', 'single-family'],
-    'filters.attributes.homeYearBuilt': [
+    'filters.attributes.dwelling_type': ['multi-family', 'single-family'],
+    'filters.attributes.home_year_built': [
       '1950 before (1950-)',
       '1950 - 1970',
       '1971 - 1990',
       '1990 after (1950+)',
     ],
-    'filters.attributes.estimatedHomeValue': [
+    'filters.attributes.estimated_home_value': [
       '$1,000 - $24,999',
       '$25,000 - $49,999',
       '$50,000 - $74,999',

@@ -1,4 +1,5 @@
 import { cloneElement } from 'react';
+import React from 'react';
 
 import { useFormContext } from 'react-hook-form';
 
@@ -17,7 +18,9 @@ export default function AudienceFiltersStepper({
   steps: readonly {
     readonly label: string;
     readonly description: string;
-    readonly icon: JSX.Element;
+    readonly icon: React.ReactElement<{
+      className?: string;
+    }>;
   }[];
   currentStep: number;
   setStep: (step: number) => void;
@@ -32,25 +35,25 @@ export default function AudienceFiltersStepper({
         <div
           key={index}
           className={cn(
-            'flex cursor-pointer items-center space-x-4 rounded-md p-2 hover:bg-muted',
+            'hover:bg-muted flex cursor-pointer items-center space-x-4 rounded-md p-2',
             currentStep === index && 'bg-secondary',
           )}
           onClick={() => setStep(index)}
         >
           <div
             className={cn(
-              'flex items-center justify-center rounded-full bg-secondary p-1.5',
+              'bg-secondary flex items-center justify-center rounded-full p-1.5',
               currentStep === index && 'bg-primary',
             )}
           >
             {cloneElement(step.icon, {
               className: cn(
-                'h-3.5 w-3.5 text-muted-foreground',
+                'text-muted-foreground h-3.5 w-3.5',
                 currentStep === index && 'text-primary-foreground',
               ),
             })}
           </div>
-          <div className="font-medium text-muted-foreground">
+          <div className="text-muted-foreground font-medium">
             <div
               className={cn('text-sm', currentStep === index && 'text-primary')}
             >

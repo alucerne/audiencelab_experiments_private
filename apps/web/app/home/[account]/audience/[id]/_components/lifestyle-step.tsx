@@ -38,13 +38,13 @@ import { formatNumberRange } from '~/lib/audience/utils';
 import DynamicField from './dynamic-field';
 
 export const lifestyleFields = [
-  'filters.attributes.pets',
-  'filters.attributes.cats',
-  'filters.attributes.dogs',
-  'filters.attributes.donateConservative',
-  'filters.attributes.donateLiberal',
-  'filters.attributes.donatePolitical',
-  'filters.attributes.donateVeterans',
+  'filters.attributes.interests_pets',
+  'filters.attributes.interests_cats',
+  'filters.attributes.interests_dogs',
+  'filters.attributes.donate_conservative',
+  'filters.attributes.donate_liberal',
+  'filters.attributes.donate_political',
+  'filters.attributes.donate_veterans',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 type FieldRow = {
@@ -121,7 +121,7 @@ export default function LifestylsStep() {
             onClick={() => handleDelete(row.original)}
             className="h-8 w-8 p-0"
           >
-            <Trash2 className="h-4 w-4 text-destructive" />
+            <Trash2 className="text-destructive h-4 w-4" />
           </Button>
         </div>
       ),
@@ -335,31 +335,31 @@ const fieldTypeOptions: Array<{
   label: string;
 }> = [
   {
-    value: 'filters.attributes.pets',
+    value: 'filters.attributes.interests_pets',
     label: 'Pets',
   },
   {
-    value: 'filters.attributes.cats',
+    value: 'filters.attributes.interests_cats',
     label: 'Cats',
   },
   {
-    value: 'filters.attributes.dogs',
+    value: 'filters.attributes.interests_dogs',
     label: 'Dogs',
   },
   {
-    value: 'filters.attributes.donateConservative',
+    value: 'filters.attributes.donate_conservative',
     label: 'Conservative Donations',
   },
   {
-    value: 'filters.attributes.donateLiberal',
+    value: 'filters.attributes.donate_liberal',
     label: 'Liberal Donations',
   },
   {
-    value: 'filters.attributes.donatePolitical',
+    value: 'filters.attributes.donate_political',
     label: 'Political Donations',
   },
   {
-    value: 'filters.attributes.donateVeterans',
+    value: 'filters.attributes.donate_veterans',
     label: 'Veterans Donations',
   },
 ] as const;

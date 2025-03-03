@@ -28,6 +28,7 @@ import {
   FormMessage,
 } from '@kit/ui/form';
 import { Input } from '@kit/ui/input';
+import { Spinner } from '@kit/ui/spinner';
 import { Trans } from '@kit/ui/trans';
 
 import { createAudienceAction } from '~/lib/audience/server-actions';
@@ -76,22 +77,19 @@ function AddAudienceForm(props: { onClose?: () => void }) {
   });
 
   function onSubmit(values: z.infer<typeof addAudienceSchema>) {
-    startTransition(() => {
-      toast.promise(
-        createAudienceAction({
+    startTransition(async () => {
+      try {
+        const { id: audienceId } = await createAudienceAction({
           accountId: id,
           name: values.name,
-        }),
-        {
-          loading: 'Creating audience...',
-          success: (audience) => {
-            router.push(`/home/${slug}/audience/${audience.id}`);
+        });
 
-            return 'Audience created';
-          },
-          error: 'Failed to create audience',
-        },
-      );
+        router.push(`/home/${slug}/audience/${audienceId}`);
+      } catch {
+        toast.error(
+          'Failed to create audience. Please try again or reach out to support.',
+        );
+      }
     });
 
     props.onClose?.();
@@ -132,7 +130,7 @@ function AddAudienceForm(props: { onClose?: () => void }) {
               </Button>
             </DialogClose>
             <Button size="sm" disabled={pending}>
-              Add
+              {!pending ? 'Create' : <Spinner className="mx-2.5 h-4 w-4" />}
             </Button>
           </div>
         </div>
