@@ -1,6 +1,10 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
+import { z } from 'zod';
+
 import { Database, Json } from '~/lib/database.types';
+
+import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
   return new AudienceService(client);
@@ -87,21 +91,75 @@ class AudienceService {
     return data;
   }
 
-  async addFilters(params: { id: string; filters: Json }) {
-    const { data, error } = await this.client
-      .from('audience')
-      .update({
-        filters: params.filters,
-      })
-      .eq('id', params.id)
-      .select('*')
-      .single();
+  async addFilters({
+    accountId,
+    audienceId,
+    filters,
+  }: {
+    accountId: string;
+    audienceId: string;
+    filters: z.infer<typeof audienceFiltersFormSchema>;
+  }) {
+    const [audience, job] = await Promise.all([
+      this.client
+        .from('audience')
+        .update({ filters: filters })
+        .eq('id', audienceId)
+        .select('*')
+        .single(),
+      this.client
+        .from('enqueue_job')
+        .insert({
+          audience_id: audienceId,
+          account_id: accountId,
+        })
+        .select('*')
+        .single(),
+    ]);
 
-    if (error) {
-      throw error;
+    if (audience.error || job.error) {
+      throw audience.error;
     }
 
-    return data;
+    const response = await fetch(
+      'https://v3-audience-job-72802495918.us-east1.run.app/audience/enqueue',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...filters,
+          jobId: job.data.id,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      await this.client.from('enqueue_job').delete().eq('id', job.data.id);
+
+      const errorData = await response.json();
+
+      throw new Error(
+        `API request failed ${response.status}: ${
+          errorData.message || errorData.error || JSON.stringify(errorData)
+        }`,
+      );
+    }
+
+    const enqueue = z
+      .object({
+        jobId: z.string(),
+        status: z.string(),
+      })
+      .parse(await response.json());
+
+    await this.client
+      .from('enqueue_job')
+      .update({ status: enqueue.status })
+      .eq('id', job.data.id);
+
+    return enqueue;
   }
 
   async updateAudience(params: {

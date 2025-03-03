@@ -207,7 +207,7 @@ export function AudienceStatusBadge({ status }: { status: string }) {
     default:
       return (
         <Badge variant={'secondary'} className="capitalize">
-          {status.toLowerCase()}
+          {status.toLowerCase().replace(/[-_]/g, ' ')}
         </Badge>
       );
   }

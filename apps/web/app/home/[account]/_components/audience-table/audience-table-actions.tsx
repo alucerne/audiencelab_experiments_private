@@ -3,7 +3,6 @@ import { useParams } from 'next/navigation';
 
 import { Copy, Download, RefreshCw, SquarePen, Trash2 } from 'lucide-react';
 
-import { Tables } from '@kit/supabase/database';
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
   Tooltip,
@@ -14,6 +13,7 @@ import {
 import { cn } from '@kit/ui/utils';
 
 import FacebookLogo from '~/components/assets/facebook-logo';
+import { AudienceList } from '~/lib/audience/audience.service';
 
 import DeleteAudienceDialog from '../delete-audience-dialog';
 import DuplicateAudienceDialog from '../duplicate-audience-dialog';
@@ -21,14 +21,14 @@ import DuplicateAudienceDialog from '../duplicate-audience-dialog';
 export default function AudienceTableActions({
   audience,
 }: {
-  audience: Tables<'audience'>;
+  audience: AudienceList;
 }) {
   const { account } = useParams<{ account: string }>();
 
   function handleCsvExport() {
-    if (audience.csv_url) {
+    if (audience.latest_job.csv_url) {
       const link = document.createElement('a');
-      link.href = audience.csv_url;
+      link.href = audience.latest_job.csv_url;
 
       const fileName = `audience_${audience.id}_export.csv`;
       link.setAttribute('download', fileName);
@@ -108,7 +108,7 @@ export default function AudienceTableActions({
               variant="ghost"
               size="icon"
               className="h-7 w-7"
-              disabled={!audience.csv_url}
+              disabled={!audience.latest_job.csv_url}
               onClick={handleCsvExport}
             >
               <Download className="h-3.5 w-3.5" />

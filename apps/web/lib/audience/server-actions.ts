@@ -38,16 +38,14 @@ export const addAudienceFiltersAction = enhanceAction(
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
 
-    await service.addFilters({
-      id: data.audienceId,
-      filters: data.filters,
-    });
+    await service.addFilters(data);
 
     revalidatePath('/home/[account]/audience/[id]', 'page');
     revalidatePath('/home/[account]', 'page');
   },
   {
     schema: z.object({
+      accountId: z.string(),
       audienceId: z.string(),
       filters: audienceFiltersFormSchema,
     }),

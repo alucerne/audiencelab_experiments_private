@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  ListChecks,
   Mail,
   MapPin,
   User,
@@ -22,6 +23,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Button } from '@kit/ui/button';
 import { Form } from '@kit/ui/form';
 
@@ -44,6 +46,7 @@ import HousingStep, { housingFields } from './housing-step';
 import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
+import PremadeStep, { premadeFields } from './premade-step';
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -54,6 +57,10 @@ export default function AudienceFiltersForm({
   const { account, id } = useParams<{ account: string; id: string }>();
   const [pending, startTransition] = useTransition();
   const [step, setStep] = useState(0);
+
+  const {
+    account: { id: accountId },
+  } = useTeamAccountWorkspace();
 
   const isUpdate = defaultValues
     ? Object.keys(defaultValues).length > 0
@@ -68,6 +75,13 @@ export default function AudienceFiltersForm({
   });
 
   const steps = [
+    {
+      label: 'Premade',
+      description: 'Start with a premade audience list.',
+      icon: <ListChecks />,
+      component: <PremadeStep />,
+      fields: premadeFields,
+    },
     {
       label: 'Date',
       description: 'What is the date range for this audience?',
@@ -165,6 +179,7 @@ export default function AudienceFiltersForm({
     startTransition(() => {
       toast.promise(
         addAudienceFiltersAction({
+          accountId,
           audienceId: id,
           filters: values,
         }),

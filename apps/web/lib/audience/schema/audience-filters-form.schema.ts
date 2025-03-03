@@ -13,7 +13,7 @@ export type NumberRange = z.infer<typeof numberRangeSchema>;
 
 export const audienceFiltersFormSchema = z.object({
   jobId: z.string(),
-  segment: z.array(z.string()),
+  segment: z.array(z.string()).min(1),
   score: z.array(z.string()),
   dateRange: z.object({
     startDate: z.string().date(),

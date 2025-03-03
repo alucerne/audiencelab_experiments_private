@@ -83,7 +83,7 @@ export default function EmailsStep() {
             <div className="space-y-0.5">
               <FormLabel>Business Emails</FormLabel>
               <FormDescription>
-                Include validated personal email addresses.
+                Include validated business email addresses.
               </FormDescription>
             </div>
             <FormControl>
