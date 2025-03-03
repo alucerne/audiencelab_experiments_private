@@ -12,6 +12,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Home,
+  Mail,
   MapPin,
   User,
   Users,
@@ -36,6 +37,7 @@ import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
 import DateStep, { dateFields } from './date-step';
+import EmailsStep, { emailsFields } from './emails-step';
 import FamilyStep, { familyFields } from './family-step';
 import FinancialStep, { financialFields } from './financial-step';
 import HousingStep, { housingFields } from './housing-step';
@@ -121,6 +123,13 @@ export default function AudienceFiltersForm({
       icon: <MapPin />,
       component: <LocationStep />,
       fields: locationFields,
+    },
+    {
+      label: 'Emails',
+      description: 'What emails are needed?',
+      icon: <Mail />,
+      component: <EmailsStep />,
+      fields: emailsFields,
     },
   ] as const;
 
