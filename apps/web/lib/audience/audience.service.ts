@@ -6,23 +6,53 @@ export function createAudienceService(client: SupabaseClient<Database>) {
   return new AudienceService(client);
 }
 
+export type AudienceList = Awaited<
+  ReturnType<AudienceService['getAudience']>
+>['data'][number];
+
 class AudienceService {
   constructor(private readonly client: SupabaseClient<Database>) {}
   async getAudience() {
-    const query = this.client
+    const { data, error } = await this.client
       .from('audience')
-      .select('*', {
-        count: 'exact',
-      })
+      .select(
+        `
+        *,
+        enqueue_job(*)
+      `,
+      )
       .order('created_at', { ascending: false });
 
-    const { data, error, count } = await query;
     if (error) {
       throw error;
     }
+
+    const filteredData = data
+      ?.map((audience) => {
+        if (audience.enqueue_job && audience.enqueue_job.length > 0) {
+          const sortedJobs = [...audience.enqueue_job].sort(
+            (a, b) =>
+              new Date(b.created_at).getTime() -
+              new Date(a.created_at).getTime(),
+          );
+          if (sortedJobs[0]) {
+            const { enqueue_job: _enqueue_job, ...rest } = audience;
+            return {
+              ...rest,
+              latest_job: sortedJobs[0],
+            };
+          }
+        }
+        return null;
+      })
+      .filter(
+        (audience): audience is NonNullable<typeof audience> =>
+          audience !== null,
+      );
+
     return {
-      data: data ?? [],
-      count: count ?? 0,
+      data: filteredData,
+      count: filteredData.length,
     };
   }
 

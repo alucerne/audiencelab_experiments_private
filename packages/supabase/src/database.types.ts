@@ -142,43 +142,25 @@ export type Database = {
         Row: {
           account_id: string;
           created_at: string;
-          csv_url: string | null;
-          current: number | null;
           filters: Json;
           id: string;
-          job_id: string | null;
           name: string;
-          refreshed_at: string | null;
-          status: string;
-          total: number | null;
           updated_at: string;
         };
         Insert: {
           account_id: string;
           created_at?: string;
-          csv_url?: string | null;
-          current?: number | null;
           filters?: Json;
           id?: string;
-          job_id?: string | null;
           name: string;
-          refreshed_at?: string | null;
-          status?: string;
-          total?: number | null;
           updated_at?: string;
         };
         Update: {
           account_id?: string;
           created_at?: string;
-          csv_url?: string | null;
-          current?: number | null;
           filters?: Json;
           id?: string;
-          job_id?: string | null;
           name?: string;
-          refreshed_at?: string | null;
-          status?: string;
-          total?: number | null;
           updated_at?: string;
         };
         Relationships: [
@@ -271,6 +253,71 @@ export type Database = {
           enable_team_accounts?: boolean;
         };
         Relationships: [];
+      };
+      enqueue_job: {
+        Row: {
+          account_id: string;
+          audience_id: string;
+          created_at: string;
+          csv_url: string | null;
+          current: number | null;
+          id: string;
+          status: string;
+          total: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          audience_id: string;
+          created_at?: string;
+          csv_url?: string | null;
+          current?: number | null;
+          id?: string;
+          status?: string;
+          total?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          audience_id?: string;
+          created_at?: string;
+          csv_url?: string | null;
+          current?: number | null;
+          id?: string;
+          status?: string;
+          total?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'enqueue_job_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'enqueue_job_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'enqueue_job_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'enqueue_job_audience_id_fkey';
+            columns: ['audience_id'];
+            isOneToOne: false;
+            referencedRelation: 'audience';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       invitations: {
         Row: {

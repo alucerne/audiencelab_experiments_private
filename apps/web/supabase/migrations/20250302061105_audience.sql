@@ -2,13 +2,7 @@ create table if not exists public.audience (
   id uuid primary key default uuid_generate_v4(),
   account_id uuid not null references public.accounts(id) on delete cascade,
   filters jsonb not null default '{}',
-  status text not null default 'no data',
   name text not null,
-  csv_url text null,
-  job_id text null,
-  current integer null,
-  total integer null,
-  refreshed_at timestamptz null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

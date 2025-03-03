@@ -19,7 +19,6 @@ import {
 } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
-import { Tables } from '@kit/supabase/database';
 import { Badge } from '@kit/ui/badge';
 import {
   Table,
@@ -33,11 +32,12 @@ import {
 import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
 import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
 import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
+import { AudienceList } from '~/lib/audience/audience.service';
 
 import AddAudienceDialog from '../add-audience-dialog';
 import AudienceTableActions from './audience-table-actions';
 
-const nameIdFilterFn: FilterFn<Tables<'audience'>> = (
+const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
   _,
   filterValue: string,
@@ -51,9 +51,9 @@ const nameIdFilterFn: FilterFn<Tables<'audience'>> = (
 export default function AudienceTable({
   audience,
 }: React.PropsWithChildren<{
-  audience: Tables<'audience'>[];
+  audience: AudienceList[];
 }>) {
-  const staticColumns = useMemo<ColumnDef<Tables<'audience'>>[]>(
+  const staticColumns = useMemo<ColumnDef<AudienceList>[]>(
     () => [
       {
         accessorKey: 'name',
@@ -64,9 +64,9 @@ export default function AudienceTable({
       },
       {
         accessorKey: 'Status',
-        accessorFn: (audience) => audience.status,
+        accessorFn: (audience) => audience.latest_job.status,
         cell: ({ row: { original } }) => {
-          return <AudienceStatusBadge status={original.status} />;
+          return <AudienceStatusBadge status={original.latest_job.status} />;
         },
       },
       {
@@ -81,14 +81,12 @@ export default function AudienceTable({
       },
       {
         accessorKey: 'refreshed_at',
-        accessorFn: (audience) => audience.refreshed_at,
+        accessorFn: (audience) => audience.latest_job.created_at,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Last Refreshed" />
         ),
         cell({ row: { original } }) {
-          return original.refreshed_at
-            ? getDateString(parseISO(original.refreshed_at))
-            : 'N/A';
+          return getDateString(parseISO(original.latest_job.created_at));
         },
       },
       {
@@ -108,7 +106,7 @@ export default function AudienceTable({
     { id: 'created_at', desc: true },
   ]);
 
-  const table = useReactTable<Tables<'audience'>>({
+  const table = useReactTable<AudienceList>({
     data: audience || [],
     columns: staticColumns,
     state: {
@@ -194,11 +192,7 @@ export default function AudienceTable({
   );
 }
 
-export function AudienceStatusBadge({
-  status,
-}: {
-  status: Tables<'audience'>['status'];
-}) {
+export function AudienceStatusBadge({ status }: { status: string }) {
   switch (status) {
     case 'no data':
       return <Badge variant={'destructive'}>No Data</Badge>;
@@ -210,6 +204,12 @@ export function AudienceStatusBadge({
       return <Badge variant={'info'}>Refreshing</Badge>;
     case 'refreshed':
       return <Badge variant={'success'}>Refreshed</Badge>;
+    default:
+      return (
+        <Badge variant={'secondary'} className="capitalize">
+          {status.toLowerCase()}
+        </Badge>
+      );
   }
 }
 
