@@ -193,7 +193,7 @@ export default function AudienceTable({
 }
 
 export function AudienceStatusBadge({ status }: { status: string }) {
-  switch (status) {
+  switch (status.toLowerCase()) {
     case 'no data':
       return <Badge variant={'destructive'}>No Data</Badge>;
     case 'processing':

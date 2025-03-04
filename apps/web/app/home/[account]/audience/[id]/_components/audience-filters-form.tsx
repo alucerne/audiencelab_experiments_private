@@ -162,24 +162,10 @@ export default function AudienceFiltersForm({
     setStep(step - 1);
   };
 
-  function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
-    const fieldsToCheck = Object.keys(audienceFiltersFormDefaultValues).filter(
-      (key) => key !== 'jobId' && key !== 'dateRange',
-    );
-
-    const hasNoFilters = fieldsToCheck.every((key) => {
-      const typedKey = key as keyof typeof audienceFiltersFormDefaultValues;
-      return (
-        JSON.stringify(values[typedKey]) ===
-        JSON.stringify(audienceFiltersFormDefaultValues[typedKey])
-      );
-    });
-
-    if (hasNoFilters) {
-      toast.error('Please add at least 1 filter.');
-      return;
-    }
-
+  function onSubmit(
+    values: z.infer<typeof audienceFiltersFormSchema>,
+    isPreview: boolean = false,
+  ) {
     startTransition(() => {
       toast.promise(
         addAudienceFiltersAction({
@@ -188,16 +174,24 @@ export default function AudienceFiltersForm({
           filters: values,
         }),
         {
-          loading: `${isUpdate ? 'Updating' : 'Adding'} audience filters...`,
+          loading: `${isUpdate ? 'Refreshing' : isPreview ? 'Getting preview' : 'Generating'} audience...`,
           success: () => {
-            router.push(`/home/${account}`);
-
-            return `Audience filters ${isUpdate ? 'updated' : 'added'}`;
+            if (isPreview) {
+              router.push(`/home/${account}/audience/${id}/preview`);
+            } else {
+              router.push(`/home/${account}`);
+            }
+            return `Audience ${isUpdate ? 'refresh' : isPreview ? 'preview' : 'generation'} in queue...`;
           },
-          error: `Failed to ${isUpdate ? 'update' : 'add'} audience filters`,
+          error: `Failed to ${isUpdate ? 'refresh' : 'generate'} audience`,
         },
       );
     });
+  }
+
+  function handlePreviewSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+    e.preventDefault();
+    form.handleSubmit((values) => onSubmit(values, true))();
   }
 
   function onError(errors: unknown) {
@@ -240,7 +234,10 @@ export default function AudienceFiltersForm({
     <Form {...form}>
       <form
         className="relative flex h-full"
-        onSubmit={form.handleSubmit(onSubmit, onError)}
+        onSubmit={form.handleSubmit(
+          (values) => onSubmit(values, false),
+          onError,
+        )}
         onKeyDown={(e) => {
           if (
             e.key === 'Enter' &&
@@ -257,6 +254,7 @@ export default function AudienceFiltersForm({
           setStep={setStep}
           pending={pending}
           isUpdate={isUpdate}
+          handlePreviewSubmit={handlePreviewSubmit}
         />
         <div className="flex h-full flex-1 flex-col">
           <div className="flex-1 px-8">
@@ -265,9 +263,21 @@ export default function AudienceFiltersForm({
           <div className="bg-background sticky bottom-0 mt-6 border-t px-8 py-4">
             <div className="flex w-full flex-row-reverse justify-between">
               {step === steps.length - 1 && (
-                <Button type="submit" disabled={pending}>
-                  {isUpdate ? 'Refresh' : 'Generate'}
-                </Button>
+                <div className="flex items-center gap-3">
+                  {!isUpdate && (
+                    <Button
+                      type="submit"
+                      disabled={pending}
+                      variant="secondary"
+                      onClick={handlePreviewSubmit}
+                    >
+                      Preview
+                    </Button>
+                  )}
+                  <Button type="submit" disabled={pending}>
+                    {isUpdate ? 'Refresh' : 'Generate'}
+                  </Button>
+                </div>
               )}
               {step < steps.length - 1 && (
                 <Button

@@ -38,7 +38,21 @@ export const addAudienceFiltersAction = enhanceAction(
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
 
-    await service.addFilters(data);
+    if (data.filters) {
+      await service.generateAudience({
+        accountId: data.accountId,
+        audienceId: data.audienceId,
+        filters: data.filters,
+      });
+    } else {
+      const { filters } = await service.getAudienceById(data.audienceId);
+
+      await service.generateAudience({
+        accountId: data.accountId,
+        audienceId: data.audienceId,
+        filters: audienceFiltersFormSchema.parse(filters),
+      });
+    }
 
     revalidatePath('/home/[account]/audience/[id]', 'page');
     revalidatePath('/home/[account]', 'page');
@@ -47,7 +61,7 @@ export const addAudienceFiltersAction = enhanceAction(
     schema: z.object({
       accountId: z.string(),
       audienceId: z.string(),
-      filters: audienceFiltersFormSchema,
+      filters: audienceFiltersFormSchema.optional(),
     }),
   },
 );
