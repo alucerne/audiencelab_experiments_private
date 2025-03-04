@@ -58,9 +58,9 @@ function AudiencePreviewContent({ id }: { id: string }) {
   const service = createAudienceService(client);
 
   const audience = use(service.getAudienceById(id));
-  const { result: previewAudience } = use(getPreviewAudience(client, audience));
+  const { result, count } = use(getPreviewAudience(client, audience));
 
-  return <PreviewAudienceTable data={previewAudience} />;
+  return <PreviewAudienceTable data={result} count={count} />;
 }
 
 async function getPreviewAudience(
@@ -106,6 +106,7 @@ async function getPreviewAudience(
   return z
     .object({
       result: z.array(z.record(z.string(), z.string())),
+      count: z.number(),
     })
     .parse(await response.json());
 }

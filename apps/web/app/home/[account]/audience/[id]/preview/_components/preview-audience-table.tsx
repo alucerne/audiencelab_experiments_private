@@ -14,6 +14,7 @@ import { toast } from 'sonner';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Button } from '@kit/ui/button';
+import { Separator } from '@kit/ui/separator';
 import {
   Table,
   TableBody,
@@ -27,9 +28,13 @@ import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
 
 interface PreviewTableProps {
   data: Record<string, string>[];
+  count: number;
 }
 
-export default function PreviewAudienceTable({ data }: PreviewTableProps) {
+export default function PreviewAudienceTable({
+  data,
+  count,
+}: PreviewTableProps) {
   const router = useRouter();
   const { account, id } = useParams<{ account: string; id: string }>();
   const [pending, startTransition] = useTransition();
@@ -85,10 +90,15 @@ export default function PreviewAudienceTable({ data }: PreviewTableProps) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="flex gap-3">
+      <div className="flex items-center gap-3">
         <Button onClick={generateAudience} disabled={pending}>
           Generate Audience
         </Button>
+        <Separator orientation={'vertical'} className="h-4" />
+        <div className="text-sm font-medium whitespace-nowrap">
+          <span className="font-semibold">{count.toLocaleString()}</span>{' '}
+          {` result${count === 1 ? '' : 's found'}`}
+        </div>
       </div>
       <div className="w-full overflow-hidden rounded-md border">
         <Table>
