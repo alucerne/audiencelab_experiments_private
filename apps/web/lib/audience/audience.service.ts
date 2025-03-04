@@ -100,7 +100,11 @@ class AudienceService {
     audienceId: string;
     filters: z.infer<typeof audienceFiltersFormSchema>;
   }) {
-    const [audience, job] = await Promise.all([
+    const [interests, audience, job] = await Promise.all([
+      this.client
+        .from('interests')
+        .select('id, intent')
+        .in('intent', filters.segment),
       this.client
         .from('audience')
         .update({ filters: filters })
@@ -117,9 +121,13 @@ class AudienceService {
         .single(),
     ]);
 
-    if (audience.error || job.error) {
-      throw audience.error;
+    if (interests.error || audience.error || job.error) {
+      throw interests.error || audience.error || job.error;
     }
+
+    filters.segment = Array.from(
+      new Set(interests.data.map((interest) => `4eyes_${interest.id}`)),
+    );
 
     const response = await fetch(
       'https://v3-audience-job-72802495918.us-east1.run.app/audience/enqueue',
