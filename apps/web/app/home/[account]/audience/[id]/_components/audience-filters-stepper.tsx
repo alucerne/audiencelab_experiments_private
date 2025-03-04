@@ -10,6 +10,7 @@ export default function AudienceFiltersStepper({
   setStep,
   pending,
   isUpdate,
+  handlePreviewSubmit,
 }: {
   steps: readonly {
     readonly label: string;
@@ -22,6 +23,7 @@ export default function AudienceFiltersStepper({
   setStep: (step: number) => void;
   pending: boolean;
   isUpdate?: boolean;
+  handlePreviewSubmit: (e: React.MouseEvent<HTMLButtonElement>) => void;
 }) {
   return (
     <div className="w-full max-w-64 space-y-2 border-r pr-2">
@@ -57,9 +59,22 @@ export default function AudienceFiltersStepper({
           </div>
         </div>
       ))}
-      <Button type="submit" disabled={pending} className="w-full">
-        {isUpdate ? 'Refresh' : 'Generate'}
-      </Button>
+      <div className="flex items-center gap-2">
+        {!isUpdate && (
+          <Button
+            type="submit"
+            disabled={pending}
+            variant="secondary"
+            className="w-full"
+            onClick={handlePreviewSubmit}
+          >
+            Preview
+          </Button>
+        )}
+        <Button type="submit" disabled={pending} className="w-full">
+          {isUpdate ? 'Refresh' : 'Generate'}
+        </Button>
+      </div>
     </div>
   );
 }

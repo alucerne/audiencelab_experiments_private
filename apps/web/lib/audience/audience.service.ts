@@ -2,7 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 import { z } from 'zod';
 
-import { Database, Json } from '~/lib/database.types';
+import { Database } from '~/lib/database.types';
 
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
@@ -91,7 +91,7 @@ class AudienceService {
     return data;
   }
 
-  async addFilters({
+  async generateAudience({
     accountId,
     audienceId,
     filters,
@@ -168,25 +168,6 @@ class AudienceService {
       .eq('id', job.data.id);
 
     return enqueue;
-  }
-
-  async updateAudience(params: {
-    audienceId: string;
-    name: string;
-    filters: Json;
-  }) {
-    const { data, error } = await this.client
-      .from('audience')
-      .update({ name: params.name })
-      .eq('id', params.audienceId)
-      .select('*')
-      .single();
-
-    if (error) {
-      throw error;
-    }
-
-    return data;
   }
 
   async deleteAudience(params: { audienceId: string }) {
