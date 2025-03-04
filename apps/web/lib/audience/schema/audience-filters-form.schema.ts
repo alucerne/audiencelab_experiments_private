@@ -2,12 +2,20 @@ import { z } from 'zod';
 
 const numberRangeSchema = z
   .object({
-    min: z.number(),
-    max: z.number(),
+    min: z.number().nullable(),
+    max: z.number().nullable(),
   })
-  .refine((data) => data.min <= data.max, {
-    message: 'Minimum must be less than or equal to maximum',
-  });
+  .refine(
+    (data) => {
+      if (data.min === null || data.max === null) {
+        return true;
+      }
+      return data.min <= data.max;
+    },
+    {
+      message: 'Minimum must be less than or equal to maximum',
+    },
+  );
 
 export type NumberRange = z.infer<typeof numberRangeSchema>;
 
@@ -21,8 +29,8 @@ export const audienceFiltersFormSchema = z.object({
   }),
   filters: z.object({
     age: z.object({
-      minAge: z.number(),
-      maxAge: z.number(),
+      minAge: z.number().nullable(),
+      maxAge: z.number().nullable(),
     }),
     city: z.array(z.string()),
     state: z.array(z.string()),

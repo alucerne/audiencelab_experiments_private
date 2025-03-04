@@ -237,7 +237,7 @@ class AudienceService {
         current,
         total,
       })
-      .match({ id: job_id });
+      .eq('id', job_id);
 
     if (error) {
       throw error;

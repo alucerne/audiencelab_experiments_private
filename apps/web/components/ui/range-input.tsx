@@ -4,8 +4,8 @@ import { Input } from '@kit/ui/input';
 import { Label } from '@kit/ui/label';
 
 interface RangeInputProps {
-  value: { min: number; max: number };
-  onChange: (value: { min: number; max: number }) => void;
+  value: { min: number | null; max: number | null };
+  onChange: (value: { min: number | null; max: number | null }) => void;
 }
 
 export function RangeInput({ value, onChange }: RangeInputProps) {
