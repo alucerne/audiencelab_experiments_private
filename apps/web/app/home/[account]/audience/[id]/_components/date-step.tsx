@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 
 import { format, parse, subDays } from 'date-fns';
 import { CalendarIcon } from 'lucide-react';
@@ -43,40 +43,7 @@ today.setHours(0, 0, 0, 0);
 export default function DateStep() {
   const { control, watch, setValue } =
     useFormContext<z.infer<typeof audienceFiltersFormSchema>>();
-  const [dateRange, setDateRange] = useState<DateRangeOptions>('last5Days');
-  const dateRangeValue = watch('dateRange');
-
-  function determineDateRangeOption(startDate: string, endDate: string) {
-    if (!startDate || !endDate) return 'last5Days';
-
-    const last2DaysStart = formatDate(subDays(endDate, 1));
-    const last5DaysStart = formatDate(subDays(endDate, 4));
-    const last7DaysStart = formatDate(subDays(endDate, 6));
-
-    if (startDate === last2DaysStart) return 'last2Days';
-    if (startDate === last5DaysStart) return 'last5Days';
-    if (startDate === last7DaysStart) return 'last7Days';
-
-    return 'custom';
-  }
-
-  useEffect(() => {
-    if (
-      !dateRangeValue ||
-      (!dateRangeValue.startDate && !dateRangeValue.endDate)
-    ) {
-      const endDate = formatDate(today);
-      const startDate = formatDate(subDays(today, 4));
-      setValue('dateRange', { startDate, endDate });
-      setDateRange('last5Days');
-    } else {
-      const option = determineDateRangeOption(
-        dateRangeValue.startDate,
-        dateRangeValue.endDate,
-      );
-      setDateRange(option);
-    }
-  }, []);
+  const [dateRange, setDateRange] = useState<DateRangeOptions>('last7Days');
 
   function handleDateOptionChange(value: DateRangeOptions) {
     setDateRange(value);

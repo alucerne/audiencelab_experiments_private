@@ -1,12 +1,8 @@
 import { cloneElement } from 'react';
 import React from 'react';
 
-import { useFormContext } from 'react-hook-form';
-
 import { Button } from '@kit/ui/button';
 import { cn } from '@kit/ui/utils';
-
-import { AudienceFiltersFormValues } from '~/lib/audience/schema/audience-filters-form.schema';
 
 export default function AudienceFiltersStepper({
   steps,
@@ -27,8 +23,6 @@ export default function AudienceFiltersStepper({
   pending: boolean;
   isUpdate?: boolean;
 }) {
-  const form = useFormContext<AudienceFiltersFormValues>();
-
   return (
     <div className="w-full max-w-64 space-y-2 border-r pr-2">
       {steps.map((step, index) => (
@@ -63,12 +57,8 @@ export default function AudienceFiltersStepper({
           </div>
         </div>
       ))}
-      <Button
-        type="submit"
-        disabled={pending || !form.formState.isValid}
-        className="w-full"
-      >
-        {isUpdate ? 'Update' : 'Add'} Filters
+      <Button type="submit" disabled={pending} className="w-full">
+        {isUpdate ? 'Refresh' : 'Generate'}
       </Button>
     </div>
   );

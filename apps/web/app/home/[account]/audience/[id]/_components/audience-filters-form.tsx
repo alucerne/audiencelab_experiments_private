@@ -1,10 +1,11 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useEffect, useState, useTransition } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { format, subDays } from 'date-fns';
 import {
   Activity,
   Building2,
@@ -47,6 +48,9 @@ import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PremadeStep, { premadeFields } from './premade-step';
+
+const today = new Date();
+today.setHours(0, 0, 0, 0);
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -196,11 +200,47 @@ export default function AudienceFiltersForm({
     });
   }
 
+  function onError(errors: unknown) {
+    if (errors && typeof errors === 'object' && errors !== null) {
+      const errorObj = errors as Record<string, { message?: string }>;
+      const errorKeys = Object.keys(errorObj);
+
+      if (errorKeys.length > 0) {
+        const firstErrorField = errorKeys[0]!;
+        const errorMessage = errorObj[firstErrorField]?.message;
+
+        if (errorMessage) {
+          toast.error(errorMessage);
+        } else {
+          toast.error('Form validation failed');
+        }
+      } else {
+        toast.error('Form validation failed');
+      }
+    } else {
+      toast.error('An error occurred');
+    }
+  }
+
+  const dateRangeValue = form.watch('dateRange');
+  const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
+  useEffect(() => {
+    if (
+      !dateRangeValue ||
+      (!dateRangeValue.startDate && !dateRangeValue.endDate)
+    ) {
+      const endDate = formatDate(today);
+      const startDate = formatDate(subDays(today, 6));
+      form.setValue('dateRange', { startDate, endDate });
+    }
+  }, []);
+
   return (
     <Form {...form}>
       <form
         className="relative flex h-full"
-        onSubmit={form.handleSubmit(onSubmit)}
+        onSubmit={form.handleSubmit(onSubmit, onError)}
         onKeyDown={(e) => {
           if (
             e.key === 'Enter' &&
@@ -225,11 +265,8 @@ export default function AudienceFiltersForm({
           <div className="bg-background sticky bottom-0 mt-6 border-t px-8 py-4">
             <div className="flex w-full flex-row-reverse justify-between">
               {step === steps.length - 1 && (
-                <Button
-                  type="submit"
-                  disabled={pending || !form.formState.isValid}
-                >
-                  {isUpdate ? 'Update' : 'Add'} Filters
+                <Button type="submit" disabled={pending}>
+                  {isUpdate ? 'Refresh' : 'Generate'}
                 </Button>
               )}
               {step < steps.length - 1 && (
