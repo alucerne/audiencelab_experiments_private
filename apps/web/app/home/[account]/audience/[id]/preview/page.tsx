@@ -1,8 +1,9 @@
-import { use } from 'react';
+import { Suspense, use } from 'react';
 
 import { SupabaseClient } from '@supabase/supabase-js';
 
 import { format } from 'date-fns';
+import { Loader2 } from 'lucide-react';
 import { z } from 'zod';
 
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
@@ -24,13 +25,6 @@ export default function AudiencePreviewPage({
   const account = use(params).account;
   const id = use(params).id;
 
-  const client = getSupabaseServerClient();
-  const service = createAudienceService(client);
-
-  const audience = use(service.getAudienceById(id));
-
-  const { result: previewAudience } = use(getPreviewAudience(client, audience));
-
   return (
     <>
       <TeamAccountLayoutPageHeader
@@ -40,10 +34,31 @@ export default function AudiencePreviewPage({
       />
 
       <PageBody>
-        <PreviewAudienceTable data={previewAudience} />
+        <Suspense
+          fallback={
+            <div className="flex h-[80%] flex-col items-center justify-center">
+              <Loader2 className="text-primary h-8 w-8 animate-spin" />
+              <p className="text-muted-foreground mt-4 text-sm">
+                Loading preview data...
+              </p>
+            </div>
+          }
+        >
+          <AudiencePreviewContent id={id} />
+        </Suspense>
       </PageBody>
     </>
   );
+}
+
+function AudiencePreviewContent({ id }: { id: string }) {
+  const client = getSupabaseServerClient();
+  const service = createAudienceService(client);
+
+  const audience = use(service.getAudienceById(id));
+  const { result: previewAudience } = use(getPreviewAudience(client, audience));
+
+  return <PreviewAudienceTable data={previewAudience} />;
 }
 
 async function getPreviewAudience(
