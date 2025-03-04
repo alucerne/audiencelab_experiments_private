@@ -1,0 +1,445 @@
+import { useEffect, useState } from 'react';
+
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import { PlusCircle, Trash2 } from 'lucide-react';
+import { Path, useFormContext } from 'react-hook-form';
+import { toast } from 'sonner';
+
+import { Button } from '@kit/ui/button';
+import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kit/ui/dialog';
+import { Label } from '@kit/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@kit/ui/table';
+
+import SingleSelect from '~/components/ui/single-select';
+import {
+  AudienceFiltersFormValue,
+  AudienceFiltersFormValues,
+  NumberRange,
+} from '~/lib/audience/schema/audience-filters-form.schema';
+import { formatNumberRange } from '~/lib/audience/utils';
+
+import DynamicField from './dynamic-field';
+
+export const housingFields = [
+  'filters.profile.homeowner',
+  'filters.attributes.dwelling_type',
+  'filters.attributes.home_year_built',
+  'filters.attributes.home_purchase_price',
+  'filters.attributes.home_purchase_year',
+  'filters.attributes.home_heat',
+  'filters.attributes.home_swimming_pool',
+  'filters.attributes.home_aircon',
+  'filters.attributes.home_sewer',
+  'filters.attributes.home_water',
+  'filters.attributes.estimated_home_value',
+  'filters.attributes.sales_transaction_type',
+] as const satisfies readonly Path<AudienceFiltersFormValues>[];
+
+type FieldRow = {
+  fieldName: (typeof housingFields)[number];
+  fieldValue: string;
+  rawValue: AudienceFiltersFormValue;
+};
+
+export default function HousingStep() {
+  const form = useFormContext<AudienceFiltersFormValues>();
+  const [tableData, setTableData] = useState<FieldRow[]>([]);
+
+  const generateTableData = () => {
+    const rows: FieldRow[] = [];
+
+    housingFields.forEach((field) => {
+      const value = form.getValues(field);
+
+      if (value === null || value === undefined) return;
+
+      if (Array.isArray(value)) {
+        if (value.length === 0) return;
+
+        value.forEach((item) => {
+          rows.push({
+            fieldName: field,
+            fieldValue: item,
+            rawValue: value,
+          });
+        });
+      } else if (
+        typeof value === 'object' &&
+        'min' in value &&
+        'max' in value
+      ) {
+        if (value.min === 0 && value.max === 0) return;
+
+        rows.push({
+          fieldName: field,
+          fieldValue: formatNumberRange(value),
+          rawValue: value,
+        });
+      }
+    });
+
+    return rows;
+  };
+
+  const handleDelete = (row: FieldRow) => {
+    const currentValue = form.getValues(row.fieldName);
+
+    if (Array.isArray(currentValue)) {
+      const newValue = currentValue.filter((item) => item !== row.fieldValue);
+      form.setValue(row.fieldName, newValue);
+    } else if (typeof currentValue === 'object' && 'min' in currentValue) {
+      form.setValue(row.fieldName, { min: 0, max: 0 });
+    }
+
+    setTableData(generateTableData());
+  };
+
+  useEffect(() => {
+    setTableData(generateTableData());
+  }, []);
+
+  const columns: ColumnDef<FieldRow>[] = [
+    {
+      accessorKey: 'fieldName',
+      header: 'Field',
+      cell: ({ row: { original } }) => {
+        const option = fieldTypeOptions.find((opt) =>
+          opt.value.endsWith(original.fieldName),
+        );
+        return option?.label ?? original.fieldName;
+      },
+    },
+    {
+      accessorKey: 'fieldValue',
+      header: 'Value',
+    },
+    {
+      id: 'actions',
+      cell: ({ row }) => (
+        <div className="flex w-full justify-end">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => handleDelete(row.original)}
+            className="h-8 w-8 p-0"
+          >
+            <Trash2 className="text-destructive h-4 w-4" />
+          </Button>
+        </div>
+      ),
+    },
+  ];
+
+  const table = useReactTable({
+    data: tableData,
+    columns,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  return (
+    <>
+      <div className="flex justify-between">
+        <CardHeader className="p-0">
+          <CardTitle>Housing</CardTitle>
+          <CardDescription>
+            What type of housing does your target audience have?
+          </CardDescription>
+        </CardHeader>
+        <AddFieldValueDialog
+          onClose={() => setTableData(generateTableData())}
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Filters</Label>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => {
+                    return (
+                      <TableHead key={header.id}>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="capitalize">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No filters added.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+    </>
+  );
+}
+interface SelectedField {
+  value: (typeof housingFields)[number];
+  label: string;
+}
+
+function AddFieldValueDialog({ onClose }: { onClose: () => void }) {
+  const [selectedField, setSelectedField] = useState<SelectedField | null>(
+    null,
+  );
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [initialValue, setInitialValue] = useState<
+    NumberRange | string[] | null
+  >(null);
+  const form = useFormContext<AudienceFiltersFormValues>();
+
+  function handleOpenChange(open: boolean) {
+    if (!open) {
+      if (selectedField && initialValue !== null) {
+        form.setValue(selectedField.value, initialValue);
+      }
+
+      setSelectedField(null);
+      setInitialValue(null);
+      onClose();
+    }
+
+    setDialogOpen(open);
+  }
+
+  async function onSubmit() {
+    if (!selectedField) return;
+
+    const isValid = await form.trigger(selectedField.value);
+
+    if (!isValid) return;
+
+    const values = form.getValues(selectedField.value);
+
+    toast.success(
+      `Added ${selectedField.label}: ${
+        Array.isArray(values)
+          ? values
+              .map((value) => value.charAt(0).toUpperCase() + value.slice(1))
+              .join(', ')
+          : formatNumberRange(values)
+      }`,
+    );
+
+    setDialogOpen(false);
+    setSelectedField(null);
+    setInitialValue(null);
+    onClose();
+  }
+
+  function handleFieldChange(selected: string) {
+    if (selectedField && initialValue !== null) {
+      form.setValue(selectedField.value, initialValue);
+    }
+
+    const newField = fieldTypeOptions.find(
+      (option) => option.label === selected,
+    );
+
+    if (newField) {
+      const currentValue = form.getValues(newField.value);
+      setInitialValue(currentValue);
+      setSelectedField(newField);
+    } else {
+      setSelectedField(null);
+      setInitialValue(null);
+    }
+  }
+
+  useEffect(() => {
+    if (!dialogOpen && selectedField && initialValue !== null) {
+      form.setValue(selectedField.value, initialValue);
+    }
+  }, [dialogOpen, selectedField, initialValue, form]);
+
+  return (
+    <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild onClick={() => setDialogOpen(true)}>
+        <Button size="sm" className="w-fit gap-2 text-sm">
+          Add <PlusCircle className="h-4 w-4" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-md"
+      >
+        <DialogHeader>
+          <DialogTitle>Add Filter</DialogTitle>
+        </DialogHeader>
+
+        <div className="flex flex-col space-y-4">
+          <div className="space-y-1">
+            <Label>Field</Label>
+            <SingleSelect
+              options={fieldTypeOptions.map((option) => option.label)}
+              value={selectedField?.label ?? ''}
+              onChange={handleFieldChange}
+            />
+          </div>
+          {selectedField && (
+            <DynamicField
+              fieldName={selectedField.value}
+              options={fieldOptions[selectedField.value]}
+            />
+          )}
+          <div className="flex justify-end space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              type="button"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button size="sm" onClick={onSubmit}>
+              Add
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+const fieldTypeOptions: Array<{
+  value: (typeof housingFields)[number];
+  label: string;
+}> = [
+  {
+    value: 'filters.profile.homeowner',
+    label: 'Homeowner Status',
+  },
+  {
+    value: 'filters.attributes.dwelling_type',
+    label: 'Dwelling Type',
+  },
+  {
+    value: 'filters.attributes.home_year_built',
+    label: 'Year Built',
+  },
+  {
+    value: 'filters.attributes.home_purchase_price',
+    label: 'Purchase Price',
+  },
+  {
+    value: 'filters.attributes.home_purchase_year',
+    label: 'Purchase Year',
+  },
+  {
+    value: 'filters.attributes.home_heat',
+    label: 'Heating Type',
+  },
+  {
+    value: 'filters.attributes.home_swimming_pool',
+    label: 'Swimming Pool',
+  },
+  {
+    value: 'filters.attributes.home_aircon',
+    label: 'Air Conditioning',
+  },
+  {
+    value: 'filters.attributes.home_sewer',
+    label: 'Sewer Type',
+  },
+  {
+    value: 'filters.attributes.home_water',
+    label: 'Water Type',
+  },
+  {
+    value: 'filters.attributes.estimated_home_value',
+    label: 'Estimated Home Value',
+  },
+  {
+    value: 'filters.attributes.sales_transaction_type',
+    label: 'Sales Transaction Type',
+  },
+];
+
+const fieldOptions: Partial<Record<(typeof housingFields)[number], string[]>> =
+  {
+    'filters.profile.homeowner': [
+      'probable homeowner 90-100',
+      'homeowner',
+      'renter',
+    ],
+    'filters.attributes.dwelling_type': ['multi-family', 'single-family'],
+    'filters.attributes.home_year_built': [
+      '1950 before (1950-)',
+      '1950 - 1970',
+      '1971 - 1990',
+      '1990 after (1950+)',
+    ],
+    'filters.attributes.estimated_home_value': [
+      '$1,000 - $24,999',
+      '$25,000 - $49,999',
+      '$50,000 - $74,999',
+      '$75,000 - $99,999',
+      '$100,000 - $124,999',
+      '$125,000 - $149,999',
+      '$150,000 - $174,999',
+      '$175,000 - $199,999',
+      '$200,000 - $224,999',
+      '$225,000 - $249,999',
+      '$250,000 - $274,999',
+      '$275,000 - $299,999',
+      '$300,000 - $349,999',
+      '$350,000 - $399,999',
+      '$400,000 - $449,999',
+      '$450,000 - $499,999',
+      '$500,000 - $749,999',
+      '$750,000 - $999,999',
+      '$1,000,000 plus',
+    ],
+  };

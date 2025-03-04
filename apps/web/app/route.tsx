@@ -1,5 +1,12 @@
 import { redirect } from 'next/navigation';
 
-export async function GET() {
-  redirect('/auth/sign-in');
-}
+import { enhanceRouteHandler } from '@kit/next/routes';
+
+export const GET = enhanceRouteHandler(
+  async () => {
+    redirect('/auth/sign-in');
+  },
+  {
+    auth: false,
+  },
+);
