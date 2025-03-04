@@ -20,7 +20,7 @@ import {
   audienceFiltersFormSchema,
 } from '~/lib/audience/schema/audience-filters-form.schema';
 
-import { searchIndustries } from '../_lib/server/actions';
+import { searchPremadeListsAction } from '../_lib/server-actions';
 
 export const premadeFields = [
   'segment',
@@ -33,7 +33,7 @@ export default function PremadeStep() {
   const [businessType, setBusinessType] = useState<'B2B' | 'B2C'>('B2B');
 
   const searchWithBusinessType = useCallback(
-    (search: string) => searchIndustries(search, businessType),
+    (search: string) => searchPremadeListsAction({ search, businessType }),
     [businessType],
   );
 

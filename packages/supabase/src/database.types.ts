@@ -319,6 +319,36 @@ export type Database = {
           },
         ];
       };
+      interests: {
+        Row: {
+          b2b: boolean | null;
+          cat1: string | null;
+          cat2: string | null;
+          cat3: string | null;
+          cat4: string | null;
+          id: number;
+          intent: string;
+        };
+        Insert: {
+          b2b?: boolean | null;
+          cat1?: string | null;
+          cat2?: string | null;
+          cat3?: string | null;
+          cat4?: string | null;
+          id: number;
+          intent: string;
+        };
+        Update: {
+          b2b?: boolean | null;
+          cat1?: string | null;
+          cat2?: string | null;
+          cat3?: string | null;
+          cat4?: string | null;
+          id?: number;
+          intent?: string;
+        };
+        Relationships: [];
+      };
       invitations: {
         Row: {
           account_id: string;

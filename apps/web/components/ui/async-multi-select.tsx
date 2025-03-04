@@ -94,7 +94,7 @@ export default function AsyncMultiSelect({
 
   const loadOptions = async (inputValue: string) => {
     if (!inputValue || inputValue.length < 2) {
-      return cachedOptions; // return cached options instead of empty array
+      return cachedOptions;
     }
     try {
       const results = await searchAction(inputValue);
