@@ -219,4 +219,30 @@ class AudienceService {
 
     return data;
   }
+
+  async updateJob(params: {
+    job_id: string;
+    status?: string;
+    url?: string;
+    current?: number;
+    total?: number;
+  }) {
+    const { job_id, status, url, current, total } = params;
+
+    const { data, error } = await this.client
+      .from('enqueue_job')
+      .update({
+        status,
+        csv_url: url,
+        current,
+        total,
+      })
+      .match({ id: job_id });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

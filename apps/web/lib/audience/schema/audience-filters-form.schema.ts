@@ -88,8 +88,6 @@ export const audienceFiltersFormSchema = z.object({
     notNulls: z.array(z.string()),
     nullOnly: z.array(z.string()),
   }),
-  filename: z.string(),
-  limit: z.number(),
 });
 
 export type AudienceFiltersFormValues = z.infer<
@@ -187,6 +185,4 @@ export const audienceFiltersFormDefaultValues = {
     notNulls: [],
     nullOnly: [],
   },
-  filename: '',
-  limit: 0,
 } satisfies z.infer<typeof audienceFiltersFormSchema>;
