@@ -17,6 +17,8 @@ import { Database, Tables } from '~/lib/database.types';
 
 import PreviewAudienceTable from './_components/preview-audience-table';
 
+export const maxDuration = 60;
+
 export default function AudiencePreviewPage({
   params,
 }: {
