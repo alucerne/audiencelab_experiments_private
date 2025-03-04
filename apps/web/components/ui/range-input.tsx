@@ -9,12 +9,17 @@ interface RangeInputProps {
 }
 
 export function RangeInput({ value, onChange }: RangeInputProps) {
-  const [localMin, setLocalMin] = useState(() => String(value.min));
-  const [localMax, setLocalMax] = useState(() => String(value.max));
+  const [localMin, setLocalMin] = useState(() =>
+    value.min === null ? '' : String(value.min),
+  );
+  const [localMax, setLocalMax] = useState(() =>
+    value.max === null ? '' : String(value.max),
+  );
 
+  // Update local state when props change
   useEffect(() => {
-    setLocalMin(String(value.min));
-    setLocalMax(String(value.max));
+    setLocalMin(value.min === null ? '' : String(value.min));
+    setLocalMax(value.max === null ? '' : String(value.max));
   }, [value.min, value.max]);
 
   const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -23,7 +28,7 @@ export function RangeInput({ value, onChange }: RangeInputProps) {
       setLocalMin(newValue);
       onChange({
         ...value,
-        min: newValue === '' ? 0 : Number(newValue),
+        min: newValue === '' ? null : Number(newValue),
       });
     }
   };
@@ -34,7 +39,7 @@ export function RangeInput({ value, onChange }: RangeInputProps) {
       setLocalMax(newValue);
       onChange({
         ...value,
-        max: newValue === '' ? 0 : Number(newValue),
+        max: newValue === '' ? null : Number(newValue),
       });
     }
   };
@@ -50,6 +55,7 @@ export function RangeInput({ value, onChange }: RangeInputProps) {
           pattern="-?\d*\.?\d*"
           value={localMin}
           onChange={handleMinChange}
+          placeholder="Enter minimum value"
         />
       </div>
       <div className="flex flex-col space-y-1.5">
@@ -61,6 +67,7 @@ export function RangeInput({ value, onChange }: RangeInputProps) {
           pattern="-?\d*\.?\d*"
           value={localMax}
           onChange={handleMaxChange}
+          placeholder="Enter maximum value"
         />
       </div>
     </div>

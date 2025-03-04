@@ -87,7 +87,7 @@ export default function HousingStep() {
         'min' in value &&
         'max' in value
       ) {
-        if (value.min === 0 && value.max === 0) return;
+        if (value.min === null && value.max === null) return;
 
         rows.push({
           fieldName: field,
@@ -107,7 +107,7 @@ export default function HousingStep() {
       const newValue = currentValue.filter((item) => item !== row.fieldValue);
       form.setValue(row.fieldName, newValue);
     } else if (typeof currentValue === 'object' && 'min' in currentValue) {
-      form.setValue(row.fieldName, { min: 0, max: 0 });
+      form.setValue(row.fieldName, { min: null, max: null });
     }
 
     setTableData(generateTableData());

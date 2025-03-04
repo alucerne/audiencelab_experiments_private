@@ -114,8 +114,8 @@ export const audienceFiltersFormDefaultValues = {
   score: [],
   filters: {
     age: {
-      minAge: 0,
-      maxAge: 0,
+      minAge: null,
+      maxAge: null,
     },
     city: [],
     state: [],
@@ -146,8 +146,8 @@ export const audienceFiltersFormDefaultValues = {
       occupation_group: [],
       occupation_type: [],
       home_year_built: {
-        min: 0,
-        max: 0,
+        min: null,
+        max: null,
       },
       single_parent: [],
       cra_code: [],
@@ -165,12 +165,12 @@ export const audienceFiltersFormDefaultValues = {
       donate_political: [],
       donate_veterans: [],
       home_purchase_price: {
-        min: 0,
-        max: 0,
+        min: null,
+        max: null,
       },
       home_purchase_year: {
-        min: 0,
-        max: 0,
+        min: null,
+        max: null,
       },
       home_heat: [],
       home_swimming_pool: [],
@@ -184,8 +184,8 @@ export const audienceFiltersFormDefaultValues = {
       mortgage_rate_type: [],
       estimated_home_value: [],
       mortgage_amount: {
-        min: 0,
-        max: 0,
+        min: null,
+        max: null,
       },
       generations_in_household: [],
       sales_transaction_type: [],

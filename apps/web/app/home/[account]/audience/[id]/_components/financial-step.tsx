@@ -107,7 +107,7 @@ export default function FinancialStep() {
       const newValue = currentValue.filter((item) => item !== row.fieldValue);
       form.setValue(row.fieldName, newValue);
     } else if (typeof currentValue === 'object' && 'min' in currentValue) {
-      form.setValue(row.fieldName, { min: 0, max: 0 });
+      form.setValue(row.fieldName, { min: null, max: null });
     }
 
     setTableData(generateTableData());

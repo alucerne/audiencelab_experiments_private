@@ -2,12 +2,21 @@ import { z } from 'zod';
 
 import { getServerMonitoringService } from '@kit/monitoring/server';
 import { enhanceRouteHandler } from '@kit/next/routes';
+import { getLogger } from '@kit/shared/logger';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
 import { createAudienceService } from '~/lib/audience/audience.service';
 
 export const POST = enhanceRouteHandler(
   async ({ body }) => {
+    const logger = await getLogger();
+
+    const ctx = {
+      name: 'audience.webhook',
+    };
+
+    logger.info(ctx, `Received audience webhook. Processing...`, body);
+
     try {
       const client = getSupabaseServerAdminClient();
       const service = createAudienceService(client);
