@@ -107,3 +107,19 @@ export const deleteAudienceAction = enhanceAction(
     }),
   },
 );
+
+export const getAudienceByIdAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    const audience = await service.getAudienceById(data.id);
+
+    return audience;
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+    }),
+  },
+);
