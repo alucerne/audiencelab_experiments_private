@@ -225,7 +225,7 @@ export default function AudienceFiltersForm({
       (!dateRangeValue.startDate && !dateRangeValue.endDate)
     ) {
       const endDate = formatDate(today);
-      const startDate = formatDate(subDays(today, 6));
+      const startDate = formatDate(subDays(endDate, 6));
       form.setValue('dateRange', { startDate, endDate });
     }
   }, []);
