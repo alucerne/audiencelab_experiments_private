@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 
+import { format } from 'date-fns';
 import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
@@ -38,21 +39,11 @@ export const addAudienceFiltersAction = enhanceAction(
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
 
-    if (data.filters) {
-      await service.generateAudience({
-        accountId: data.accountId,
-        audienceId: data.audienceId,
-        filters: data.filters,
-      });
-    } else {
-      const { filters } = await service.getAudienceById(data.audienceId);
-
-      await service.generateAudience({
-        accountId: data.accountId,
-        audienceId: data.audienceId,
-        filters: audienceFiltersFormSchema.parse(filters),
-      });
-    }
+    await service.generateAudience({
+      accountId: data.accountId,
+      audienceId: data.audienceId,
+      filters: data.filters,
+    });
 
     revalidatePath('/home/[account]/audience/[id]', 'page');
     revalidatePath('/home/[account]', 'page');
@@ -61,7 +52,7 @@ export const addAudienceFiltersAction = enhanceAction(
     schema: z.object({
       accountId: z.string(),
       audienceId: z.string(),
-      filters: audienceFiltersFormSchema.optional(),
+      filters: audienceFiltersFormSchema,
     }),
   },
 );
@@ -120,6 +111,59 @@ export const getAudienceByIdAction = enhanceAction(
   {
     schema: z.object({
       id: z.string(),
+    }),
+  },
+);
+
+export const getPreviewAudienceAction = enhanceAction(
+  async ({ id, filters }) => {
+    const client = getSupabaseServerClient();
+
+    const { data: interests, error } = await client
+      .from('interests')
+      .select('id, intent')
+      .in('intent', filters.segment);
+
+    if (error) {
+      throw error;
+    }
+
+    filters.segment = Array.from(
+      new Set(interests.map((interest) => `4eyes_${interest.id}`)),
+    );
+
+    const timestampMs = format(new Date(), 'T');
+    const microPart = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, '0');
+    const fullTimestamp = Number(`${timestampMs}${microPart}`);
+
+    const response = await fetch(
+      'https://v3-audience-job-72802495918.us-east1.run.app/audience/search',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ...filters,
+          jobId: `${id}_${fullTimestamp}`,
+          startTime: fullTimestamp,
+        }),
+      },
+    );
+
+    return z
+      .object({
+        result: z.array(z.record(z.string(), z.string())),
+        count: z.number(),
+      })
+      .parse(await response.json());
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+      filters: audienceFiltersFormSchema,
     }),
   },
 );
