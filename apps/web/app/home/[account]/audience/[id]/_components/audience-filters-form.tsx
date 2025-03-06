@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { cloneElement, useEffect, useState, useTransition } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -10,8 +10,6 @@ import {
   Activity,
   Building2,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
   Home,
   ListChecks,
   Mail,
@@ -25,8 +23,18 @@ import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
+import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@kit/ui/dialog';
 import { Form } from '@kit/ui/form';
+import { cn } from '@kit/ui/utils';
 
 import {
   audienceFiltersFormDefaultValues,
@@ -35,7 +43,6 @@ import {
 import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
 import { Json } from '~/lib/database.types';
 
-import AudienceFiltersStepper from './audience-filters-stepper';
 import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
@@ -60,7 +67,8 @@ export default function AudienceFiltersForm({
   const router = useRouter();
   const { account, id } = useParams<{ account: string; id: string }>();
   const [pending, startTransition] = useTransition();
-  const [step, setStep] = useState(0);
+  const [currentDialog, setCurrentDialog] = useState<number | null>(null);
+  const [completedSteps, setCompletedSteps] = useState<number[]>([]);
 
   const {
     account: { id: accountId },
@@ -80,8 +88,8 @@ export default function AudienceFiltersForm({
 
   const steps = [
     {
-      label: 'Premade',
-      description: 'Start with a premade audience list.',
+      label: 'Premade Lists',
+      description: 'Choose from our premade audience lists to get started.',
       icon: <ListChecks />,
       component: <PremadeStep />,
       fields: premadeFields,
@@ -95,42 +103,44 @@ export default function AudienceFiltersForm({
     },
     {
       label: 'Business',
-      description: 'What is their business like?',
+      description:
+        'What business characteristics does this audience represent?',
       icon: <Building2 />,
       component: <BusinessProfileStep />,
       fields: businessProfileFields,
     },
     {
       label: 'Financial',
-      description: 'What is their financial situation?',
+      description: "What is your target audience's financial profile?",
       icon: <Wallet />,
       component: <FinancialStep />,
       fields: financialFields,
     },
     {
       label: 'Personal',
-      description: 'What are their personal characteristics?',
+      description: 'What are the personal characteristics of your audience?',
       icon: <User />,
       component: <PersonalStep />,
       fields: personalFields,
     },
     {
       label: 'Lifestyle',
-      description: 'What is their lifestyle like?',
+      description:
+        'What lifestyle characteristics define your target audience?',
       icon: <Activity />,
       component: <LifestyleStep />,
       fields: lifestyleFields,
     },
     {
       label: 'Family',
-      description: 'What is their family like?',
+      description: "What is your audience's family composition?",
       icon: <Users />,
       component: <FamilyStep />,
       fields: familyFields,
     },
     {
       label: 'Housing',
-      description: 'What is their housing situation?',
+      description: 'What type of housing does your target audience have?',
       icon: <Home />,
       component: <HousingStep />,
       fields: housingFields,
@@ -144,23 +154,49 @@ export default function AudienceFiltersForm({
     },
     {
       label: 'Emails',
-      description: 'What emails are needed?',
+      description: 'What emails do you need from your audience?',
       icon: <Mail />,
       component: <EmailsStep />,
       fields: emailsFields,
     },
   ] as const;
 
-  const onNext = async () => {
-    const isValid = await form.trigger(steps[step]?.fields);
-    if (isValid) {
-      setStep(step + 1);
-    }
-  };
+  function isStepCompleted(stepIndex: number) {
+    return completedSteps.includes(stepIndex);
+  }
 
-  const onPrevious = () => {
-    setStep(step - 1);
-  };
+  function openDialog(stepIndex: number) {
+    setCurrentDialog(stepIndex);
+  }
+
+  async function handleDialogClose(stepIndex: number) {
+    const step = steps[stepIndex];
+    if (step !== undefined) {
+      const isValid = await form.trigger(step.fields);
+      if (isValid) {
+        const appliedCount = step.fields.reduce((count, fieldName) => {
+          const value = form.getValues(fieldName);
+          if (fieldName === 'filters.businessProfile') {
+            return count + countBusinessProfile(value);
+          }
+          return count + countFilterValue(value);
+        }, 0);
+
+        if (!completedSteps.includes(stepIndex) && appliedCount > 0) {
+          setCompletedSteps([...completedSteps, stepIndex]);
+        }
+        setCurrentDialog(null);
+      }
+    }
+  }
+
+  function handleStepReset(stepIndex: number) {
+    steps[stepIndex]?.fields.forEach((fieldName) => {
+      form.resetField(fieldName);
+    });
+    setCompletedSteps((prev) => prev.filter((i) => i !== stepIndex));
+    setCurrentDialog(null);
+  }
 
   function onSubmit(
     values: z.infer<typeof audienceFiltersFormSchema>,
@@ -190,6 +226,7 @@ export default function AudienceFiltersForm({
   }
 
   function handlePreviewSubmit(e: React.MouseEvent<HTMLButtonElement>) {
+    console.log("handlePreviewSubmit");
     e.preventDefault();
     form.handleSubmit((values) => onSubmit(values, true))();
   }
@@ -225,80 +262,137 @@ export default function AudienceFiltersForm({
       (!dateRangeValue.startDate && !dateRangeValue.endDate)
     ) {
       const endDate = formatDate(today);
-      const startDate = formatDate(subDays(endDate, 6));
+      const startDate = formatDate(subDays(today, 6));
       form.setValue('dateRange', { startDate, endDate });
     }
   }, []);
 
+  console.log('form values', form.getValues());
+
   return (
     <Form {...form}>
       <form
-        className="relative flex h-full"
+        className="relative"
         onSubmit={form.handleSubmit(
           (values) => onSubmit(values, false),
           onError,
         )}
-        onKeyDown={(e) => {
-          if (
-            e.key === 'Enter' &&
-            e.target instanceof HTMLElement &&
-            e.target.tagName !== 'TEXTAREA'
-          ) {
-            e.preventDefault();
-          }
-        }}
       >
-        <AudienceFiltersStepper
-          steps={steps}
-          currentStep={step}
-          setStep={setStep}
-          pending={pending}
-          isUpdate={isUpdate}
-          handlePreviewSubmit={handlePreviewSubmit}
-        />
-        <div className="flex h-full flex-1 flex-col">
-          <div className="flex-1 px-8">
-            <div className="space-y-6">{steps[step]?.component}</div>
-          </div>
-          <div className="bg-background sticky bottom-0 mt-6 border-t px-8 py-4">
-            <div className="flex w-full flex-row-reverse justify-between">
-              {step === steps.length - 1 && (
-                <div className="flex items-center gap-3">
-                  {!isUpdate && (
-                    <Button
-                      type="submit"
-                      disabled={pending}
-                      variant="secondary"
-                      onClick={handlePreviewSubmit}
-                    >
-                      Preview
-                    </Button>
-                  )}
-                  <Button type="submit" disabled={pending}>
-                    {isUpdate ? 'Refresh' : 'Generate'}
-                  </Button>
-                </div>
-              )}
-              {step < steps.length - 1 && (
-                <Button
-                  type="button"
-                  onClick={onNext}
-                  className="place-self-end justify-self-end"
-                >
-                  Next
-                  <ChevronRight className="ml-2 h-5 w-5" />
-                </Button>
-              )}
-              {step > 0 && (
-                <Button type="button" onClick={onPrevious} variant="outline">
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Previous
-                </Button>
-              )}
-            </div>
+        <div className="flex flex-wrap gap-2 px-6">
+          {steps.map((step, index) => {
+            const appliedCount = step.fields.reduce((count, fieldName) => {
+              const value = form.getValues(fieldName);
+              if (fieldName === 'filters.businessProfile') {
+                return count + countBusinessProfile(value);
+              }
+              return count + countFilterValue(value);
+            }, 0);
+
+            const iconWithClasses = cloneElement(step.icon, {
+              className: cn('size-4', step.icon.props?.className),
+            });
+
+            return (
+              <Button
+                key={index}
+                type="button"
+                variant="ghost"
+                className={`flex items-center gap-1.5 px-3 py-1.5 ${
+                  appliedCount > 0 && isStepCompleted(index)
+                    ? 'border-primary border'
+                    : ''
+                }`}
+                onClick={() => openDialog(index)}
+              >
+                {iconWithClasses}
+                {appliedCount > 0 && isStepCompleted(index) && (
+                  <Badge variant="success" className="ml-2">
+                    {appliedCount}
+                  </Badge>
+                )}
+                <div className="font-medium">{step.label}</div>
+              </Button>
+            );
+          })}
+          <div className="flex gap-4">
+            <Button
+              type="submit"
+              disabled={pending || completedSteps.length === 0}
+              className="px-3 py-1.5"
+              variant="secondary"
+              onClick={handlePreviewSubmit}
+            >
+              Preview
+            </Button>
+            <Button
+              type="submit"
+              disabled={pending || completedSteps.length === 0}
+              className="px-3 py-1.5"
+            >
+              {isUpdate ? 'Refresh' : 'Generate'}
+            </Button>
           </div>
         </div>
+
+        {steps.map((step, index) => (
+          <Dialog
+            key={index}
+            open={currentDialog === index}
+            onOpenChange={(open) => !open && handleDialogClose(index)}
+          >
+            <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col gap-0 px-0">
+              <DialogHeader className="border-b px-6 pb-4">
+                <DialogTitle className="flex items-center gap-2">
+                  {step.icon}
+                  <span>{step.label}</span>
+                </DialogTitle>
+                <DialogDescription>{step.description}</DialogDescription>
+              </DialogHeader>
+              <div
+                className="flex-1 space-y-6 overflow-y-auto px-6 py-8"
+                style={{ maxHeight: '60vh' }}
+              >
+                {step.component}
+              </div>
+              <DialogFooter className="border-t px-6 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => handleStepReset(index)}
+                >
+                  Reset
+                </Button>
+                <Button type="button" onClick={() => handleDialogClose(index)}>
+                  Continue
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ))}
       </form>
     </Form>
+  );
+}
+
+function countFilterValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && item !== '').length;
+  } else if (typeof value === 'object' && value !== null) {
+    const entries = Object.entries(value);
+    const hasValue = entries.some(([, v]) => v != null && v !== '');
+    return hasValue ? 1 : 0;
+  } else if (typeof value === 'string') {
+    return value.trim() !== '' ? 1 : 0;
+  } else if (typeof value === 'number') {
+    return 1;
+  }
+  return 0;
+}
+
+function countBusinessProfile(value: unknown) {
+  if (!value || typeof value !== 'object') return 0;
+  return Object.values(value as Record<string, unknown>).reduce<number>(
+    (sum, subVal) => sum + countFilterValue(subVal),
+    0,
   );
 }

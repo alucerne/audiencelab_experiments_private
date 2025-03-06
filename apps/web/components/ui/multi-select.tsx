@@ -88,12 +88,18 @@ export default function MultiSelect({
       isMulti
       closeMenuOnSelect={false}
       unstyled
+      menuPortalTarget={document.body}
       styles={{
         input: (base) => ({
           ...base,
           'input:focus': {
             boxShadow: 'none',
           },
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
+          pointerEvents: 'auto',
         }),
         multiValueLabel: (base) => ({
           ...base,

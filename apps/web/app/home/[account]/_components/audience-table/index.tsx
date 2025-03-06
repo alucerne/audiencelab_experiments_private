@@ -76,6 +76,7 @@ export default function AudienceTable({
           event: '*',
           schema: 'public',
           table: 'enqueue_job',
+          filter: `account_id=eq.${accountId}`,
         },
         async (payload) => {
           if (

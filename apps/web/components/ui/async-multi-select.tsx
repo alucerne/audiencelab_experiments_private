@@ -143,11 +143,17 @@ export default function AsyncMultiSelect({
           : 'Type to search'
       }
       loadingMessage={() => 'Searching...'}
+      menuPortalTarget={document.body}
       unstyled
       styles={{
         input: (base) => ({
           ...base,
           'input:focus': { boxShadow: 'none' },
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
+          pointerEvents: 'auto',
         }),
         multiValueLabel: (base) => ({
           ...base,

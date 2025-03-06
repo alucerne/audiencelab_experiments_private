@@ -1,7 +1,6 @@
 import { Path, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
-import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import {
   FormControl,
   FormField,
@@ -29,10 +28,6 @@ export default function LocationStep() {
 
   return (
     <>
-      <CardHeader className="p-0">
-        <CardTitle>Location</CardTitle>
-        <CardDescription>Where is your audience located?</CardDescription>
-      </CardHeader>
       <FormField
         control={control}
         name="filters.city"

@@ -7,7 +7,6 @@ import { z } from 'zod';
 
 import { Button } from '@kit/ui/button';
 import { Calendar } from '@kit/ui/calendar';
-import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import {
   FormControl,
   FormField,
@@ -89,12 +88,6 @@ export default function DateStep() {
 
   return (
     <>
-      <CardHeader className="p-0">
-        <CardTitle>Date Range</CardTitle>
-        <CardDescription>
-          What is your date range for this audience?
-        </CardDescription>
-      </CardHeader>
       <FormField
         control={control}
         name="dateRange"
