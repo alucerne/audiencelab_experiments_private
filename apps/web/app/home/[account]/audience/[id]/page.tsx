@@ -31,7 +31,7 @@ async function AddAudiencePage({ params }: AddAudiencePageProps) {
         title={`${audience.name} Audience Filters`}
         description={<AppBreadcrumbs uuidLabel="Filters" />}
       />
-      <PageBody>
+      <PageBody className="lg:px-0">
         <AudienceFiltersForm defaultValues={audience.filters} />
       </PageBody>
     </>

@@ -1,21 +1,27 @@
 'use client';
 
-import { useEffect, useState, useTransition } from 'react';
+import { cloneElement, useEffect, useState, useTransition } from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useMutation } from '@tanstack/react-query';
 import { format, subDays } from 'date-fns';
 import {
   Activity,
+  AlertCircle,
   Building2,
   CalendarDays,
-  ChevronLeft,
-  ChevronRight,
+  Database,
+  FileSearch,
+  FileX,
   Home,
   ListChecks,
+  Loader2,
   Mail,
   MapPin,
+  RefreshCw,
+  Search,
   User,
   Users,
   Wallet,
@@ -26,16 +32,28 @@ import { z } from 'zod';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Button } from '@kit/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@kit/ui/dialog';
 import { Form } from '@kit/ui/form';
+import { Separator } from '@kit/ui/separator';
+import { cn } from '@kit/ui/utils';
 
 import {
   audienceFiltersFormDefaultValues,
   audienceFiltersFormSchema,
 } from '~/lib/audience/schema/audience-filters-form.schema';
-import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
+import {
+  addAudienceFiltersAction,
+  getPreviewAudienceAction,
+} from '~/lib/audience/server-actions';
 import { Json } from '~/lib/database.types';
 
-import AudienceFiltersStepper from './audience-filters-stepper';
 import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
@@ -48,9 +66,85 @@ import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PremadeStep, { premadeFields } from './premade-step';
+import PreviewAudienceTable from './preview-audience-table';
 
 const today = new Date();
 today.setHours(0, 0, 0, 0);
+
+const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
+
+const steps = [
+  {
+    label: 'Premade Lists',
+    description: 'Choose from our premade audience lists to get started.',
+    icon: <ListChecks />,
+    component: <PremadeStep />,
+    fields: premadeFields,
+  },
+  {
+    label: 'Date',
+    description: 'What is the date range for this audience?',
+    icon: <CalendarDays />,
+    component: <DateStep />,
+    fields: dateFields,
+  },
+  {
+    label: 'Business',
+    description: 'What business characteristics does this audience represent?',
+    icon: <Building2 />,
+    component: <BusinessProfileStep />,
+    fields: businessProfileFields,
+  },
+  {
+    label: 'Financial',
+    description: "What is your target audience's financial profile?",
+    icon: <Wallet />,
+    component: <FinancialStep />,
+    fields: financialFields,
+  },
+  {
+    label: 'Personal',
+    description: 'What are the personal characteristics of your audience?',
+    icon: <User />,
+    component: <PersonalStep />,
+    fields: personalFields,
+  },
+  {
+    label: 'Lifestyle',
+    description: 'What lifestyle characteristics define your target audience?',
+    icon: <Activity />,
+    component: <LifestyleStep />,
+    fields: lifestyleFields,
+  },
+  {
+    label: 'Family',
+    description: "What is your audience's family composition?",
+    icon: <Users />,
+    component: <FamilyStep />,
+    fields: familyFields,
+  },
+  {
+    label: 'Housing',
+    description: 'What type of housing does your target audience have?',
+    icon: <Home />,
+    component: <HousingStep />,
+    fields: housingFields,
+  },
+  {
+    label: 'Location',
+    description: 'Where are they located?',
+    icon: <MapPin />,
+    component: <LocationStep />,
+    fields: locationFields,
+  },
+  {
+    label: 'Emails',
+    description: 'What emails do you need from your audience?',
+    icon: <Mail />,
+    component: <EmailsStep />,
+    fields: emailsFields,
+  },
+] as const;
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -60,112 +154,63 @@ export default function AudienceFiltersForm({
   const router = useRouter();
   const { account, id } = useParams<{ account: string; id: string }>();
   const [pending, startTransition] = useTransition();
-  const [step, setStep] = useState(0);
+  const [currentDialog, setCurrentDialog] = useState<number | null>(null);
 
   const {
     account: { id: accountId },
   } = useTeamAccountWorkspace();
 
-  const isUpdate = defaultValues
-    ? Object.keys(defaultValues).length > 0
-    : false;
-
   const form = useForm<z.infer<typeof audienceFiltersFormSchema>>({
     resolver: zodResolver(audienceFiltersFormSchema),
-    defaultValues: audienceFiltersFormSchema.safeParse(defaultValues).success
-      ? audienceFiltersFormSchema.parse(defaultValues)
-      : audienceFiltersFormDefaultValues,
+    defaultValues: audienceFiltersFormDefaultValues,
     mode: 'onSubmit',
   });
 
-  const steps = [
-    {
-      label: 'Premade',
-      description: 'Start with a premade audience list.',
-      icon: <ListChecks />,
-      component: <PremadeStep />,
-      fields: premadeFields,
-    },
-    {
-      label: 'Date',
-      description: 'What is the date range for this audience?',
-      icon: <CalendarDays />,
-      component: <DateStep />,
-      fields: dateFields,
-    },
-    {
-      label: 'Business',
-      description: 'What is their business like?',
-      icon: <Building2 />,
-      component: <BusinessProfileStep />,
-      fields: businessProfileFields,
-    },
-    {
-      label: 'Financial',
-      description: 'What is their financial situation?',
-      icon: <Wallet />,
-      component: <FinancialStep />,
-      fields: financialFields,
-    },
-    {
-      label: 'Personal',
-      description: 'What are their personal characteristics?',
-      icon: <User />,
-      component: <PersonalStep />,
-      fields: personalFields,
-    },
-    {
-      label: 'Lifestyle',
-      description: 'What is their lifestyle like?',
-      icon: <Activity />,
-      component: <LifestyleStep />,
-      fields: lifestyleFields,
-    },
-    {
-      label: 'Family',
-      description: 'What is their family like?',
-      icon: <Users />,
-      component: <FamilyStep />,
-      fields: familyFields,
-    },
-    {
-      label: 'Housing',
-      description: 'What is their housing situation?',
-      icon: <Home />,
-      component: <HousingStep />,
-      fields: housingFields,
-    },
-    {
-      label: 'Location',
-      description: 'Where are they located?',
-      icon: <MapPin />,
-      component: <LocationStep />,
-      fields: locationFields,
-    },
-    {
-      label: 'Emails',
-      description: 'What emails are needed?',
-      icon: <Mail />,
-      component: <EmailsStep />,
-      fields: emailsFields,
-    },
-  ] as const;
+  useEffect(() => {
+    if (defaultValues && Object.keys(defaultValues).length > 0) {
+      const parsedValues = audienceFiltersFormSchema.safeParse(defaultValues);
 
-  const onNext = async () => {
-    const isValid = await form.trigger(steps[step]?.fields);
-    if (isValid) {
-      setStep(step + 1);
+      if (parsedValues.success) {
+        form.reset(parsedValues.data, {
+          keepDefaultValues: true,
+        });
+      }
     }
-  };
+  }, [defaultValues]);
 
-  const onPrevious = () => {
-    setStep(step - 1);
-  };
+  const dateRangeValue = form.watch('dateRange');
 
-  function onSubmit(
-    values: z.infer<typeof audienceFiltersFormSchema>,
-    isPreview: boolean = false,
-  ) {
+  useEffect(() => {
+    if (
+      !dateRangeValue ||
+      (!dateRangeValue.startDate && !dateRangeValue.endDate)
+    ) {
+      const endDate = formatDate(today);
+      const startDate = formatDate(subDays(today, 6));
+      form.setValue('dateRange', { startDate, endDate });
+    }
+  }, []);
+
+  function openDialog(stepIndex: number) {
+    setCurrentDialog(stepIndex);
+  }
+
+  async function handleDialogClose(stepIndex: number) {
+    const step = steps[stepIndex];
+    if (step !== undefined) {
+      const isValid = await form.trigger(step.fields);
+      if (isValid) {
+        setCurrentDialog(null);
+      }
+    }
+  }
+
+  function handleStepReset(stepIndex: number) {
+    steps[stepIndex]?.fields.forEach((fieldName) => form.resetField(fieldName));
+    setCurrentDialog(null);
+  }
+
+  function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
     startTransition(() => {
       toast.promise(
         addAudienceFiltersAction({
@@ -174,25 +219,30 @@ export default function AudienceFiltersForm({
           filters: values,
         }),
         {
-          loading: `${isUpdate ? 'Refreshing' : isPreview ? 'Getting preview' : 'Generating'} audience...`,
+          loading: 'Generating audience...',
           success: () => {
-            if (isPreview) {
-              router.push(`/home/${account}/audience/${id}/preview`);
-            } else {
-              router.push(`/home/${account}`);
-            }
-            return `Audience ${isUpdate ? 'refresh' : isPreview ? 'preview' : 'generation'} in queue...`;
+            router.push(`/home/${account}`);
+
+            return 'Audience generation in queue...';
           },
-          error: `Failed to ${isUpdate ? 'refresh' : 'generate'} audience`,
+          error: 'Failed to generate audience',
         },
       );
     });
   }
 
-  function handlePreviewSubmit(e: React.MouseEvent<HTMLButtonElement>) {
-    e.preventDefault();
-    form.handleSubmit((values) => onSubmit(values, true))();
-  }
+  const {
+    data: previewData,
+    mutate: getPreview,
+    isIdle,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: async () => {
+      return await getPreviewAudienceAction({ id, filters: form.getValues() });
+    },
+  });
 
   function onError(errors: unknown) {
     if (errors && typeof errors === 'object' && errors !== null) {
@@ -216,89 +266,248 @@ export default function AudienceFiltersForm({
     }
   }
 
-  const dateRangeValue = form.watch('dateRange');
-  const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
-
-  useEffect(() => {
-    if (
-      !dateRangeValue ||
-      (!dateRangeValue.startDate && !dateRangeValue.endDate)
-    ) {
-      const endDate = formatDate(today);
-      const startDate = formatDate(subDays(today, 6));
-      form.setValue('dateRange', { startDate, endDate });
-    }
-  }, []);
-
   return (
     <Form {...form}>
       <form
-        className="relative flex h-full"
-        onSubmit={form.handleSubmit(
-          (values) => onSubmit(values, false),
-          onError,
-        )}
-        onKeyDown={(e) => {
-          if (
-            e.key === 'Enter' &&
-            e.target instanceof HTMLElement &&
-            e.target.tagName !== 'TEXTAREA'
-          ) {
-            e.preventDefault();
-          }
-        }}
+        className="relative"
+        onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        <AudienceFiltersStepper
-          steps={steps}
-          currentStep={step}
-          setStep={setStep}
-          pending={pending}
-          isUpdate={isUpdate}
-          handlePreviewSubmit={handlePreviewSubmit}
-        />
-        <div className="flex h-full flex-1 flex-col">
-          <div className="flex-1 px-8">
-            <div className="space-y-6">{steps[step]?.component}</div>
-          </div>
-          <div className="bg-background sticky bottom-0 mt-6 border-t px-8 py-4">
-            <div className="flex w-full flex-row-reverse justify-between">
-              {step === steps.length - 1 && (
-                <div className="flex items-center gap-3">
-                  {!isUpdate && (
-                    <Button
-                      type="submit"
-                      disabled={pending}
-                      variant="secondary"
-                      onClick={handlePreviewSubmit}
-                    >
-                      Preview
-                    </Button>
-                  )}
-                  <Button type="submit" disabled={pending}>
-                    {isUpdate ? 'Refresh' : 'Generate'}
-                  </Button>
+        <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 px-6 pb-3">
+          {steps.map((step, index) => {
+            const appliedCount = step.fields.reduce((count, fieldName) => {
+              const value = form.getValues(fieldName);
+              if (fieldName === 'filters.businessProfile') {
+                return count + countBusinessProfile(value);
+              }
+              return count + countFilterValue(value);
+            }, 0);
+
+            const iconWithClasses = cloneElement(step.icon, {
+              className: cn('size-4', step.icon.props?.className),
+            });
+
+            return (
+              <Button
+                key={index}
+                type="button"
+                variant="ghost"
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5',
+                  appliedCount > 0 &&
+                    'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                )}
+                onClick={() => openDialog(index)}
+              >
+                {iconWithClasses}
+                {step.label}
+                {appliedCount > 0 && (
+                  <span className="text-muted-foreground text-xs">
+                    ({appliedCount} applied)
+                  </span>
+                )}
+              </Button>
+            );
+          })}
+          <div className="flex items-center gap-4">
+            <Button
+              type="button"
+              disabled={pending}
+              className="px-3 py-1.5"
+              variant="secondary"
+              onClick={() =>
+                form.trigger().then((isValid) => {
+                  if (isValid) {
+                    getPreview();
+                  } else {
+                    onError(form.formState.errors);
+                  }
+                })
+              }
+            >
+              <Search className="mr-2 size-4" />
+              Preview
+            </Button>
+            <Button
+              type="submit"
+              disabled={pending || !form.formState.isValid}
+              className="px-3 py-1.5"
+            >
+              <Database className="mr-2 size-4" />
+              Generate Audience
+            </Button>
+            {previewData && (
+              <>
+                <Separator orientation={'vertical'} className="h-4" />
+                <div className="text-sm font-medium whitespace-nowrap">
+                  <span className="font-semibold">
+                    {previewData.count.toLocaleString()}
+                  </span>{' '}
+                  {` result${previewData.count === 1 ? '' : 's found'}`}
                 </div>
-              )}
-              {step < steps.length - 1 && (
+              </>
+            )}
+          </div>
+        </div>
+        {steps.map((step, index) => (
+          <Dialog
+            key={index}
+            open={currentDialog === index}
+            onOpenChange={(open) => !open && handleDialogClose(index)}
+          >
+            <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col gap-0 px-0">
+              <DialogHeader className="border-b px-6 pb-4">
+                <DialogTitle className="flex items-center gap-2">
+                  {step.icon}
+                  <span>{step.label}</span>
+                </DialogTitle>
+                <DialogDescription>{step.description}</DialogDescription>
+              </DialogHeader>
+              <div
+                className="flex-1 space-y-6 overflow-y-auto px-6 py-8"
+                style={{ maxHeight: '60vh' }}
+              >
+                {step.component}
+              </div>
+              <DialogFooter className="border-t px-6 pt-4">
                 <Button
                   type="button"
-                  onClick={onNext}
-                  className="place-self-end justify-self-end"
+                  variant="outline"
+                  onClick={() => handleStepReset(index)}
                 >
-                  Next
-                  <ChevronRight className="ml-2 h-5 w-5" />
+                  Reset
                 </Button>
-              )}
-              {step > 0 && (
-                <Button type="button" onClick={onPrevious} variant="outline">
-                  <ChevronLeft className="mr-2 h-5 w-5" />
-                  Previous
+                <Button type="button" onClick={() => handleDialogClose(index)}>
+                  Continue
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        ))}
+      </form>
+      <div className="bg-muted h-full">
+        {isIdle && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <div className="max-w-md text-center">
+              <FileSearch className="mx-auto mb-4 h-12 w-12" />
+              <h3 className="mb-2 text-lg font-medium">
+                Preview Your Audience
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Customize your filters to build your audience. Get started by
+                selecting a premade list.
+              </p>
+              {form.getValues('segment').length > 0 ? (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  onClick={() =>
+                    form.trigger().then((isValid) => {
+                      if (isValid) {
+                        getPreview();
+                      } else {
+                        onError(form.formState.errors);
+                      }
+                    })
+                  }
+                >
+                  <Search className="mr-2 size-4" />
+                  Get Preview
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  onClick={() => setCurrentDialog(0)}
+                >
+                  <ListChecks className="mr-2 h-4 w-4" />
+                  Select a Premade List
                 </Button>
               )}
             </div>
           </div>
-        </div>
-      </form>
+        )}
+        {isPending && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <Loader2 className="size-12 animate-spin" />
+            <h3 className="mt-6 mb-2 text-lg font-medium">
+              Generating Audience Preview
+            </h3>
+            <p className="text-muted-foreground max-w-md text-center text-sm">
+              We&apos;re analyzing your filters and determining matching
+              profiles. This may take a few moments...
+            </p>
+          </div>
+        )}
+        {isError && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <AlertCircle className="text-destructive mb-4 h-12 w-12" />
+            <h3 className="text-destructive mb-2 text-lg font-medium">
+              Preview Generation Failed
+            </h3>
+            <p className="text-destructive mb-6 max-w-md">
+              {error instanceof Error
+                ? error.message
+                : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => getPreview()}
+              className="mx-auto"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        )}
+        {previewData && previewData.result.length === 0 && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <FileX className="mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">
+              No Matching Profiles Found
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Your current filter selection doesn&apos;t match any profiles in
+              our database. Try broadening your criteria to see results.
+            </p>
+          </div>
+        )}
+        {previewData && previewData.result.length > 0 && (
+          <PreviewAudienceTable data={previewData.result} />
+        )}
+      </div>
     </Form>
+  );
+}
+
+function countFilterValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.filter((item) => item != null && item !== '').length;
+  } else if (typeof value === 'object' && value !== null) {
+    const entries = Object.entries(value);
+    const hasValue = entries.some(([, v]) => v != null && v !== '');
+    return hasValue ? 1 : 0;
+  } else if (typeof value === 'string') {
+    return value.trim() !== '' ? 1 : 0;
+  } else if (typeof value === 'number') {
+    return 1;
+  }
+  return 0;
+}
+
+function countBusinessProfile(value: unknown): number {
+  if (!value || typeof value !== 'object') return 0;
+  return Object.values(value as Record<string, unknown>).reduce<number>(
+    (sum, subVal) => {
+      if (Array.isArray(subVal)) {
+        return sum +
+          subVal.filter((item) => item != null && item !== '').length >
+          0
+          ? 1
+          : 0;
+      }
+      return 0;
+    },
+    0,
   );
 }

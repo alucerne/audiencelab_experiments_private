@@ -1,6 +1,5 @@
 import { Path, useFormContext } from 'react-hook-form';
 
-import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import {
   FormControl,
   FormField,
@@ -22,12 +21,6 @@ export default function BusinessProfileStep() {
 
   return (
     <>
-      <CardHeader className="p-0">
-        <CardTitle>Business</CardTitle>
-        <CardDescription>
-          What business characteristics does this audience represent?
-        </CardDescription>
-      </CardHeader>
       <FormField
         control={control}
         name="filters.businessProfile.jobTitle"

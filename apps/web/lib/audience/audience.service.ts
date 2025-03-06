@@ -63,7 +63,12 @@ class AudienceService {
   async getAudienceById(audienceId: string) {
     const { data, error } = await this.client
       .from('audience')
-      .select('*')
+      .select(
+        `
+        *,
+        enqueue_job(*)
+      `,
+      )
       .eq('id', audienceId)
       .single();
 
@@ -71,9 +76,30 @@ class AudienceService {
       throw error;
     }
 
-    return data;
-  }
+    if (!data) {
+      throw new Error(`Audience with ID ${audienceId} not found`);
+    }
 
+    const { enqueue_job, ...audienceData } = data;
+
+    let latest_job = null;
+
+    if (enqueue_job && enqueue_job.length > 0) {
+      const sortedJobs = [...enqueue_job].sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
+
+      if (sortedJobs[0]) {
+        latest_job = sortedJobs[0];
+      }
+    }
+
+    return {
+      ...audienceData,
+      latest_job,
+    };
+  }
   async createAudience(params: { accountId: string; name: string }) {
     const { data, error } = await this.client
       .from('audience')

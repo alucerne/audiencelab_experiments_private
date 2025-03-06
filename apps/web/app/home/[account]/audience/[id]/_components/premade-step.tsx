@@ -3,7 +3,6 @@ import { useCallback, useState } from 'react';
 import { Path, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
-import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import {
   FormControl,
   FormDescription,
@@ -39,12 +38,6 @@ export default function PremadeStep() {
 
   return (
     <>
-      <CardHeader className="p-0">
-        <CardTitle>Premade Audience Lists</CardTitle>
-        <CardDescription>
-          Choose from our premade audience lists to get started.
-        </CardDescription>
-      </CardHeader>
       <FormItem>
         <FormLabel>Business Type</FormLabel>
         <FormDescription>

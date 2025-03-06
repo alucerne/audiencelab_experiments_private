@@ -23,6 +23,8 @@ create index ix_enqueue_job_account_id on public.enqueue_job(account_id);
 -- RLS
 alter table public.enqueue_job enable row level security;
 
+-- Realtime
+alter publication supabase_realtime add table enqueue_job;
 
 -- SELECT(public.enqueue_job)
 create policy select_enqueue_job
