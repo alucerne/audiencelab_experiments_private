@@ -45,6 +45,8 @@ import AudienceTableActions from './audience-table-actions';
 
 // File: app/home/[account]/_components/audience-table/index.tsx
 
+// File: app/home/[account]/_components/audience-table/index.tsx
+
 const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
   _,
@@ -159,7 +161,7 @@ export default function AudienceTable({
         accessorKey: 'latest_job.total',
         accessorFn: (audience) => audience.latest_job?.total ?? 0,
         header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Total Rows" />
+          <DataTableColumnHeader column={column} title="Audience Size" />
         ),
         className: 'text-right',
         cell: ({ row }) => {
