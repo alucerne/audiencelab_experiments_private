@@ -58,7 +58,7 @@ export function DownloadCsvDialog({
         className="max-w-md"
       >
         <DialogHeader>
-          <DialogTitle>Select an Audience Refresh</DialogTitle>
+          <DialogTitle>Download {audience.name} Audience</DialogTitle>
         </DialogHeader>
 
         {!audience.enqueue_job?.length ? (
