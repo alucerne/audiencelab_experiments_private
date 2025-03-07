@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   FilterFn,
   SortingState,
@@ -17,12 +16,10 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { format, parseISO } from 'date-fns';
 import { Tables } from 'node_modules/@kit/database-webhooks/src/server/record-change.type';
 
 import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
-import { Badge } from '@kit/ui/badge';
 import {
   Table,
   TableBody,
@@ -32,14 +29,13 @@ import {
   TableRow,
 } from '@kit/ui/table';
 
-import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
 import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
 import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
 import { AudienceList } from '~/lib/audience/audience.service';
 import { getAudienceByIdAction } from '~/lib/audience/server-actions';
 
 import AddAudienceDialog from '../add-audience-dialog';
-import AudienceTableActions from './audience-table-actions';
+import { columns } from './columns';
 
 const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
@@ -115,52 +111,6 @@ export default function AudienceTable({
     };
   }, [initialAudience, client, accountId]);
 
-  const staticColumns = useMemo<ColumnDef<AudienceList>[]>(
-    () => [
-      {
-        accessorKey: 'name',
-        accessorFn: (audience) => audience.name,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Name" />
-        ),
-      },
-      {
-        accessorKey: 'Status',
-        accessorFn: (audience) => audience.latest_job.status,
-        cell: ({ row: { original } }) => {
-          return <AudienceStatusBadge status={original.latest_job.status} />;
-        },
-      },
-      {
-        accessorKey: 'created_at',
-        accessorFn: (audience) => audience.created_at,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Creation Date" />
-        ),
-        cell({ row: { original } }) {
-          return getDateString(parseISO(original.created_at));
-        },
-      },
-      {
-        accessorKey: 'refreshed_at',
-        accessorFn: (audience) => audience.latest_job.created_at,
-        header: ({ column }) => (
-          <DataTableColumnHeader column={column} title="Last Refreshed" />
-        ),
-        cell({ row: { original } }) {
-          return getDateString(parseISO(original.latest_job.created_at));
-        },
-      },
-      {
-        id: 'actions',
-        cell: ({ row: { original } }) => (
-          <AudienceTableActions audience={original} />
-        ),
-      },
-    ],
-    [],
-  );
-
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -170,7 +120,7 @@ export default function AudienceTable({
 
   const table = useReactTable<AudienceList>({
     data: audience || [],
-    columns: staticColumns,
+    columns: columns,
     state: {
       sorting,
       columnVisibility,
@@ -239,7 +189,7 @@ export default function AudienceTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={staticColumns.length}
+                  colSpan={columns.length}
                   className="h-24 text-center"
                 >
                   No results.
@@ -252,29 +202,4 @@ export default function AudienceTable({
       <DataTablePagination table={table} />
     </div>
   );
-}
-
-export function AudienceStatusBadge({ status }: { status: string }) {
-  switch (status.toLowerCase()) {
-    case 'no data':
-      return <Badge variant={'destructive'}>No Data</Badge>;
-    case 'processing':
-      return <Badge variant={'info'}>Processing</Badge>;
-    case 'completed':
-      return <Badge variant={'success'}>Completed</Badge>;
-    case 'refreshing':
-      return <Badge variant={'info'}>Refreshing</Badge>;
-    case 'refreshed':
-      return <Badge variant={'success'}>Refreshed</Badge>;
-    default:
-      return (
-        <Badge variant={'secondary'} className="capitalize">
-          {status.toLowerCase().replace(/[-_]/g, ' ')}
-        </Badge>
-      );
-  }
-}
-
-function getDateString(date: Date) {
-  return format(date, 'MMM d yyyy, h:mm a');
 }
