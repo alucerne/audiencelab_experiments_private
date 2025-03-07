@@ -364,7 +364,7 @@ export default function AudienceFiltersForm({
               </DialogHeader>
               <div
                 className="flex-1 space-y-6 overflow-y-auto px-6 py-8"
-                style={{ maxHeight: '60vh' }}
+                style={{ maxHeight: '80vh' }}
               >
                 {step.component}
               </div>
@@ -500,11 +500,12 @@ function countBusinessProfile(value: unknown): number {
   return Object.values(value as Record<string, unknown>).reduce<number>(
     (sum, subVal) => {
       if (Array.isArray(subVal)) {
-        return sum +
-          subVal.filter((item) => item != null && item !== '').length >
-          0
-          ? 1
-          : 0;
+        return (
+          sum +
+          (subVal.filter((item) => item != null && item !== '').length > 0
+            ? 1
+            : 0)
+        );
       }
       return 0;
     },

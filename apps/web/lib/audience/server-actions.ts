@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
+import { typesenseClient } from '../typesense/client';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
@@ -117,19 +118,21 @@ export const getAudienceByIdAction = enhanceAction(
 
 export const getPreviewAudienceAction = enhanceAction(
   async ({ id, filters }) => {
-    const client = getSupabaseServerClient();
-
-    const { data: interests, error } = await client
-      .from('interests')
-      .select('id, intent')
-      .in('intent', filters.segment);
-
-    if (error) {
-      throw error;
-    }
+    const { hits } = await typesenseClient
+      .collections<{
+        intent_id: string;
+        intent: string;
+      }>('intents')
+      .documents()
+      .search({
+        q: '*',
+        query_by: 'intent',
+        filter_by: `intent:=[${filters.segment.join(',')}]`,
+        per_page: 50,
+      });
 
     filters.segment = Array.from(
-      new Set(interests.map((interest) => `4eyes_${interest.id}`)),
+      new Set(hits?.map((hit) => `4eyes_${hit.document.intent_id}`) || []),
     );
 
     const timestampMs = format(new Date(), 'T');

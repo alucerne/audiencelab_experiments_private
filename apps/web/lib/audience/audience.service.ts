@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { Database } from '~/lib/database.types';
 
+import { typesenseClient } from '../typesense/client';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
@@ -127,13 +128,21 @@ class AudienceService {
     filters: z.infer<typeof audienceFiltersFormSchema>;
   }) {
     const [interests, audience, job] = await Promise.all([
-      this.client
-        .from('interests')
-        .select('id, intent')
-        .in('intent', filters.segment),
+      typesenseClient
+        .collections<{
+          intent_id: string;
+          intent: string;
+        }>('intents')
+        .documents()
+        .search({
+          q: '*',
+          query_by: 'intent',
+          filter_by: `intent:=[${filters.segment.join(',')}]`,
+          per_page: 50,
+        }),
       this.client
         .from('audience')
-        .update({ filters: filters })
+        .update({ filters })
         .eq('id', audienceId)
         .select('*')
         .single(),
@@ -147,12 +156,14 @@ class AudienceService {
         .single(),
     ]);
 
-    if (interests.error || audience.error || job.error) {
-      throw interests.error || audience.error || job.error;
+    if (audience.error || job.error) {
+      throw audience.error || job.error;
     }
 
     filters.segment = Array.from(
-      new Set(interests.data.map((interest) => `4eyes_${interest.id}`)),
+      new Set(
+        interests.hits?.map((hit) => `4eyes_${hit.document.intent_id}`) || [],
+      ),
     );
 
     const response = await fetch(
