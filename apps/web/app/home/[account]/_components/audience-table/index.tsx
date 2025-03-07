@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import {
   ColumnDef,
@@ -19,6 +19,8 @@ import {
 } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
+import { useSupabase } from '@kit/supabase/hooks/use-supabase';
+import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Badge } from '@kit/ui/badge';
 import {
   Table,
@@ -33,6 +35,8 @@ import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-col
 import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
 import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
 import { AudienceList } from '~/lib/audience/audience.service';
+import { getAudienceByIdAction } from '~/lib/audience/server-actions';
+import { Tables } from '~/lib/database.types';
 
 import AddAudienceDialog from '../add-audience-dialog';
 import AudienceTableActions from './audience-table-actions';
@@ -49,10 +53,68 @@ const nameIdFilterFn: FilterFn<AudienceList> = (
 };
 
 export default function AudienceTable({
-  audience,
+  audience: initialAudience,
 }: React.PropsWithChildren<{
   audience: AudienceList[];
 }>) {
+  const [audience, setAudience] = useState(initialAudience || []);
+  const {
+    account: { id: accountId },
+  } = useTeamAccountWorkspace();
+  const client = useSupabase();
+
+  useEffect(() => {
+    if (initialAudience) {
+      setAudience(initialAudience);
+    }
+
+    const subscription = client
+      .channel(`enqueue-job-channel-${accountId}`)
+      .on<Tables['enqueue_job']['Row']>(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'enqueue_job',
+          filter: `account_id=eq.${accountId}`,
+        },
+        async (payload) => {
+          if (
+            payload.eventType === 'INSERT' ||
+            payload.eventType === 'UPDATE'
+          ) {
+            try {
+              const updatedAudience = await getAudienceByIdAction({
+                id: payload.new.audience_id,
+              });
+
+              if (updatedAudience && updatedAudience.latest_job) {
+                setAudience((current) =>
+                  current.map((item) => {
+                    if (item.id === payload.new.audience_id) {
+                      return {
+                        ...updatedAudience,
+                        latest_job:
+                          updatedAudience.latest_job || item.latest_job,
+                      };
+                    }
+                    return item;
+                  }),
+                );
+              }
+            } catch (error) {
+              console.error('Error updating audience:', error);
+            }
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [initialAudience, client, accountId]);
+
   const staticColumns = useMemo<ColumnDef<AudienceList>[]>(
     () => [
       {
@@ -90,7 +152,6 @@ export default function AudienceTable({
         },
       },
       {
-        // This column is now sortable by telling the table how to access the numeric value
         accessorKey: 'latest_job.total',
         accessorFn: (audience) => audience.latest_job?.total ?? 0,
         header: ({ column }) => (
@@ -100,7 +161,9 @@ export default function AudienceTable({
         cell: ({ row }) => {
           const item = row.original;
           const total = item?.latest_job?.total;
-          return total ?? '';
+          return total !== null && total !== undefined
+            ? total.toLocaleString()
+            : '';
         },
       },
       {
