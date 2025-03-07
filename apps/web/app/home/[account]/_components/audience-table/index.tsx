@@ -90,6 +90,20 @@ export default function AudienceTable({
         },
       },
       {
+        // This column is now sortable by telling the table how to access the numeric value
+        accessorKey: 'latest_job.total',
+        accessorFn: (audience) => audience.latest_job?.total ?? 0,
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Total Rows" />
+        ),
+        className: 'text-right',
+        cell: ({ row }) => {
+          const item = row.original;
+          const total = item?.latest_job?.total;
+          return total ?? '';
+        },
+      },
+      {
         id: 'actions',
         cell: ({ row: { original } }) => (
           <AudienceTableActions audience={original} />
