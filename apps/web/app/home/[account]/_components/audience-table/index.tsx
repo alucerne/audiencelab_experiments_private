@@ -99,7 +99,7 @@ export default function AudienceTable({
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "created_at", desc: true },
+    { id: "refreshed_at", desc: true },
   ]);
 
   const table = useReactTable<AudienceList>({

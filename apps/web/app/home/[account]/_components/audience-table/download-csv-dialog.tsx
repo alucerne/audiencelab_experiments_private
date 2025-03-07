@@ -39,13 +39,13 @@ export function DownloadCsvDialog({
         document.body.removeChild(link);
     };
 
-    // We assume audience.enqueue_job is sorted, or else you can sort below:
-    // const sortedJobs = [...(audience.enqueue_job ?? [])].sort(...);
-
     return (
         <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>{children}</DialogTrigger>
-            <DialogContent className="max-w-md">
+            <DialogContent
+                onInteractOutside={(e) => e.preventDefault()}
+                className="max-w-md"
+            >
                 <DialogHeader>
                     <DialogTitle>Select a CSV to Download</DialogTitle>
                 </DialogHeader>
