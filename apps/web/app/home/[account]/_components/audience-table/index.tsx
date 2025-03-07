@@ -1,3 +1,5 @@
+// File: app/home/[account]/_components/audience-table/index.tsx
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -40,6 +42,8 @@ import { Tables } from '~/lib/database.types';
 
 import AddAudienceDialog from '../add-audience-dialog';
 import AudienceTableActions from './audience-table-actions';
+
+// File: app/home/[account]/_components/audience-table/index.tsx
 
 const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
@@ -166,6 +170,23 @@ export default function AudienceTable({
             : '';
         },
       },
+      {
+        accessorKey: 'refreshCount',
+        accessorFn: (audience) => {
+          // The refresh count is the number of jobs minus 1 (the first job is the creation)
+          const length = audience.enqueue_job?.length ?? 0;
+          return Math.max(length - 1, 0);
+        },
+        header: ({ column }) => (
+          <DataTableColumnHeader column={column} title="Refresh Count" />
+        ),
+        className: 'text-right',
+        cell: ({ row }) => {
+          const refreshCount = row.getValue<number>('refreshCount');
+          return refreshCount;
+        },
+      },
+      // -----------------------------------------------------------
       {
         id: 'actions',
         cell: ({ row: { original } }) => (
