@@ -7,7 +7,9 @@ import logo from '~/public/images/logo.png';
 
 function LogoImage({ className }: { className?: string }) {
   return (
-    <div className={cn(`bg-black rounded-md py-2 px-2.5 w-40 lg:w-48`, className)}>
+    <div
+      className={cn(`w-40 rounded-md bg-black px-2.5 py-2 lg:w-48`, className)}
+    >
       <Image
         src={logo}
         alt="Audience Lab Logo"

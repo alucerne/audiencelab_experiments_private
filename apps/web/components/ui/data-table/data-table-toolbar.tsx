@@ -28,7 +28,7 @@ export function DataTableToolbar<TData>({
           className={'w-full max-w-xs'}
         />
         <Separator orientation={'vertical'} className="py-2" />
-        <div className="whitespace-nowrap text-sm font-medium">
+        <div className="text-sm font-medium whitespace-nowrap">
           <span className="font-semibold">
             {table.getFilteredRowModel().rows.length.toLocaleString()}
           </span>{' '}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo, useState } from 'react';
 
 import {
   ColumnDef,
@@ -16,10 +16,10 @@ import {
   getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
-} from "@tanstack/react-table";
-import { format, parseISO } from "date-fns";
+} from '@tanstack/react-table';
+import { format, parseISO } from 'date-fns';
 
-import { Badge } from "@kit/ui/badge";
+import { Badge } from '@kit/ui/badge';
 import {
   Table,
   TableBody,
@@ -27,17 +27,21 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@kit/ui/table";
+} from '@kit/ui/table';
 
-import { DataTableColumnHeader } from "~/components/ui/data-table/data-table-column-header";
-import { DataTablePagination } from "~/components/ui/data-table/data-table-pagination";
-import { DataTableToolbar } from "~/components/ui/data-table/data-table-toolbar";
-import { AudienceList } from "~/lib/audience/audience.service";
+import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
+import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
+import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
+import { AudienceList } from '~/lib/audience/audience.service';
 
-import AddAudienceDialog from "../add-audience-dialog";
-import AudienceTableActions from "./audience-table-actions";
+import AddAudienceDialog from '../add-audience-dialog';
+import AudienceTableActions from './audience-table-actions';
 
-const nameIdFilterFn: FilterFn<AudienceList> = (row, _, filterValue: string) => {
+const nameIdFilterFn: FilterFn<AudienceList> = (
+  row,
+  _,
+  filterValue: string,
+) => {
   const fullName = row.original.name.toLowerCase();
   const searchText = filterValue.toLowerCase();
 
@@ -52,21 +56,21 @@ export default function AudienceTable({
   const staticColumns = useMemo<ColumnDef<AudienceList>[]>(
     () => [
       {
-        accessorKey: "name",
+        accessorKey: 'name',
         accessorFn: (audience) => audience.name,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Name" />
         ),
       },
       {
-        accessorKey: "Status",
+        accessorKey: 'Status',
         accessorFn: (audience) => audience.latest_job.status,
         cell: ({ row: { original } }) => {
           return <AudienceStatusBadge status={original.latest_job.status} />;
         },
       },
       {
-        accessorKey: "created_at",
+        accessorKey: 'created_at',
         accessorFn: (audience) => audience.created_at,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Creation Date" />
@@ -76,7 +80,7 @@ export default function AudienceTable({
         },
       },
       {
-        accessorKey: "refreshed_at",
+        accessorKey: 'refreshed_at',
         accessorFn: (audience) => audience.latest_job.created_at,
         header: ({ column }) => (
           <DataTableColumnHeader column={column} title="Last Refreshed" />
@@ -86,20 +90,20 @@ export default function AudienceTable({
         },
       },
       {
-        id: "actions",
+        id: 'actions',
         cell: ({ row: { original } }) => (
           <AudienceTableActions audience={original} />
         ),
       },
     ],
-    []
+    [],
   );
 
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [sorting, setSorting] = useState<SortingState>([
-    { id: "refreshed_at", desc: true },
+    { id: 'refreshed_at', desc: true },
   ]);
 
   const table = useReactTable<AudienceList>({
@@ -145,7 +149,7 @@ export default function AudienceTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   );
@@ -158,11 +162,14 @@ export default function AudienceTable({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="whitespace-nowrap">
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -187,25 +194,25 @@ export default function AudienceTable({
 
 export function AudienceStatusBadge({ status }: { status: string }) {
   switch (status.toLowerCase()) {
-    case "no data":
-      return <Badge variant={"destructive"}>No Data</Badge>;
-    case "processing":
-      return <Badge variant={"info"}>Processing</Badge>;
-    case "completed":
-      return <Badge variant={"success"}>Completed</Badge>;
-    case "refreshing":
-      return <Badge variant={"info"}>Refreshing</Badge>;
-    case "refreshed":
-      return <Badge variant={"success"}>Refreshed</Badge>;
+    case 'no data':
+      return <Badge variant={'destructive'}>No Data</Badge>;
+    case 'processing':
+      return <Badge variant={'info'}>Processing</Badge>;
+    case 'completed':
+      return <Badge variant={'success'}>Completed</Badge>;
+    case 'refreshing':
+      return <Badge variant={'info'}>Refreshing</Badge>;
+    case 'refreshed':
+      return <Badge variant={'success'}>Refreshed</Badge>;
     default:
       return (
-        <Badge variant={"secondary"} className="capitalize">
-          {status.toLowerCase().replace(/[-_]/g, " ")}
+        <Badge variant={'secondary'} className="capitalize">
+          {status.toLowerCase().replace(/[-_]/g, ' ')}
         </Badge>
       );
   }
 }
 
 function getDateString(date: Date) {
-  return format(date, "MMM d yyyy, h:mm a");
+  return format(date, 'MMM d yyyy, h:mm a');
 }
