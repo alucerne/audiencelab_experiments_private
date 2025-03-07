@@ -16,6 +16,15 @@ import { Label } from '@kit/ui/label';
 
 import type { AudienceList } from '~/lib/audience/audience.service';
 
+function formatStatusCase(status: string) {
+  if (!status) return '';
+  return status
+    .toLowerCase()
+    .split('_')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
 export function DownloadCsvDialog({
   children,
   audience,
@@ -70,7 +79,7 @@ export function DownloadCsvDialog({
                       {format(parseISO(job.created_at), 'MMM d, yyyy h:mm a')}
                     </Label>
                     <p className="text-muted-foreground text-xs">
-                      Status: {job.status ?? 'unknown'}
+                      Status: {formatStatusCase(job.status) || 'Unknown'}
                     </p>
                   </div>
                   <Button

@@ -100,7 +100,7 @@ export default function AudienceTableActions({
                 buttonVariants({
                   variant: 'ghost',
                   size: 'icon',
-                  className: 'h-7 w-7',
+                  className: 'h-7 w-7 cursor-default',
                 }),
               )}
             >
@@ -116,11 +116,7 @@ export default function AudienceTableActions({
         <Tooltip>
           <DuplicateAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 cursor-pointer"
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -144,11 +140,7 @@ export default function AudienceTableActions({
         <Tooltip>
           <DeleteAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 cursor-pointer"
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Trash2 className="text-destructive h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
