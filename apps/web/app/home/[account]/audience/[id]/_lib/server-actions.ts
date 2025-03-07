@@ -3,22 +3,25 @@
 import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
-import { getSupabaseServerClient } from '@kit/supabase/server-client';
+
+import { typesenseClient } from '~/lib/typesense/client';
 
 export const searchPremadeListsAction = enhanceAction(
   async ({ search, businessType }) => {
-    const client = getSupabaseServerClient();
+    const searchResponse = await typesenseClient
+      .collections<{
+        intent: string;
+        b2b: boolean;
+      }>('intents')
+      .documents()
+      .search({
+        q: search,
+        query_by: 'intent',
+        filter_by: `b2b:=${businessType === 'B2B'}`,
+        per_page: 20,
+      });
 
-    const { data: results, error } = await client
-      .from('interests')
-      .select('intent')
-      .ilike('intent', `%${search}%`)
-      .eq('b2b', businessType === 'B2B')
-      .limit(20);
-
-    if (error) throw error;
-
-    return results.map((result) => result.intent);
+    return searchResponse.hits?.map((hit) => hit.document.intent) ?? [];
   },
   {
     schema: z.object({
