@@ -1,0 +1,10 @@
+repos:
+  - repo: local
+    hooks:
+      - id: run-pnpm-format
+        name: Run pnpm format
+        entry: pnpm
+        args: ["format"]
+        language: system
+        # or "language: node" if you rely on a Node environment in pre-commit
+        pass_filenames: false

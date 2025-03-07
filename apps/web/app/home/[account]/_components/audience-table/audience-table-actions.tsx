@@ -9,7 +9,7 @@ import {
     Trash2,
 } from "lucide-react";
 
-import {Button, buttonVariants} from "@kit/ui/button";
+    import {Button, buttonVariants} from "@kit/ui/button";
 import {
     Tooltip,
     TooltipContent,
