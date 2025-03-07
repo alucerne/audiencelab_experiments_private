@@ -1,13 +1,6 @@
 import Typesense from 'typesense';
-import { z } from 'zod';
 
-const apiKey = z
-  .string({
-    description: `Typesense API key.`,
-    required_error:
-      'Typesense API key is required. Please set the `TYPESENSE_API_KEY` environment variable.',
-  })
-  .parse(process.env.TYPESENSE_API_KEY);
+import miscConfig from '~/config/misc.config';
 
 export const typesenseClient = new Typesense.Client({
   nodes: [
@@ -17,6 +10,6 @@ export const typesenseClient = new Typesense.Client({
       protocol: 'https',
     },
   ],
-  apiKey,
+  apiKey: miscConfig.typesenseApiKey,
   connectionTimeoutSeconds: 2,
 });
