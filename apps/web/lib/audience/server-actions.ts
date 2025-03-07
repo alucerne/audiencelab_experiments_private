@@ -12,6 +12,10 @@ import { typesenseClient } from '../typesense/client';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
+const AUDIENCE_API_URL =
+  process.env.AUDIENCE_API_URL ||
+  'https://v3-audience-job-72802495918.us-east1.run.app';
+
 export const createAudienceAction = enhanceAction(
   async (data) => {
     const client = getSupabaseServerClient();
@@ -44,6 +48,7 @@ export const addAudienceFiltersAction = enhanceAction(
       accountId: data.accountId,
       audienceId: data.audienceId,
       filters: data.filters,
+      audienceApiUrl: AUDIENCE_API_URL,
     });
 
     revalidatePath('/home/[account]/audience/[id]', 'page');

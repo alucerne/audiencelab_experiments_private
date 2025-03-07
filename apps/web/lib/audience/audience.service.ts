@@ -44,6 +44,7 @@ class AudienceService {
             const { enqueue_job: _enqueue_job, ...rest } = audience;
             return {
               ...rest,
+              enqueue_job: sortedJobs,
               latest_job: sortedJobs[0],
             };
           }
@@ -122,6 +123,7 @@ class AudienceService {
     accountId,
     audienceId,
     filters,
+    audienceApiUrl,
   }: {
     accountId: string;
     audienceId: string;
@@ -166,19 +168,14 @@ class AudienceService {
       ),
     );
 
-    const response = await fetch(
-      'https://v3-audience-job-72802495918.us-east1.run.app/audience/enqueue',
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...filters,
-          jobId: job.data.id,
-        }),
-      },
-    );
+    const response = await fetch(`${audienceApiUrl}/audience/enqueue`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...filters,
+        jobId: job.data.id,
+      }),
+    });
 
     if (!response.ok) {
       await this.client.from('enqueue_job').delete().eq('id', job.data.id);
