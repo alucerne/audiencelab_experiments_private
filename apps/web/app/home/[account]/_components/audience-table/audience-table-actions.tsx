@@ -1,8 +1,11 @@
+'use client';
+
 import { useTransition } from 'react';
 
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
+import { differenceInMinutes } from 'date-fns';
 import { Copy, Download, RefreshCw, SquarePen, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -23,14 +26,38 @@ import DeleteAudienceDialog from '../delete-audience-dialog';
 import DuplicateAudienceDialog from '../duplicate-audience-dialog';
 import { DownloadCsvDialog } from './download-csv-dialog';
 
+/**
+ * @description
+ * AudienceTableActions is responsible for rendering various action buttons (e.g., Facebook export, refresh, duplicate, download CSV, delete)
+ * associated with an AudienceList item.
+ *
+ * The Refresh button is enabled if:
+ * 1) The latest job status is "COMPLETED", OR
+ * 2) The last job update was more than 5 minutes ago.
+ */
 export default function AudienceTableActions({
   audience,
 }: {
   audience: AudienceList;
 }) {
   const { account } = useParams<{ account: string }>();
-  const isRefreshEnabled =
-    audience.latest_job && audience.latest_job.status === 'COMPLETED';
+
+  // Calculate whether Refresh should be enabled
+  // Condition: "COMPLETED" or updated_at is older than 5 minutes
+  let isRefreshEnabled = false;
+  if (audience.latest_job) {
+    const statusIsCompleted = audience.latest_job.status === 'COMPLETED';
+    let olderThanFiveMinutes = false;
+
+    if (audience.latest_job.created_at) {
+      const now = new Date();
+      const createdTime = new Date(audience.latest_job.created_at);
+      const diffMinutes = differenceInMinutes(now, createdTime);
+      olderThanFiveMinutes = diffMinutes >= 5;
+    }
+
+    isRefreshEnabled = statusIsCompleted || olderThanFiveMinutes;
+  }
 
   const [isPending, startTransition] = useTransition();
 
@@ -57,15 +84,10 @@ export default function AudienceTableActions({
   return (
     <div className="flex items-center justify-end">
       <TooltipProvider delayDuration={300}>
-        {/* Facebook Export Button Example - Not changed */}
+        {/* Export to Facebook (Disabled) */}
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              disabled={true}
-            >
+            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
               <FacebookLogo size={14} />
             </Button>
           </TooltipTrigger>
@@ -74,7 +96,7 @@ export default function AudienceTableActions({
           </TooltipContent>
         </Tooltip>
 
-        {/* Refresh Button Example - Not changed */}
+        {/* Refresh Button */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button
@@ -126,6 +148,7 @@ export default function AudienceTableActions({
           </TooltipContent>
         </Tooltip>
 
+        {/* Download CSV */}
         <Tooltip>
           <DownloadCsvDialog audience={audience}>
             <TooltipTrigger asChild>
@@ -137,6 +160,7 @@ export default function AudienceTableActions({
           <TooltipContent>Download CSV</TooltipContent>
         </Tooltip>
 
+        {/* Delete Audience */}
         <Tooltip>
           <DeleteAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
