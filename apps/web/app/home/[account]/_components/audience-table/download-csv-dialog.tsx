@@ -142,7 +142,7 @@ export function DownloadCsvDialog({
               >
                 <div className="flex flex-col space-y-0.5 text-sm">
                   <Label className="font-medium">
-                    Created At:{' '}
+                    Refreshed At:{' '}
                     {format(parseISO(job.created_at), 'MMM d, yyyy h:mm a')}
                   </Label>
                   <p className="text-muted-foreground text-xs">

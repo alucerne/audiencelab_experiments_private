@@ -27,23 +27,35 @@ import DuplicateAudienceDialog from '../duplicate-audience-dialog';
 import { DownloadCsvDialog } from './download-csv-dialog';
 
 /**
- * @description
- * AudienceTableActions is responsible for rendering various action buttons (e.g., Facebook export, refresh, duplicate, download CSV, delete)
- * associated with an AudienceList item.
- *
- * The Refresh button is enabled if:
- * 1) The latest job status is "COMPLETED", OR
- * 2) The last job update was more than 5 minutes ago.
+ * We'll define the shape for an enqueue_job row to do a local "placeholder" update.
+ */
+type EnqueueJobRow = {
+  id: string;
+  account_id: string;
+  audience_id: string;
+  created_at: string;
+  csv_url: string | null;
+  current: number | null;
+  total: number | null;
+  updated_at: string;
+  status: string;
+};
+
+/**
+ * Props for AudienceTableActions
+ * @param audience The audience row data
+ * @param onLocalRefresh Callback to do a local update of the table with a new (placeholder) job
  */
 export default function AudienceTableActions({
   audience,
+  onLocalRefresh,
 }: {
   audience: AudienceList;
+  onLocalRefresh?: (job: EnqueueJobRow) => void;
 }) {
   const { account } = useParams<{ account: string }>();
 
-  // Calculate whether Refresh should be enabled
-  // Condition: "COMPLETED" or updated_at is older than 5 minutes
+  // Condition to enable the refresh button
   let isRefreshEnabled = false;
   if (audience.latest_job) {
     const statusIsCompleted = audience.latest_job.status === 'COMPLETED';
@@ -61,30 +73,52 @@ export default function AudienceTableActions({
 
   const [isPending, startTransition] = useTransition();
 
+  /**
+   * Refresh the audience by calling addAudienceFiltersAction
+   * We also immediately do a local update (onLocalRefresh) to show the new job count
+   */
   async function handleRefresh() {
     if (!audience.filters) {
       toast.error('This audience has no filters defined.');
       return;
     }
 
-    startTransition(async () => {
-      try {
-        await addAudienceFiltersAction({
+    // Immediately add a local "placeholder" job to increment the refresh count.
+    if (onLocalRefresh) {
+      const now = new Date().toISOString();
+      onLocalRefresh({
+        id: crypto.randomUUID(),
+        account_id: audience.account_id,
+        audience_id: audience.id,
+        created_at: now,
+        updated_at: now,
+        csv_url: null,
+        current: 0,
+        total: 0,
+        status: 'PROCESSING',
+      });
+    }
+
+    startTransition(() => {
+      toast.promise(
+        addAudienceFiltersAction({
           accountId: audience.account_id,
           audienceId: audience.id,
           filters: audience.filters,
-        });
-        toast.success('Refresh job has been queued successfully.');
-      } catch (error: any) {
-        toast.error(error?.message || 'Failed to refresh audience job.');
-      }
+        }),
+        {
+          loading: 'Refresh job has been queued successfully.',
+          success: 'Refresh job has been queued successfully.',
+          error: 'Failed to refresh audience job.',
+        },
+      );
     });
   }
 
   return (
     <div className="flex items-center justify-end">
       <TooltipProvider delayDuration={300}>
-        {/* Export to Facebook (Disabled) */}
+        {/* Export to Facebook (Disabled for now) */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7" disabled>

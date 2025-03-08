@@ -1,5 +1,3 @@
-// File: app/home/[account]/_components/audience-table/index.tsx
-
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -43,12 +41,9 @@ import { Tables } from '~/lib/database.types';
 import AddAudienceDialog from '../add-audience-dialog';
 import AudienceTableActions from './audience-table-actions';
 
-// File: app/home/[account]/_components/audience-table/index.tsx
-
-// File: app/home/[account]/_components/audience-table/index.tsx
-
-// File: app/home/[account]/_components/audience-table/index.tsx
-
+/**
+ * A custom filter function for searching by audience name (case-insensitive).
+ */
 const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
   _,
@@ -56,29 +51,30 @@ const nameIdFilterFn: FilterFn<AudienceList> = (
 ) => {
   const fullName = row.original.name.toLowerCase();
   const searchText = filterValue.toLowerCase();
-
   return fullName.includes(searchText);
 };
 
 export default function AudienceTable({
   audience: initialAudience,
-}: React.PropsWithChildren<{
+}: {
   audience: AudienceList[];
-}>) {
+}) {
   const [audience, setAudience] = useState(initialAudience || []);
   const {
     account: { id: accountId },
   } = useTeamAccountWorkspace();
   const client = useSupabase();
 
+  // Subscribe to "enqueue_job" changes so we can update the table in real time
   useEffect(() => {
     if (initialAudience) {
       setAudience(initialAudience);
     }
 
+    // Set up a realtime subscription for the "enqueue_job" table
     const subscription = client
       .channel(`enqueue-job-channel-${accountId}`)
-      .on<Tables['enqueue_job']['Row']>(
+      .on<Tables<'enqueue_job'>>(
         'postgres_changes',
         {
           event: '*',
@@ -92,10 +88,10 @@ export default function AudienceTable({
             payload.eventType === 'UPDATE'
           ) {
             try {
+              // fetch updated audience info
               const updatedAudience = await getAudienceByIdAction({
                 id: payload.new.audience_id,
               });
-
               if (updatedAudience && updatedAudience.latest_job) {
                 setAudience((current) =>
                   current.map((item) => {
@@ -123,6 +119,7 @@ export default function AudienceTable({
     };
   }, [initialAudience, client, accountId]);
 
+  // Define columns
   const staticColumns = useMemo<ColumnDef<AudienceList>[]>(
     () => [
       {
@@ -190,11 +187,26 @@ export default function AudienceTable({
           return refreshCount;
         },
       },
-      // -----------------------------------------------------------
       {
         id: 'actions',
         cell: ({ row: { original } }) => (
-          <AudienceTableActions audience={original} />
+          <AudienceTableActions
+            audience={original}
+            // We pass a callback that lets the child do a local update
+            onLocalRefresh={(newJob) => {
+              setAudience((prev) =>
+                prev.map((item) => {
+                  if (item.id === original.id) {
+                    return {
+                      ...item,
+                      enqueue_job: [...(item.enqueue_job || []), newJob],
+                    };
+                  }
+                  return item;
+                }),
+              );
+            }}
+          />
         ),
       },
     ],
@@ -208,6 +220,7 @@ export default function AudienceTable({
     { id: 'created_at', desc: true },
   ]);
 
+  // Build the table with react-table
   const table = useReactTable<AudienceList>({
     data: audience || [],
     columns: staticColumns,
@@ -239,6 +252,7 @@ export default function AudienceTable({
         searchPlaceholder="Search by name..."
         actions={<AddAudienceDialog />}
       />
+
       <div className="w-full overflow-hidden rounded-md border">
         <Table>
           <TableHeader>
@@ -289,11 +303,15 @@ export default function AudienceTable({
           </TableBody>
         </Table>
       </div>
+
       <DataTablePagination table={table} />
     </div>
   );
 }
 
+/**
+ * Display status with a badge
+ */
 export function AudienceStatusBadge({ status }: { status: string }) {
   switch (status.toLowerCase()) {
     case 'no data':
