@@ -47,6 +47,8 @@ import AudienceTableActions from './audience-table-actions';
 
 // File: app/home/[account]/_components/audience-table/index.tsx
 
+// File: app/home/[account]/_components/audience-table/index.tsx
+
 const nameIdFilterFn: FilterFn<AudienceList> = (
   row,
   _,
