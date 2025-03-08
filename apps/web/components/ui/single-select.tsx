@@ -35,7 +35,7 @@ function ClearIndicator(props: ClearIndicatorProps<StringOption>) {
   return (
     <components.ClearIndicator
       {...props}
-      className="rounded-md border border-transparent p-0.5 opacity-50 hover:cursor-pointer hover:border-destructive hover:bg-destructive/5 hover:text-destructive hover:opacity-100"
+      className="hover:border-destructive hover:bg-destructive/5 hover:text-destructive rounded-md border border-transparent p-0.5 opacity-50 hover:cursor-pointer hover:opacity-100"
     >
       <X className="h-4 min-h-4 w-4 min-w-4" />
     </components.ClearIndicator>
@@ -45,8 +45,8 @@ function ClearIndicator(props: ClearIndicatorProps<StringOption>) {
 function Option({ className: _, ...props }: OptionProps<StringOption>) {
   return (
     <components.Option {...props}>
-      <div className="relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-2 pr-8 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
-        <div className="text-sm text-accent-foreground">{props.label}</div>
+      <div className="focus:bg-accent focus:text-accent-foreground relative flex w-full cursor-default items-center rounded-sm py-1.5 pr-8 pl-2 text-sm outline-none select-none data-[disabled]:pointer-events-none data-[disabled]:opacity-50">
+        <div className="text-accent-foreground text-sm">{props.label}</div>
         {props.isSelected && (
           <span className="absolute right-2 flex h-3.5 w-3.5 items-center justify-center">
             <CheckIcon className="h-4 min-h-4 w-4 min-w-4" />
@@ -103,8 +103,8 @@ export default function SingleSelect({
         container: () => 'w-full',
         control: ({ isFocused }) =>
           cn(
-            isFocused && 'outline-none ring-1 ring-ring',
-            'rounded-md border border-input bg-transparent px-3 py-1 shadow-sm ring-offset-background hover:cursor-text',
+            isFocused && 'ring-ring ring-1 outline-none',
+            'border-input ring-offset-background rounded-md border bg-transparent px-3 py-1 shadow-sm hover:cursor-text',
           ),
         placeholder: () => 'text-sm text-muted-foreground',
         input: () => 'text-sm',

@@ -1,0 +1,97 @@
+'use client';
+
+import { useState } from 'react';
+
+import { format, parseISO } from 'date-fns';
+
+import { Button } from '@kit/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kit/ui/dialog';
+import { Label } from '@kit/ui/label';
+
+import type { AudienceList } from '~/lib/audience/audience.service';
+
+function formatStatusCase(status: string) {
+  if (!status) return '';
+  return status
+    .toLowerCase()
+    .split('_')
+    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+    .join(' ');
+}
+
+export function DownloadCsvDialog({
+  children,
+  audience,
+}: {
+  children: React.ReactNode;
+  audience: AudienceList;
+}) {
+  const [open, setOpen] = useState(false);
+
+  function handleDownload(csvUrl: string, jobId: string) {
+    const link = document.createElement('a');
+    link.href = csvUrl;
+    link.setAttribute(
+      'download',
+      jobId
+        ? `audience_${audience.name}_job_${jobId}.csv`
+        : `audience_${audience.name}_export.csv`,
+    );
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-md"
+      >
+        <DialogHeader>
+          <DialogTitle>Download {audience.name} Audience Lists</DialogTitle>
+        </DialogHeader>
+        {audience.enqueue_jobs
+          .filter(
+            (job): job is typeof job & { csv_url: string } =>
+              typeof job.csv_url === 'string',
+          )
+          .map((job) => (
+            <div
+              key={job.id}
+              className="flex items-center justify-between rounded-md border p-3"
+            >
+              <div className="flex flex-col space-y-0.5 text-sm">
+                <Label className="font-medium">
+                  Created At:{' '}
+                  {format(parseISO(job.created_at), 'MMM d, yyyy h:mm a')}
+                </Label>
+                <p className="text-muted-foreground text-xs">
+                  Status: {formatStatusCase(job.status) || 'Unknown'}
+                </p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handleDownload(job.csv_url, job.id)}
+              >
+                Download
+              </Button>
+            </div>
+          ))}
+        <div className="mt-6 flex justify-end">
+          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+            Close
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}

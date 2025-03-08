@@ -56,6 +56,20 @@ export const columns: ColumnDef<AudienceList>[] = [
     },
   },
   {
+    accessorKey: 'refreshCount',
+    accessorFn: (audience) => {
+      const length = audience.enqueue_jobs.length ?? 0;
+      return Math.max(length - 1, 0);
+    },
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Refresh Count" />
+    ),
+    cell: ({ row }) => {
+      const refreshCount = row.getValue<number>('refreshCount');
+      return refreshCount;
+    },
+  },
+  {
     id: 'actions',
     cell: ({ row: { original } }) => (
       <AudienceTableActions audience={original} />

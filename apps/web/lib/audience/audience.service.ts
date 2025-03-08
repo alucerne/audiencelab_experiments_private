@@ -2,6 +2,7 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 import { z } from 'zod';
 
+import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
 import { typesenseClient } from '../typesense/client';
@@ -44,6 +45,7 @@ class AudienceService {
             const { enqueue_job: _enqueue_job, ...rest } = audience;
             return {
               ...rest,
+              enqueue_jobs: sortedJobs,
               latest_job: sortedJobs[0],
             };
           }
@@ -99,6 +101,7 @@ class AudienceService {
     return {
       ...audienceData,
       latest_job,
+      enqueue_jobs: enqueue_job,
     };
   }
   async createAudience(params: { accountId: string; name: string }) {
@@ -167,12 +170,10 @@ class AudienceService {
     );
 
     const response = await fetch(
-      'https://v3-audience-job-72802495918.us-east1.run.app/audience/enqueue',
+      `${miscConfig.audienceApiUrl}/audience/enqueue`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...filters,
           jobId: job.data.id,

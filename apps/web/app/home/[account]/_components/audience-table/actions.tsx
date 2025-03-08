@@ -1,7 +1,13 @@
+'use client';
+
+import { useTransition } from 'react';
+
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
+import { differenceInMinutes } from 'date-fns';
 import { Copy, Download, RefreshCw, SquarePen, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
@@ -14,9 +20,12 @@ import { cn } from '@kit/ui/utils';
 
 import FacebookLogo from '~/components/assets/facebook-logo';
 import { AudienceList } from '~/lib/audience/audience.service';
+import { audienceFiltersFormSchema } from '~/lib/audience/schema/audience-filters-form.schema';
+import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
 
 import DeleteAudienceDialog from '../delete-audience-dialog';
 import DuplicateAudienceDialog from '../duplicate-audience-dialog';
+import { DownloadCsvDialog } from './download-csv-dialog';
 
 export default function AudienceTableActions({
   audience,
@@ -24,32 +33,35 @@ export default function AudienceTableActions({
   audience: AudienceList;
 }) {
   const { account } = useParams<{ account: string }>();
+  const [isPending, startTransition] = useTransition();
 
-  function handleCsvExport() {
-    if (audience.latest_job.csv_url) {
-      const link = document.createElement('a');
-      link.href = audience.latest_job.csv_url;
+  function handleRefresh() {
+    startTransition(() => {
+      toast.promise(
+        () => {
+          const filters = audienceFiltersFormSchema.parse(audience.filters);
 
-      const fileName = `audience_${audience.id}_export.csv`;
-      link.setAttribute('download', fileName);
-
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
+          return addAudienceFiltersAction({
+            accountId: audience.account_id,
+            audienceId: audience.id,
+            filters,
+          });
+        },
+        {
+          loading: 'Queueing audience refresh...',
+          success: 'Refresh job has been queued successfully.',
+          error: 'Failed to queue audience refresh.',
+        },
+      );
+    });
   }
 
   return (
-    <div className={'flex items-center justify-end'}>
+    <div className="flex items-center justify-end">
       <TooltipProvider delayDuration={300}>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              disabled={true}
-            >
+            <Button variant="ghost" size="icon" className="size-7" disabled>
               <FacebookLogo size={14} />
             </Button>
           </TooltipTrigger>
@@ -59,8 +71,22 @@ export default function AudienceTableActions({
         </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <RefreshCw className="h-3.5 w-3.5" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7"
+              onClick={handleRefresh}
+              disabled={
+                audience.latest_job.status !== 'COMPLETED' ||
+                (audience.latest_job.created_at &&
+                  differenceInMinutes(
+                    new Date(),
+                    new Date(audience.latest_job.created_at),
+                  ) >= 5) ||
+                isPending
+              }
+            >
+              <RefreshCw size={14} />
             </Button>
           </TooltipTrigger>
           <TooltipContent>
@@ -75,7 +101,7 @@ export default function AudienceTableActions({
                 buttonVariants({
                   variant: 'ghost',
                   size: 'icon',
-                  className: 'h-7 w-7',
+                  className: 'h-7 w-7 cursor-default',
                 }),
               )}
             >
@@ -89,11 +115,7 @@ export default function AudienceTableActions({
         <Tooltip>
           <DuplicateAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-7 w-7 cursor-pointer"
-              >
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Copy className="h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>
@@ -103,27 +125,28 @@ export default function AudienceTableActions({
           </TooltipContent>
         </Tooltip>
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              disabled={!audience.latest_job.csv_url}
-              onClick={handleCsvExport}
-            >
-              <Download className="h-3.5 w-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Download</TooltipContent>
-        </Tooltip>
-        <Tooltip>
-          <DeleteAudienceDialog audience={audience}>
+          <DownloadCsvDialog audience={audience}>
             <TooltipTrigger asChild>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7 cursor-pointer"
+                className="h-7 w-7"
+                disabled={
+                  audience.enqueue_jobs.filter(
+                    (job) => typeof job.csv_url === 'string',
+                  ).length === 0
+                }
               >
+                <Download className="h-3.5 w-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </DownloadCsvDialog>
+          <TooltipContent>Download CSV</TooltipContent>
+        </Tooltip>
+        <Tooltip>
+          <DeleteAudienceDialog audience={audience}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Trash2 className="text-destructive h-3.5 w-3.5" />
               </Button>
             </TooltipTrigger>

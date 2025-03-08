@@ -77,7 +77,7 @@ export default function PreviewAudienceTable({ data }: PreviewTableProps) {
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="divide-muted-foreground/20 divide-x border-muted-foreground/20"
+                className="divide-muted-foreground/20 border-muted-foreground/20 divide-x"
               >
                 {row.getVisibleCells().map((cell) => (
                   <TableCell

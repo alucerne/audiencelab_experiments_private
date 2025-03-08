@@ -16,7 +16,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from '@tanstack/react-table';
-import { Tables } from 'node_modules/@kit/database-webhooks/src/server/record-change.type';
 
 import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
@@ -33,6 +32,7 @@ import { DataTablePagination } from '~/components/ui/data-table/data-table-pagin
 import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
 import { AudienceList } from '~/lib/audience/audience.service';
 import { getAudienceByIdAction } from '~/lib/audience/server-actions';
+import { Database } from '~/lib/database.types';
 
 import AddAudienceDialog from '../add-audience-dialog';
 import { columns } from './columns';
@@ -66,7 +66,7 @@ export default function AudienceTable({
 
     const subscription = client
       .channel(`enqueue-job-channel-${accountId}`)
-      .on<Tables['enqueue_job']['Row']>(
+      .on<Database['public']['Tables']['enqueue_job']['Row']>(
         'postgres_changes',
         {
           event: '*',
@@ -142,7 +142,7 @@ export default function AudienceTable({
   });
 
   return (
-    <div className={'flex flex-col space-y-4'}>
+    <div className="flex flex-col space-y-4">
       <DataTableToolbar
         table={table}
         dataName="Audience List"

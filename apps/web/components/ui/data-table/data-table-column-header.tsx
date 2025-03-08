@@ -17,7 +17,7 @@ export function DataTableColumnHeader<TData, TValue>({
 }: DataTableColumnHeaderProps<TData, TValue>) {
   if (!column.getCanSort()) {
     return (
-      <div className={cn('whitespace-nowrap text-sm', className)}>{title}</div>
+      <div className={cn('text-sm whitespace-nowrap', className)}>{title}</div>
     );
   }
 
@@ -34,10 +34,10 @@ export function DataTableColumnHeader<TData, TValue>({
         variant="ghost"
         size="sm"
         type="button"
-        className="-ml-3 h-8 data-[state=open]:bg-accent"
+        className="data-[state=open]:bg-accent -ml-3 h-8"
         onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
       >
-        <span className="whitespace-nowrap text-sm">{title}</span>
+        <span className="text-sm whitespace-nowrap">{title}</span>
         {column.getIsSorted() === 'desc' ? (
           <ArrowDown className="ml-2 h-4 w-4" aria-hidden="true" />
         ) : column.getIsSorted() === 'asc' ? (
