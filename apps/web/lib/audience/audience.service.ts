@@ -17,6 +17,7 @@ export type AudienceList = Awaited<
 
 class AudienceService {
   constructor(private readonly client: SupabaseClient<Database>) {}
+
   async getAudience() {
     const { data, error } = await this.client
       .from('audience')
@@ -83,7 +84,6 @@ class AudienceService {
     }
 
     const { enqueue_job, ...audienceData } = data;
-
     let latest_job = null;
 
     if (enqueue_job && enqueue_job.length > 0) {
@@ -91,17 +91,20 @@ class AudienceService {
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-
       if (sortedJobs[0]) {
         latest_job = sortedJobs[0];
       }
     }
 
+    // NOTE: The important fix is returning enqueue_job along with latest_job.
+    // This ensures the "refreshCount" (which relies on enqueue_job.length) remains correct after updates.
     return {
       ...audienceData,
+      enqueue_job,
       latest_job,
     };
   }
+
   async createAudience(params: { accountId: string; name: string }) {
     const { data, error } = await this.client
       .from('audience')
@@ -128,6 +131,7 @@ class AudienceService {
     accountId: string;
     audienceId: string;
     filters: z.infer<typeof audienceFiltersFormSchema>;
+    audienceApiUrl: string;
   }) {
     const [interests, audience, job] = await Promise.all([
       typesenseClient
@@ -181,7 +185,6 @@ class AudienceService {
       await this.client.from('enqueue_job').delete().eq('id', job.data.id);
 
       const errorData = await response.json();
-
       throw new Error(
         `API request failed ${response.status}: ${
           errorData.message || errorData.error || JSON.stringify(errorData)

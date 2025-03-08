@@ -134,31 +134,49 @@ export function DownloadCsvDialog({
             No job entries found.
           </div>
         ) : (
-          <div className="space-y-3 py-2">
-            {jobs.map((job) => (
-              <div
-                key={job.id}
-                className="flex items-center justify-between rounded-md border p-3"
-              >
-                <div className="flex flex-col space-y-0.5 text-sm">
-                  <Label className="font-medium">
-                    Refreshed At:{' '}
-                    {format(parseISO(job.created_at), 'MMM d, yyyy h:mm a')}
-                  </Label>
-                  <p className="text-muted-foreground text-xs">
-                    Status: {formatStatusCase(job.status) || 'Unknown'}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  disabled={!job.csv_url}
-                  onClick={() => handleDownload(job.csv_url, job.id)}
+          <div className="space-y-2 py-2">
+            {jobs.map((job, index) => {
+              const isNewest = index === 0;
+              const jobDate = parseISO(job.created_at);
+              const today = new Date();
+              const isToday =
+                jobDate.getDate() === today.getDate() &&
+                jobDate.getMonth() === today.getMonth() &&
+                jobDate.getFullYear() === today.getFullYear();
+
+              const formattedDate = isToday
+                ? `Today • ${format(jobDate, 'h:mm a')}`
+                : `${format(jobDate, 'MMM d')} • ${format(jobDate, 'h:mm a')}`;
+
+              return (
+                <div
+                  key={job.id}
+                  className={`flex items-center justify-between rounded-md border p-2.5 ${
+                    isNewest ? 'border-slate-200 bg-slate-50' : ''
+                  }`}
                 >
-                  Download
-                </Button>
-              </div>
-            ))}
+                  <div className="flex flex-col space-y-0.5">
+                    <Label className="text-sm font-medium">
+                      {formattedDate}
+                    </Label>
+                    <p className="text-muted-foreground text-xs">
+                      {formatStatusCase(job.status) || 'Unknown'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      disabled={!job.csv_url}
+                      onClick={() => handleDownload(job.csv_url, job.id)}
+                      className="h-8 px-3"
+                    >
+                      Download
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
