@@ -90,20 +90,18 @@ export default function AsyncMultiSelect({
   debounceTime?: number;
 }) {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
-  const [cachedOptions, setCachedOptions] = React.useState<StringOption[]>([]);
 
   const loadOptions = async (inputValue: string) => {
     if (!inputValue || inputValue.length < 2) {
-      return cachedOptions;
+      return [];
     }
     try {
       const results = await searchAction(inputValue);
       const options = results.map(createOption);
-      setCachedOptions(options);
       return options;
     } catch (error) {
       console.error('Error fetching options:', error);
-      return cachedOptions;
+      return [];
     }
   };
 
@@ -130,7 +128,6 @@ export default function AsyncMultiSelect({
   return (
     <AsyncSelect<StringOption, true>
       cacheOptions
-      defaultOptions={cachedOptions}
       loadOptions={debouncedLoadOptions}
       value={value.map(createOption)}
       onChange={handleChange}

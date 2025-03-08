@@ -54,6 +54,7 @@ import {
 } from '~/lib/audience/server-actions';
 import { Json } from '~/lib/database.types';
 
+import AudienceStep, { audienceFields } from './audience-step';
 import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
@@ -65,7 +66,6 @@ import HousingStep, { housingFields } from './housing-step';
 import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
-import PremadeStep, { premadeFields } from './premade-step';
 import PreviewAudienceTable from './preview-audience-table';
 
 const today = new Date();
@@ -75,11 +75,11 @@ const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
 const steps = [
   {
-    label: 'Premade Lists',
-    description: 'Choose from our premade audience lists to get started.',
+    label: 'Audience Lists',
+    description: 'Build your core target audience.',
     icon: <ListChecks />,
-    component: <PremadeStep />,
-    fields: premadeFields,
+    component: <AudienceStep />,
+    fields: audienceFields,
   },
   {
     label: 'Date',
@@ -181,10 +181,7 @@ export default function AudienceFiltersForm({
   const dateRangeValue = form.watch('dateRange');
 
   useEffect(() => {
-    if (
-      !dateRangeValue ||
-      (!dateRangeValue.startDate && !dateRangeValue.endDate)
-    ) {
+    if (!dateRangeValue.startDate && !dateRangeValue.endDate) {
       const endDate = formatDate(today);
       const startDate = formatDate(subDays(today, 6));
       form.setValue('dateRange', { startDate, endDate });
@@ -195,19 +192,12 @@ export default function AudienceFiltersForm({
     setCurrentDialog(stepIndex);
   }
 
-  async function handleDialogClose(stepIndex: number) {
-    const step = steps[stepIndex];
-    if (step !== undefined) {
-      const isValid = await form.trigger(step.fields);
-      if (isValid) {
-        setCurrentDialog(null);
-      }
-    }
+  async function handleDialogClose(_stepIndex: number) {
+    setCurrentDialog(null);
   }
 
   function handleStepReset(stepIndex: number) {
     steps[stepIndex]?.fields.forEach((fieldName) => form.resetField(fieldName));
-    setCurrentDialog(null);
   }
 
   function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
@@ -253,11 +243,7 @@ export default function AudienceFiltersForm({
         const firstErrorField = errorKeys[0]!;
         const errorMessage = errorObj[firstErrorField]?.message;
 
-        if (errorMessage) {
-          toast.error(errorMessage);
-        } else {
-          toast.error('Form validation failed');
-        }
+        toast.error(errorMessage ?? 'Form validation failed');
       } else {
         toast.error('Form validation failed');
       }
@@ -276,7 +262,10 @@ export default function AudienceFiltersForm({
           {steps.map((step, index) => {
             const appliedCount = step.fields.reduce((count, fieldName) => {
               const value = form.getValues(fieldName);
-              if (fieldName === 'filters.businessProfile') {
+              if (
+                fieldName === 'filters.businessProfile' ||
+                fieldName === 'audience'
+              ) {
                 return count + countBusinessProfile(value);
               }
               return count + countFilterValue(value);
@@ -495,7 +484,7 @@ function countFilterValue(value: unknown) {
   return 0;
 }
 
-function countBusinessProfile(value: unknown): number {
+function countBusinessProfile(value: unknown) {
   if (!value || typeof value !== 'object') return 0;
   return Object.values(value as Record<string, unknown>).reduce<number>(
     (sum, subVal) => {

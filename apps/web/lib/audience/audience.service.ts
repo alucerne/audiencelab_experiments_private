@@ -5,7 +5,7 @@ import { z } from 'zod';
 import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
-import { typesenseClient } from '../typesense/client';
+import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
@@ -130,19 +130,11 @@ class AudienceService {
     audienceId: string;
     filters: z.infer<typeof audienceFiltersFormSchema>;
   }) {
-    const [interests, audience, job] = await Promise.all([
-      typesenseClient
-        .collections<{
-          intent_id: string;
-          intent: string;
-        }>('intents')
-        .documents()
-        .search({
-          q: '*',
-          query_by: 'intent',
-          filter_by: `intent:=[${filters.segment.join(',')}]`,
-          per_page: 50,
-        }),
+    const [intentIds, audience, job] = await Promise.all([
+      get4EyesIntentIds({
+        keywords: filters.segment,
+        audienceType: filters.audience.type,
+      }),
       this.client
         .from('audience')
         .update({ filters })
@@ -163,11 +155,8 @@ class AudienceService {
       throw audience.error || job.error;
     }
 
-    filters.segment = Array.from(
-      new Set(
-        interests.hits?.map((hit) => `4eyes_${hit.document.intent_id}`) || [],
-      ),
-    );
+    filters.segment = intentIds;
+    const { audience: _audience, ...audienceFilters } = filters;
 
     const response = await fetch(
       `${miscConfig.audienceApiUrl}/audience/enqueue`,
@@ -175,7 +164,7 @@ class AudienceService {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...filters,
+          ...audienceFilters,
           jobId: job.data.id,
         }),
       },
