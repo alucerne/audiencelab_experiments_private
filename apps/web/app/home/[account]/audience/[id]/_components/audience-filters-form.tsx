@@ -366,7 +366,7 @@ export default function AudienceFiltersForm({
           style={{ maxHeight: 'calc(100vh - 10rem)' }}
         >
           {isIdle && (
-            <div className="flex h-[80%] flex-col items-center justify-center">
+            <div className="flex h-full flex-col items-center justify-center">
               <div className="max-w-md text-center">
                 <FileSearch className="mx-auto mb-4 h-12 w-12" />
                 <h3 className="mb-2 text-lg font-medium">
@@ -407,7 +407,7 @@ export default function AudienceFiltersForm({
             </div>
           )}
           {isPending && (
-            <div className="flex h-[80%] flex-col items-center justify-center">
+            <div className="flex h-full flex-col items-center justify-center">
               <Loader2 className="size-12 animate-spin" />
               <h3 className="mt-6 mb-2 text-lg font-medium">
                 Generating Audience Preview
@@ -419,7 +419,7 @@ export default function AudienceFiltersForm({
             </div>
           )}
           {isError && (
-            <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <div className="flex h-full flex-col items-center justify-center text-center">
               <AlertCircle className="text-destructive mb-4 h-12 w-12" />
               <h3 className="text-destructive mb-2 text-lg font-medium">
                 Preview Generation Failed
