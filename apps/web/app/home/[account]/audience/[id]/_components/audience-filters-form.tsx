@@ -169,15 +169,17 @@ export default function AudienceFiltersForm({
   useEffect(() => {
     if (defaultValues && Object.keys(defaultValues).length > 0) {
       const parsedValues = audienceFiltersFormSchema.safeParse(defaultValues);
+
       if (parsedValues.success) {
         form.reset(parsedValues.data, {
           keepDefaultValues: true,
         });
       }
     }
-  }, [defaultValues, form]);
+  }, [defaultValues]);
 
   const dateRangeValue = form.watch('dateRange');
+
   useEffect(() => {
     if (
       !dateRangeValue ||
@@ -187,7 +189,7 @@ export default function AudienceFiltersForm({
       const startDate = formatDate(subDays(today, 6));
       form.setValue('dateRange', { startDate, endDate });
     }
-  }, [dateRangeValue, form]);
+  }, []);
 
   function openDialog(stepIndex: number) {
     setCurrentDialog(stepIndex);
@@ -207,6 +209,40 @@ export default function AudienceFiltersForm({
     steps[stepIndex]?.fields.forEach((fieldName) => form.resetField(fieldName));
     setCurrentDialog(null);
   }
+
+  function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
+    startTransition(() => {
+      toast.promise(
+        addAudienceFiltersAction({
+          accountId,
+          audienceId: id,
+          filters: values,
+        }),
+        {
+          loading: 'Generating audience...',
+          success: () => {
+            router.push(`/home/${account}`);
+
+            return 'Audience generation in queue...';
+          },
+          error: 'Failed to generate audience',
+        },
+      );
+    });
+  }
+
+  const {
+    data: previewData,
+    mutate: getPreview,
+    isIdle,
+    isPending,
+    isError,
+    error,
+  } = useMutation({
+    mutationFn: async () => {
+      return await getPreviewAudienceAction({ id, filters: form.getValues() });
+    },
+  });
 
   function onError(errors: unknown) {
     if (errors && typeof errors === 'object' && errors !== null) {
@@ -230,143 +266,101 @@ export default function AudienceFiltersForm({
     }
   }
 
-  const {
-    data: previewData,
-    mutate: getPreview,
-    isIdle,
-    isLoading: isPendingPreview,
-    isError,
-    error,
-  } = useMutation({
-    mutationFn: async () => {
-      return await getPreviewAudienceAction({
-        id,
-        filters: form.getValues(),
-      });
-    },
-  });
-
-  function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
-    startTransition(() => {
-      toast.promise(
-        addAudienceFiltersAction({
-          accountId,
-          audienceId: id,
-          filters: values,
-        }),
-        {
-          loading: 'Generating audience...',
-          success: () => {
-            router.push(`/home/${account}`);
-            return 'Audience generation in queue...';
-          },
-          error: 'Failed to generate audience',
-        },
-      );
-    });
-  }
-
   return (
     <Form {...form}>
       {/*
-        We wrap everything in a flex-col container with a fixed height.
-        The top portion (filters UI) is sticky so it remains visible,
-        and the bottom portion (preview results) can scroll independently.
+        **Changed**: Added `sticky top-0 z-10 bg-background` to pin the filters UI
+        and allow scrolling of the preview table separately.
       */}
-      <div className="flex h-[calc(100vh-120px)] flex-col">
-        {/* Sticky top container for the filters UI */}
-        <div className="bg-background sticky top-0 z-50">
-          <form
-            className="relative"
-            onSubmit={form.handleSubmit(onSubmit, onError)}
-          >
-            {/* Step buttons + "Preview" and "Generate Audience" buttons */}
-            <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 px-6 pb-3">
-              {steps.map((step, index) => {
-                const appliedCount = step.fields.reduce((count, fieldName) => {
-                  const value = form.getValues(fieldName);
-                  if (fieldName === 'filters.businessProfile') {
-                    return count + countBusinessProfile(value);
-                  }
-                  return count + countFilterValue(value);
-                }, 0);
+      <form
+        className="relative"
+        onSubmit={form.handleSubmit(onSubmit, onError)}
+      >
+        <div
+          className={cn(
+            'border-muted-foreground/20 bg-background sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b-2 px-6 pb-3',
+          )}
+        >
+          {steps.map((step, index) => {
+            const appliedCount = step.fields.reduce((count, fieldName) => {
+              const value = form.getValues(fieldName);
+              if (fieldName === 'filters.businessProfile') {
+                return count + countBusinessProfile(value);
+              }
+              return count + countFilterValue(value);
+            }, 0);
 
-                const iconWithClasses = cloneElement(step.icon, {
-                  className: cn('size-4', step.icon.props?.className),
-                });
+            const iconWithClasses = cloneElement(step.icon, {
+              className: cn('size-4', step.icon.props?.className),
+            });
 
-                return (
-                  <Button
-                    key={index}
-                    type="button"
-                    variant="ghost"
-                    className={cn(
-                      'flex items-center gap-1.5 px-3 py-1.5',
-                      appliedCount > 0 &&
-                        'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-                    )}
-                    onClick={() => openDialog(index)}
-                  >
-                    {iconWithClasses}
-                    {step.label}
-                    {appliedCount > 0 && (
-                      <span className="text-muted-foreground text-xs">
-                        ({appliedCount} applied)
-                      </span>
-                    )}
-                  </Button>
-                );
-              })}
-
-              {/* Preview + Generate Audience actions */}
-              <div className="flex items-center gap-4">
-                <Button
-                  type="button"
-                  disabled={pending}
-                  className="px-3 py-1.5"
-                  variant="secondary"
-                  onClick={() =>
-                    form.trigger().then((isValid) => {
-                      if (isValid) {
-                        getPreview();
-                      } else {
-                        onError(form.formState.errors);
-                      }
-                    })
-                  }
-                >
-                  <Search className="mr-2 size-4" />
-                  Preview
-                </Button>
-
-                <Button
-                  type="submit"
-                  disabled={pending || !form.formState.isValid}
-                  className="px-3 py-1.5"
-                >
-                  <Database className="mr-2 size-4" />
-                  Generate Audience
-                </Button>
-
-                {/* Show result count after a successful preview */}
-                {previewData && (
-                  <>
-                    <Separator orientation={'vertical'} className="h-4" />
-                    <div className="text-sm font-medium whitespace-nowrap">
-                      <span className="font-semibold">
-                        {previewData.count.toLocaleString()}
-                      </span>{' '}
-                      result{previewData.count === 1 ? '' : 's'} found
-                    </div>
-                  </>
+            return (
+              <Button
+                key={index}
+                type="button"
+                variant="ghost"
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5',
+                  appliedCount > 0 &&
+                    'bg-secondary text-secondary-foreground hover:bg-secondary/80',
                 )}
-              </div>
-            </div>
-          </form>
+                onClick={() => openDialog(index)}
+              >
+                {iconWithClasses}
+                {step.label}
+                {appliedCount > 0 && (
+                  <span className="text-muted-foreground text-xs">
+                    ({appliedCount} applied)
+                  </span>
+                )}
+              </Button>
+            );
+          })}
+          <div className="flex items-center gap-4">
+            <Button
+              type="button"
+              disabled={pending}
+              className="px-3 py-1.5"
+              variant="secondary"
+              onClick={() =>
+                form.trigger().then((isValid) => {
+                  if (isValid) {
+                    getPreview();
+                  } else {
+                    onError(form.formState.errors);
+                  }
+                })
+              }
+            >
+              <Search className="mr-2 size-4" />
+              Preview
+            </Button>
+            <Button
+              type="submit"
+              disabled={pending || !form.formState.isValid}
+              className="px-3 py-1.5"
+            >
+              <Database className="mr-2 size-4" />
+              Generate Audience
+            </Button>
+            {previewData && (
+              <>
+                <Separator orientation={'vertical'} className="h-4" />
+                <div className="text-sm font-medium whitespace-nowrap">
+                  <span className="font-semibold">
+                    {previewData.count.toLocaleString()}
+                  </span>{' '}
+                  {` result${previewData.count === 1 ? '' : 's found'}`}
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
-        {/* Scrollable container for the table preview and statuses */}
-        <div className="bg-muted flex-1 overflow-auto">
+        <div
+          className="bg-muted h-full overflow-auto"
+          style={{ maxHeight: 'calc(100vh - 10rem)' }}
+        >
           {isIdle && (
             <div className="flex h-[80%] flex-col items-center justify-center">
               <div className="max-w-md text-center">
@@ -408,8 +402,7 @@ export default function AudienceFiltersForm({
               </div>
             </div>
           )}
-
-          {isPendingPreview && (
+          {isPending && (
             <div className="flex h-[80%] flex-col items-center justify-center">
               <Loader2 className="size-12 animate-spin" />
               <h3 className="mt-6 mb-2 text-lg font-medium">
@@ -421,7 +414,6 @@ export default function AudienceFiltersForm({
               </p>
             </div>
           )}
-
           {isError && (
             <div className="flex h-[80%] flex-col items-center justify-center text-center">
               <AlertCircle className="text-destructive mb-4 h-12 w-12" />
@@ -444,7 +436,6 @@ export default function AudienceFiltersForm({
               </Button>
             </div>
           )}
-
           {previewData && previewData.result.length === 0 && (
             <div className="flex h-[80%] flex-col items-center justify-center text-center">
               <FileX className="mb-4 h-12 w-12" />
@@ -457,24 +448,17 @@ export default function AudienceFiltersForm({
               </p>
             </div>
           )}
-
           {previewData && previewData.result.length > 0 && (
             <PreviewAudienceTable data={previewData.result} />
           )}
         </div>
-
-        {/* Dialogs for each step */}
         {steps.map((step, index) => (
           <Dialog
             key={index}
             open={currentDialog === index}
             onOpenChange={(open) => !open && handleDialogClose(index)}
           >
-            <DialogContent
-              className="flex max-h-[90vh] max-w-2xl flex-col gap-0 px-0"
-              onInteractOutside={(e) => e.preventDefault()}
-              onEscapeKeyDown={(e) => e.preventDefault()}
-            >
+            <DialogContent className="flex max-h-[90vh] max-w-2xl flex-col gap-0 px-0">
               <DialogHeader className="border-b px-6 pb-4">
                 <DialogTitle className="flex items-center gap-2">
                   {step.icon}
@@ -492,30 +476,22 @@ export default function AudienceFiltersForm({
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   onClick={() => handleStepReset(index)}
                 >
                   Reset
                 </Button>
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => handleDialogClose(index)}
-                >
+                <Button type="button" onClick={() => handleDialogClose(index)}>
                   Continue
                 </Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
         ))}
-      </div>
+      </form>
     </Form>
   );
 }
 
-/**
- * Count filter values for strings or nested objects
- */
 function countFilterValue(value: unknown) {
   if (Array.isArray(value)) {
     return value.filter((item) => item != null && item !== '').length;
@@ -531,9 +507,6 @@ function countFilterValue(value: unknown) {
   return 0;
 }
 
-/**
- * For businessProfile, we count the arrays inside
- */
 function countBusinessProfile(value: unknown): number {
   if (!value || typeof value !== 'object') return 0;
   return Object.values(value as Record<string, unknown>).reduce<number>(
@@ -546,7 +519,7 @@ function countBusinessProfile(value: unknown): number {
             : 0)
         );
       }
-      return sum;
+      return 0;
     },
     0,
   );
