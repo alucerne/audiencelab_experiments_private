@@ -52,7 +52,7 @@ import {
   addAudienceFiltersAction,
   getPreviewAudienceAction,
 } from '~/lib/audience/server-actions';
-import { Json } from '~/lib/database.types';
+import type { Json } from '~/lib/database.types';
 
 import BusinessProfileStep, {
   businessProfileFields,
@@ -222,7 +222,6 @@ export default function AudienceFiltersForm({
           loading: 'Generating audience...',
           success: () => {
             router.push(`/home/${account}`);
-
             return 'Audience generation in queue...';
           },
           error: 'Failed to generate audience',
@@ -268,54 +267,59 @@ export default function AudienceFiltersForm({
 
   return (
     <Form {...form}>
-      {/*
-        **Changed**: Added `sticky top-0 z-10 bg-background` to pin the filters UI
-        and allow scrolling of the preview table separately.
-      */}
       <form
         className="relative"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
+        {/*
+          Changed to a flex-col container so the preview/generate buttons
+          move to a new row below the filter buttons
+        */}
         <div
           className={cn(
-            'border-muted-foreground/20 bg-background sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b-2 px-6 pb-3',
+            'border-muted-foreground/20 bg-background sticky top-0 z-10 flex flex-col gap-2 border-b-2 px-6 pb-3',
           )}
         >
-          {steps.map((step, index) => {
-            const appliedCount = step.fields.reduce((count, fieldName) => {
-              const value = form.getValues(fieldName);
-              if (fieldName === 'filters.businessProfile') {
-                return count + countBusinessProfile(value);
-              }
-              return count + countFilterValue(value);
-            }, 0);
+          {/* Step filters row */}
+          <div className="flex flex-wrap items-center gap-2">
+            {steps.map((step, index) => {
+              const appliedCount = step.fields.reduce((count, fieldName) => {
+                const value = form.getValues(fieldName);
+                if (fieldName === 'filters.businessProfile') {
+                  return count + countBusinessProfile(value);
+                }
+                return count + countFilterValue(value);
+              }, 0);
 
-            const iconWithClasses = cloneElement(step.icon, {
-              className: cn('size-4', step.icon.props?.className),
-            });
+              const iconWithClasses = cloneElement(step.icon, {
+                className: cn('size-4', step.icon.props?.className),
+              });
 
-            return (
-              <Button
-                key={index}
-                type="button"
-                variant="ghost"
-                className={cn(
-                  'flex items-center gap-1.5 px-3 py-1.5',
-                  appliedCount > 0 &&
-                    'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-                )}
-                onClick={() => openDialog(index)}
-              >
-                {iconWithClasses}
-                {step.label}
-                {appliedCount > 0 && (
-                  <span className="text-muted-foreground text-xs">
-                    ({appliedCount} applied)
-                  </span>
-                )}
-              </Button>
-            );
-          })}
+              return (
+                <Button
+                  key={index}
+                  type="button"
+                  variant="ghost"
+                  className={cn(
+                    'flex items-center gap-1.5 px-3 py-1.5',
+                    appliedCount > 0 &&
+                      'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                  )}
+                  onClick={() => openDialog(index)}
+                >
+                  {iconWithClasses}
+                  {step.label}
+                  {appliedCount > 0 && (
+                    <span className="text-muted-foreground text-xs">
+                      ({appliedCount} applied)
+                    </span>
+                  )}
+                </Button>
+              );
+            })}
+          </div>
+
+          {/* Preview and Generate Buttons row */}
           <div className="flex items-center gap-4">
             <Button
               type="button"
@@ -452,6 +456,7 @@ export default function AudienceFiltersForm({
             <PreviewAudienceTable data={previewData.result} />
           )}
         </div>
+
         {steps.map((step, index) => (
           <Dialog
             key={index}
