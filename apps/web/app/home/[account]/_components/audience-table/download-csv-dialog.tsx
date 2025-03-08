@@ -121,6 +121,7 @@ export function DownloadCsvDialog({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>{children}</DialogTrigger>
 
+      {/* Added a fixed max-height and scroll overflow */}
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
         className="max-w-md"
@@ -134,7 +135,8 @@ export function DownloadCsvDialog({
             No job entries found.
           </div>
         ) : (
-          <div className="space-y-2 py-2">
+          // This container enforces a fixed height with a scrollable overflow.
+          <div className="max-h-[60vh] space-y-2 overflow-y-auto py-2">
             {jobs.map((job, index) => {
               const isNewest = index === 0;
               const jobDate = parseISO(job.created_at);
