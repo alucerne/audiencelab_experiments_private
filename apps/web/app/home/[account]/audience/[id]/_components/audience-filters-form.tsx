@@ -383,7 +383,7 @@ export default function AudienceFiltersForm({
               </h3>
               <p className="text-muted-foreground mb-6">
                 Customize your filters to build your audience. Get started by
-                selecting a premade list.
+                building your core target audience.
               </p>
               {form.getValues('segment').length > 0 ? (
                 <Button
@@ -409,7 +409,7 @@ export default function AudienceFiltersForm({
                   onClick={() => setCurrentDialog(0)}
                 >
                   <ListChecks className="mr-2 h-4 w-4" />
-                  Select a Premade List
+                  Build Audience
                 </Button>
               )}
             </div>
