@@ -16,15 +16,6 @@ import { cn } from '@kit/ui/utils';
 
 import type { AudienceList } from '~/lib/audience/audience.service';
 
-function formatStatusCase(status: string) {
-  if (!status) return '';
-  return status
-    .toLowerCase()
-    .split('_')
-    .map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
-    .join(' ');
-}
-
 export function DownloadCsvDialog({
   children,
   audience,
@@ -58,8 +49,13 @@ export function DownloadCsvDialog({
             .filter(
               (job): job is typeof job & { csv_url: string } => !!job.csv_url,
             )
+            .sort((a, b) => {
+              return (
+                new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+              );
+            })
             .map((job, index) => {
-              const isNewest = index === 0;
               const jobDate = parseISO(job.created_at);
               const today = new Date();
               const isToday =
@@ -76,7 +72,7 @@ export function DownloadCsvDialog({
                   key={job.id}
                   className={cn(
                     'flex items-center justify-between rounded-md border p-2.5',
-                    isNewest && 'bg-muted border-primary/20',
+                    index === 0 && 'bg-muted border-primary/20',
                   )}
                 >
                   <div className="flex flex-col space-y-0.5">
@@ -84,7 +80,7 @@ export function DownloadCsvDialog({
                       {formattedDate}
                     </Label>
                     <p className="text-muted-foreground text-xs">
-                      {formatStatusCase(job.status) || 'Unknown'}
+                      {job.current?.toLocaleString() ?? 'Unknown'} records
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5">
@@ -101,7 +97,7 @@ export function DownloadCsvDialog({
               );
             })}
         </div>
-        <div className="flex justify-end border-t px-6 pt-4">
+        <div className="flex justify-end px-6 pt-4">
           <DialogClose asChild>
             <Button variant="outline" size="sm">
               Close
