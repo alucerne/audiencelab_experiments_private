@@ -2,9 +2,10 @@ import { SupabaseClient } from '@supabase/supabase-js';
 
 import { z } from 'zod';
 
+import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
-import { typesenseClient } from '../typesense/client';
+import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
@@ -45,7 +46,7 @@ class AudienceService {
             const { enqueue_job: _enqueue_job, ...rest } = audience;
             return {
               ...rest,
-              enqueue_job: sortedJobs,
+              enqueue_jobs: sortedJobs,
               latest_job: sortedJobs[0],
             };
           }
@@ -96,12 +97,10 @@ class AudienceService {
       }
     }
 
-    // NOTE: The important fix is returning enqueue_job along with latest_job.
-    // This ensures the "refreshCount" (which relies on enqueue_job.length) remains correct after updates.
     return {
       ...audienceData,
-      enqueue_job,
       latest_job,
+      enqueue_jobs: enqueue_job,
     };
   }
 
@@ -126,26 +125,16 @@ class AudienceService {
     accountId,
     audienceId,
     filters,
-    audienceApiUrl,
   }: {
     accountId: string;
     audienceId: string;
     filters: z.infer<typeof audienceFiltersFormSchema>;
-    audienceApiUrl: string;
   }) {
-    const [interests, audience, job] = await Promise.all([
-      typesenseClient
-        .collections<{
-          intent_id: string;
-          intent: string;
-        }>('intents')
-        .documents()
-        .search({
-          q: '*',
-          query_by: 'intent',
-          filter_by: `intent:=[${filters.segment.join(',')}]`,
-          per_page: 50,
-        }),
+    const [intentIds, audience, job] = await Promise.all([
+      get4EyesIntentIds({
+        keywords: filters.segment,
+        audienceType: filters.audience.type,
+      }),
       this.client
         .from('audience')
         .update({ filters })
@@ -166,20 +155,20 @@ class AudienceService {
       throw audience.error || job.error;
     }
 
-    filters.segment = Array.from(
-      new Set(
-        interests.hits?.map((hit) => `4eyes_${hit.document.intent_id}`) || [],
-      ),
-    );
+    filters.segment = intentIds;
+    const { audience: _audience, ...audienceFilters } = filters;
 
-    const response = await fetch(`${audienceApiUrl}/audience/enqueue`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        ...filters,
-        jobId: job.data.id,
-      }),
-    });
+    const response = await fetch(
+      `${miscConfig.audienceApiUrl}/audience/enqueue`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...audienceFilters,
+          jobId: job.data.id,
+        }),
+      },
+    );
 
     if (!response.ok) {
       await this.client.from('enqueue_job').delete().eq('id', job.data.id);

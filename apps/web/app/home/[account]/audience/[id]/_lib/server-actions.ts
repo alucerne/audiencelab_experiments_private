@@ -4,29 +4,16 @@ import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
 
-import { typesenseClient } from '~/lib/typesense/client';
+import { getIntentNames } from '~/lib/typesense/intents/queries';
 
 export const searchPremadeListsAction = enhanceAction(
-  async ({ search, businessType }) => {
-    const searchResponse = await typesenseClient
-      .collections<{
-        intent: string;
-        b2b: boolean;
-      }>('intents')
-      .documents()
-      .search({
-        q: search,
-        query_by: 'intent',
-        filter_by: `b2b:=${businessType === 'B2B'}`,
-        per_page: 20,
-      });
-
-    return searchResponse.hits?.map((hit) => hit.document.intent) ?? [];
+  async (data) => {
+    return getIntentNames({ ...data, typos: 0 });
   },
   {
     schema: z.object({
       search: z.string(),
-      businessType: z.enum(['B2B', 'B2C']),
+      b2b: z.boolean(),
     }),
   },
 );

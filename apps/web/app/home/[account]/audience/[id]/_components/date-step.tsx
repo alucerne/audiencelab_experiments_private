@@ -45,22 +45,23 @@ export default function DateStep() {
   const [dateRange, setDateRange] = useState<DateRangeOptions>('last7Days');
   const dateRangeValue = watch('dateRange');
 
-  function determineDateRangeOption(startDate: string, endDate: string) {
-    if (!startDate || !endDate) return 'last7Days';
-
-    if (startDate === formatDate(subDays(endDate, 1))) return 'last2Days';
-    if (startDate === formatDate(subDays(endDate, 4))) return 'last5Days';
-    if (startDate === formatDate(subDays(endDate, 6))) return 'last7Days';
-
-    return 'custom';
-  }
-
   useEffect(() => {
-    const option = determineDateRangeOption(
-      dateRangeValue.startDate,
-      dateRangeValue.endDate,
-    );
-    setDateRange(option);
+    const { startDate, endDate } = dateRangeValue;
+
+    if (!startDate || !endDate) {
+      setDateRange('last7Days');
+      return;
+    }
+
+    if (startDate === formatDate(subDays(today, 1))) {
+      setDateRange('last2Days');
+    } else if (startDate === formatDate(subDays(today, 4))) {
+      setDateRange('last5Days');
+    } else if (startDate === formatDate(subDays(today, 6))) {
+      setDateRange('last7Days');
+    } else {
+      setDateRange('custom');
+    }
   }, []);
 
   function handleDateOptionChange(value: DateRangeOptions) {
@@ -71,13 +72,13 @@ export default function DateStep() {
 
     switch (value) {
       case 'last2Days':
-        startDate = formatDate(subDays(endDate, 1));
+        startDate = formatDate(subDays(today, 1));
         break;
       case 'last5Days':
-        startDate = formatDate(subDays(endDate, 4));
+        startDate = formatDate(subDays(today, 4));
         break;
       case 'last7Days':
-        startDate = formatDate(subDays(endDate, 6));
+        startDate = formatDate(subDays(today, 6));
         break;
       case 'custom':
         return;

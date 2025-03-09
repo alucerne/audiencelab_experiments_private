@@ -52,8 +52,9 @@ import {
   addAudienceFiltersAction,
   getPreviewAudienceAction,
 } from '~/lib/audience/server-actions';
-import type { Json } from '~/lib/database.types';
+import { Json } from '~/lib/database.types';
 
+import AudienceStep, { audienceFields } from './audience-step';
 import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
@@ -65,7 +66,6 @@ import HousingStep, { housingFields } from './housing-step';
 import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
-import PremadeStep, { premadeFields } from './premade-step';
 import PreviewAudienceTable from './preview-audience-table';
 
 const today = new Date();
@@ -75,11 +75,11 @@ const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
 const steps = [
   {
-    label: 'Premade Lists',
-    description: 'Choose from our premade audience lists to get started.',
+    label: 'Audience Lists',
+    description: 'Build your core target audience.',
     icon: <ListChecks />,
-    component: <PremadeStep />,
-    fields: premadeFields,
+    component: <AudienceStep />,
+    fields: audienceFields,
   },
   {
     label: 'Date',
@@ -181,10 +181,7 @@ export default function AudienceFiltersForm({
   const dateRangeValue = form.watch('dateRange');
 
   useEffect(() => {
-    if (
-      !dateRangeValue ||
-      (!dateRangeValue.startDate && !dateRangeValue.endDate)
-    ) {
+    if (!dateRangeValue.startDate && !dateRangeValue.endDate) {
       const endDate = formatDate(today);
       const startDate = formatDate(subDays(today, 6));
       form.setValue('dateRange', { startDate, endDate });
@@ -195,19 +192,12 @@ export default function AudienceFiltersForm({
     setCurrentDialog(stepIndex);
   }
 
-  async function handleDialogClose(stepIndex: number) {
-    const step = steps[stepIndex];
-    if (step !== undefined) {
-      const isValid = await form.trigger(step.fields);
-      if (isValid) {
-        setCurrentDialog(null);
-      }
-    }
+  async function handleDialogClose(_stepIndex: number) {
+    setCurrentDialog(null);
   }
 
   function handleStepReset(stepIndex: number) {
     steps[stepIndex]?.fields.forEach((fieldName) => form.resetField(fieldName));
-    setCurrentDialog(null);
   }
 
   function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
@@ -222,6 +212,7 @@ export default function AudienceFiltersForm({
           loading: 'Generating audience...',
           success: () => {
             router.push(`/home/${account}`);
+
             return 'Audience generation in queue...';
           },
           error: 'Failed to generate audience',
@@ -252,11 +243,7 @@ export default function AudienceFiltersForm({
         const firstErrorField = errorKeys[0]!;
         const errorMessage = errorObj[firstErrorField]?.message;
 
-        if (errorMessage) {
-          toast.error(errorMessage);
-        } else {
-          toast.error('Form validation failed');
-        }
+        toast.error(errorMessage ?? 'Form validation failed');
       } else {
         toast.error('Form validation failed');
       }
@@ -271,55 +258,45 @@ export default function AudienceFiltersForm({
         className="relative"
         onSubmit={form.handleSubmit(onSubmit, onError)}
       >
-        {/*
-          Changed to a flex-col container so the preview/generate buttons
-          move to a new row below the filter buttons
-        */}
-        <div
-          className={cn(
-            'border-muted-foreground/20 bg-background sticky top-0 z-10 flex flex-col gap-2 border-b-2 px-6 pb-3',
-          )}
-        >
-          {/* Step filters row */}
-          <div className="flex flex-wrap items-center gap-2">
-            {steps.map((step, index) => {
-              const appliedCount = step.fields.reduce((count, fieldName) => {
-                const value = form.getValues(fieldName);
-                if (fieldName === 'filters.businessProfile') {
-                  return count + countBusinessProfile(value);
-                }
-                return count + countFilterValue(value);
-              }, 0);
+        <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 px-6 pb-3">
+          {steps.map((step, index) => {
+            const appliedCount = step.fields.reduce((count, fieldName) => {
+              const value = form.getValues(fieldName);
+              if (
+                fieldName === 'filters.businessProfile' ||
+                fieldName === 'audience'
+              ) {
+                return count + countBusinessProfile(value);
+              }
+              return count + countFilterValue(value);
+            }, 0);
 
-              const iconWithClasses = cloneElement(step.icon, {
-                className: cn('size-4', step.icon.props?.className),
-              });
+            const iconWithClasses = cloneElement(step.icon, {
+              className: cn('size-4', step.icon.props?.className),
+            });
 
-              return (
-                <Button
-                  key={index}
-                  type="button"
-                  variant="ghost"
-                  className={cn(
-                    'flex items-center gap-1.5 px-3 py-1.5',
-                    appliedCount > 0 &&
-                      'bg-secondary text-secondary-foreground hover:bg-secondary/80',
-                  )}
-                  onClick={() => openDialog(index)}
-                >
-                  {iconWithClasses}
-                  {step.label}
-                  {appliedCount > 0 && (
-                    <span className="text-muted-foreground text-xs">
-                      ({appliedCount} applied)
-                    </span>
-                  )}
-                </Button>
-              );
-            })}
-          </div>
-
-          {/* Preview and Generate Buttons row */}
+            return (
+              <Button
+                key={index}
+                type="button"
+                variant="ghost"
+                className={cn(
+                  'flex items-center gap-1.5 px-3 py-1.5',
+                  appliedCount > 0 &&
+                    'bg-secondary text-secondary-foreground hover:bg-secondary/80',
+                )}
+                onClick={() => openDialog(index)}
+              >
+                {iconWithClasses}
+                {step.label}
+                {appliedCount > 0 && (
+                  <span className="text-muted-foreground text-xs">
+                    ({appliedCount} applied)
+                  </span>
+                )}
+              </Button>
+            );
+          })}
           <div className="flex items-center gap-4">
             <Button
               type="button"
@@ -360,103 +337,6 @@ export default function AudienceFiltersForm({
             )}
           </div>
         </div>
-
-        <div
-          className="bg-muted h-full overflow-auto"
-          style={{ maxHeight: 'calc(100vh - 10rem)' }}
-        >
-          {isIdle && (
-            <div className="flex h-full flex-col items-center justify-center">
-              <div className="max-w-md text-center">
-                <FileSearch className="mx-auto mb-4 h-12 w-12" />
-                <h3 className="mb-2 text-lg font-medium">
-                  Preview Your Audience
-                </h3>
-                <p className="text-muted-foreground mb-6">
-                  Customize your filters to build your audience. Get started by
-                  selecting a premade list.
-                </p>
-                {form.getValues('segment').length > 0 ? (
-                  <Button
-                    type="button"
-                    className="mx-auto"
-                    onClick={() =>
-                      form.trigger().then((isValid) => {
-                        if (isValid) {
-                          getPreview();
-                        } else {
-                          onError(form.formState.errors);
-                        }
-                      })
-                    }
-                  >
-                    <Search className="mr-2 size-4" />
-                    Get Preview
-                  </Button>
-                ) : (
-                  <Button
-                    type="button"
-                    className="mx-auto"
-                    onClick={() => setCurrentDialog(0)}
-                  >
-                    <ListChecks className="mr-2 h-4 w-4" />
-                    Select a Premade List
-                  </Button>
-                )}
-              </div>
-            </div>
-          )}
-          {isPending && (
-            <div className="flex h-full flex-col items-center justify-center">
-              <Loader2 className="size-12 animate-spin" />
-              <h3 className="mt-6 mb-2 text-lg font-medium">
-                Generating Audience Preview
-              </h3>
-              <p className="text-muted-foreground max-w-md text-center text-sm">
-                We&apos;re analyzing your filters and determining matching
-                profiles. This may take a few moments...
-              </p>
-            </div>
-          )}
-          {isError && (
-            <div className="flex h-full flex-col items-center justify-center text-center">
-              <AlertCircle className="text-destructive mb-4 h-12 w-12" />
-              <h3 className="text-destructive mb-2 text-lg font-medium">
-                Preview Generation Failed
-              </h3>
-              <p className="text-destructive mb-6 max-w-md">
-                {error instanceof Error
-                  ? error.message
-                  : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
-              </p>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => getPreview()}
-                className="mx-auto"
-              >
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Try Again
-              </Button>
-            </div>
-          )}
-          {previewData && previewData.result.length === 0 && (
-            <div className="flex h-[80%] flex-col items-center justify-center text-center">
-              <FileX className="mb-4 h-12 w-12" />
-              <h3 className="mb-2 text-lg font-medium">
-                No Matching Profiles Found
-              </h3>
-              <p className="text-muted-foreground mb-6 max-w-md">
-                Your current filter selection doesn&apos;t match any profiles in
-                our database. Try broadening your criteria to see results.
-              </p>
-            </div>
-          )}
-          {previewData && previewData.result.length > 0 && (
-            <PreviewAudienceTable data={previewData.result} />
-          )}
-        </div>
-
         {steps.map((step, index) => (
           <Dialog
             key={index}
@@ -493,6 +373,98 @@ export default function AudienceFiltersForm({
           </Dialog>
         ))}
       </form>
+      <div className="bg-muted h-full">
+        {isIdle && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <div className="max-w-md text-center">
+              <FileSearch className="mx-auto mb-4 h-12 w-12" />
+              <h3 className="mb-2 text-lg font-medium">
+                Preview Your Audience
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Customize your filters to build your audience. Get started by
+                building your core target audience.
+              </p>
+              {form.getValues('segment').length > 0 ? (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  onClick={() =>
+                    form.trigger().then((isValid) => {
+                      if (isValid) {
+                        getPreview();
+                      } else {
+                        onError(form.formState.errors);
+                      }
+                    })
+                  }
+                >
+                  <Search className="mr-2 size-4" />
+                  Get Preview
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  onClick={() => setCurrentDialog(0)}
+                >
+                  <ListChecks className="mr-2 h-4 w-4" />
+                  Build Audience
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+        {isPending && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <Loader2 className="size-12 animate-spin" />
+            <h3 className="mt-6 mb-2 text-lg font-medium">
+              Generating Audience Preview
+            </h3>
+            <p className="text-muted-foreground max-w-md text-center text-sm">
+              We&apos;re analyzing your filters and determining matching
+              profiles. This may take a few moments...
+            </p>
+          </div>
+        )}
+        {isError && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <AlertCircle className="text-destructive mb-4 h-12 w-12" />
+            <h3 className="text-destructive mb-2 text-lg font-medium">
+              Preview Generation Failed
+            </h3>
+            <p className="text-destructive mb-6 max-w-md">
+              {error instanceof Error
+                ? error.message
+                : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => getPreview()}
+              className="mx-auto"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        )}
+        {previewData && previewData.result.length === 0 && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <FileX className="mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">
+              No Matching Profiles Found
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Your current filter selection doesn&apos;t match any profiles in
+              our database. Try broadening your criteria to see results.
+            </p>
+          </div>
+        )}
+        {previewData && previewData.result.length > 0 && (
+          <PreviewAudienceTable data={previewData.result} />
+        )}
+      </div>
     </Form>
   );
 }
@@ -512,7 +484,7 @@ function countFilterValue(value: unknown) {
   return 0;
 }
 
-function countBusinessProfile(value: unknown): number {
+function countBusinessProfile(value: unknown) {
   if (!value || typeof value !== 'object') return 0;
   return Object.values(value as Record<string, unknown>).reduce<number>(
     (sum, subVal) => {

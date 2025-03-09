@@ -8,13 +8,9 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
-import { typesenseClient } from '../typesense/client';
+import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
-
-const AUDIENCE_API_URL =
-  process.env.AUDIENCE_API_URL ||
-  'https://v3-audience-job-72802495918.us-east1.run.app';
 
 export const createAudienceAction = enhanceAction(
   async (data) => {
@@ -48,7 +44,6 @@ export const addAudienceFiltersAction = enhanceAction(
       accountId: data.accountId,
       audienceId: data.audienceId,
       filters: data.filters,
-      audienceApiUrl: AUDIENCE_API_URL,
     });
 
     revalidatePath('/home/[account]/audience/[id]', 'page');
@@ -123,28 +118,18 @@ export const getAudienceByIdAction = enhanceAction(
 
 export const getPreviewAudienceAction = enhanceAction(
   async ({ id, filters }) => {
-    const { hits } = await typesenseClient
-      .collections<{
-        intent_id: string;
-        intent: string;
-      }>('intents')
-      .documents()
-      .search({
-        q: '*',
-        query_by: 'intent',
-        filter_by: `intent:=[${filters.segment.join(',')}]`,
-        per_page: 50,
-      });
+    filters.segment = await get4EyesIntentIds({
+      keywords: filters.segment,
+      audienceType: filters.audience.type,
+    });
 
-    filters.segment = Array.from(
-      new Set(hits?.map((hit) => `4eyes_${hit.document.intent_id}`) || []),
+    const { audience: _audience, ...audienceFilters } = filters;
+
+    const fullTimestamp = Number(
+      `${format(new Date(), 'T')}${Math.floor(Math.random() * 1000)
+        .toString()
+        .padStart(3, '0')}`,
     );
-
-    const timestampMs = format(new Date(), 'T');
-    const microPart = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, '0');
-    const fullTimestamp = Number(`${timestampMs}${microPart}`);
 
     const response = await fetch(
       'https://v3-audience-job-72802495918.us-east1.run.app/audience/search',
@@ -154,7 +139,7 @@ export const getPreviewAudienceAction = enhanceAction(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...filters,
+          ...audienceFilters,
           jobId: `${id}_${fullTimestamp}`,
           startTime: fullTimestamp,
         }),

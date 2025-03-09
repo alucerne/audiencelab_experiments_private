@@ -19,66 +19,76 @@ import {
 } from '@kit/ui/table';
 import { cn } from '@kit/ui/utils';
 
-interface PreviewTableProps {
+export default function PreviewAudienceTable({
+  data,
+}: {
   data: Record<string, string>[];
-}
-
-/**
- * Optional dictionary for special-case column names
- * that should be displayed as friendlier text.
- */
-const FRIENDLY_NAMES: Record<string, string> = {
-  company: 'Company',
-  company_domain: 'Company Domain',
-  job_title: 'Job Title',
-  first_name: 'First Name',
-  last_name: 'Last Name',
-  b2b_email: 'B2B Email',
-  b2b_phone: 'B2B Phone',
-  personal_phone: 'Personal Phone',
-  personal_email: 'Personal Email',
-  sha256: 'Hash',
-};
-
-/**
- * Fallback function to transform snake_case or
- * other keys into Title Case if they're not in FRIENDLY_NAMES.
- */
-function toUserFriendlyName(key: string): string {
-  return key
-    .split('_')
-    .map((part) => part.charAt(0).toUpperCase() + part.slice(1).toLowerCase())
-    .join(' ');
-}
-
-export default function PreviewAudienceTable({ data }: PreviewTableProps) {
-  const columns = useMemo(() => {
-    // Column for row numbering (#), 1-indexed
-    const indexColumn: ColumnDef<Record<string, string>> = {
-      id: 'rowIndex',
-      header: '#',
-      cell: ({ row }) => row.index + 1, // 1-based indexing
+}) {
+  function formatColumnName(key: string) {
+    const specialCases: Record<string, string> = {
+      first_name: 'First Name',
+      last_name: 'Last Name',
+      personal_email: 'Personal Email',
+      sha256: 'Hash',
+      b2b_phone: 'Business Phone',
+      personal_phone: 'Personal Phone',
+      company: 'Company',
+      company_domain: 'Company Domain',
+      job_title: 'Job Title',
+      b2b_email: 'Business Email',
     };
 
-    // If there's no data, only use the row index column
-    if (data.length === 0) {
-      return [indexColumn];
+    if (key in specialCases) {
+      return specialCases[key] || key;
     }
 
-    // Collect all unique keys from the data
+    return key
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  }
+
+  const columnOrderPriority: Record<string, number> = {
+    first_name: 1,
+    last_name: 2,
+    b2b_email: 3,
+    b2b_phone: 4,
+    company: 5,
+    company_domain: 6,
+    job_title: 7,
+    personal_phone: 8,
+    personal_email: 9,
+    sha256: 10,
+  };
+
+  const columns = useMemo(() => {
+    if (data.length === 0) return [];
+
     const allKeys = new Set<string>();
     data.forEach((record) => {
       Object.keys(record).forEach((key) => allKeys.add(key));
     });
 
-    // Create a ColumnDef for each unique key
-    const dataColumns = Array.from(allKeys).map((key) => ({
-      accessorKey: key,
-      header: FRIENDLY_NAMES[key] ?? toUserFriendlyName(key),
-      cell: ({ row }) => row.original[key] || '-',
-    })) as ColumnDef<Record<string, string>>[];
+    const dataColumns = Array.from(allKeys)
+      .sort((a, b) => {
+        const priorityA = columnOrderPriority[a] || 100;
+        const priorityB = columnOrderPriority[b] || 100;
+        return priorityA - priorityB;
+      })
+      .map((key) => ({
+        accessorKey: key,
+        header: formatColumnName(key),
+        cell: ({ row }) => row.original[key] || '-',
+      })) as ColumnDef<Record<string, string>>[];
 
-    return [indexColumn, ...dataColumns];
+    const rowNumberColumn: ColumnDef<Record<string, string>> = {
+      id: 'rowNumber',
+      header: '',
+      cell: ({ row }) => row.index + 1,
+      size: 25,
+    };
+
+    return [rowNumberColumn, ...dataColumns];
   }, [data]);
 
   const table = useReactTable({
@@ -94,12 +104,16 @@ export default function PreviewAudienceTable({ data }: PreviewTableProps) {
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow
               key={headerGroup.id}
-              className="divide-muted-foreground/20 border-muted-foreground/20 divide-x border-b"
+              className="border-muted-foreground/20"
             >
-              {headerGroup.headers.map((header) => (
+              {headerGroup.headers.map((header, index) => (
                 <TableHead
                   key={header.id}
-                  className="text-secondary-foreground/80"
+                  className={cn(
+                    'text-secondary-foreground/80 h-fit py-1.5 whitespace-nowrap',
+                    header.id !== 'rowNumber' ? 'min-w-28' : 'min-w-12',
+                    index > 1 && 'border-muted-foreground/20 border-l',
+                  )}
                 >
                   {header.isPlaceholder
                     ? null
@@ -112,33 +126,26 @@ export default function PreviewAudienceTable({ data }: PreviewTableProps) {
             </TableRow>
           ))}
         </TableHeader>
-
         <TableBody className="bg-background">
           {table.getRowModel().rows?.length ? (
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
                 data-state={row.getIsSelected() && 'selected'}
-                className="divide-muted-foreground/20 border-muted-foreground/20 divide-x"
+                className="border-muted-foreground/20"
               >
-                {row.getVisibleCells().map((cell) => {
-                  // For the row index column, apply a light-grey background
-                  const isIndexColumn = cell.column.id === 'rowIndex';
-                  return (
-                    <TableCell
-                      key={cell.id}
-                      className={cn(
-                        'max-w-40 truncate whitespace-nowrap',
-                        isIndexColumn && 'bg-muted',
-                      )}
-                    >
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  );
-                })}
+                {row.getVisibleCells().map((cell, index) => (
+                  <TableCell
+                    key={cell.id}
+                    className={cn(
+                      'max-w-40 truncate py-1.5 whitespace-nowrap',
+                      cell.column.id !== 'rowNumber' && 'min-w-28',
+                      index > 1 && 'border-muted-foreground/20 border-l',
+                    )}
+                  >
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
               </TableRow>
             ))
           ) : (
