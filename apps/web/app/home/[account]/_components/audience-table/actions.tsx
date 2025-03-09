@@ -24,8 +24,8 @@ import { audienceFiltersFormSchema } from '~/lib/audience/schema/audience-filter
 import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
 
 import DeleteAudienceDialog from './delete-audience-dialog';
-import DuplicateAudienceDialog from './duplicate-audience-dialog';
 import { DownloadCsvDialog } from './download-csv-dialog';
+import DuplicateAudienceDialog from './duplicate-audience-dialog';
 
 export default function AudienceTableActions({
   audience,
@@ -77,8 +77,8 @@ export default function AudienceTableActions({
               className="size-7"
               onClick={handleRefresh}
               disabled={
-                audience.latest_job.status !== 'COMPLETED' ||
-                (audience.latest_job.created_at &&
+                (audience.latest_job.status !== 'COMPLETED' &&
+                  audience.latest_job.created_at &&
                   differenceInMinutes(
                     new Date(),
                     new Date(audience.latest_job.created_at),
