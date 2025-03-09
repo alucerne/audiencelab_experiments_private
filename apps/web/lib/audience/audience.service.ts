@@ -18,6 +18,7 @@ export type AudienceList = Awaited<
 
 class AudienceService {
   constructor(private readonly client: SupabaseClient<Database>) {}
+
   async getAudience() {
     const { data, error } = await this.client
       .from('audience')
@@ -84,7 +85,6 @@ class AudienceService {
     }
 
     const { enqueue_job, ...audienceData } = data;
-
     let latest_job = null;
 
     if (enqueue_job && enqueue_job.length > 0) {
@@ -92,7 +92,6 @@ class AudienceService {
         (a, b) =>
           new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
       );
-
       if (sortedJobs[0]) {
         latest_job = sortedJobs[0];
       }
@@ -104,6 +103,7 @@ class AudienceService {
       enqueue_jobs: enqueue_job,
     };
   }
+
   async createAudience(params: { accountId: string; name: string }) {
     const { data, error } = await this.client
       .from('audience')
@@ -174,7 +174,6 @@ class AudienceService {
       await this.client.from('enqueue_job').delete().eq('id', job.data.id);
 
       const errorData = await response.json();
-
       throw new Error(
         `API request failed ${response.status}: ${
           errorData.message || errorData.error || JSON.stringify(errorData)
