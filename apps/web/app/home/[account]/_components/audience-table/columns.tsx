@@ -112,7 +112,11 @@ function ProgressBar({
   csv_url: string | null;
 }) {
   if (current === null || total === null || total === 0) {
-    return <div className="text-muted-foreground text-sm">No data</div>;
+    return (
+      <div className="w-[60%]">
+        <div className="bg-muted h-2 w-full min-w-12 rounded-full"></div>
+      </div>
+    );
   }
 
   const percentage = Math.min(Math.round((current / total) * 100), 100);
@@ -131,7 +135,7 @@ function ProgressBar({
   const formattedTotal = formatNumber(total);
 
   return (
-    <div className="w-full">
+    <div className="w-full pr-4">
       <div className="flex items-center gap-2">
         <div className="bg-muted h-2 w-full min-w-12 rounded-full">
           <div

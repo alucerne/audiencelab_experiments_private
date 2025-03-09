@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
-
 import { format, parseISO } from 'date-fns';
 
 import { Button } from '@kit/ui/button';
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogHeader,
   DialogTitle,
@@ -33,8 +32,6 @@ export function DownloadCsvDialog({
   children: React.ReactNode;
   audience: AudienceList;
 }) {
-  const [open, setOpen] = useState(false);
-
   function handleDownload(csvUrl: string, jobId: string) {
     const link = document.createElement('a');
     link.href = csvUrl;
@@ -50,63 +47,66 @@ export function DownloadCsvDialog({
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog>
       <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent
-        onInteractOutside={(e) => e.preventDefault()}
-        className="max-w-md"
-      >
-        <DialogHeader>
+      <DialogContent className="max-h-[90vh] max-w-md gap-0 px-0">
+        <DialogHeader className="px-6 pb-4">
           <DialogTitle>Download {audience.name} Audience Lists</DialogTitle>
         </DialogHeader>
-        {audience.enqueue_jobs
-          .filter(
-            (job): job is typeof job & { csv_url: string } => !!job.csv_url,
-          )
-          .map((job, index) => {
-            const isNewest = index === 0;
-            const jobDate = parseISO(job.created_at);
-            const today = new Date();
-            const isToday =
-              jobDate.getDate() === today.getDate() &&
-              jobDate.getMonth() === today.getMonth() &&
-              jobDate.getFullYear() === today.getFullYear();
+        <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6">
+          {audience.enqueue_jobs
+            .filter(
+              (job): job is typeof job & { csv_url: string } => !!job.csv_url,
+            )
+            .map((job, index) => {
+              const isNewest = index === 0;
+              const jobDate = parseISO(job.created_at);
+              const today = new Date();
+              const isToday =
+                jobDate.getDate() === today.getDate() &&
+                jobDate.getMonth() === today.getMonth() &&
+                jobDate.getFullYear() === today.getFullYear();
 
-            const formattedDate = isToday
-              ? `Today • ${format(jobDate, 'h:mm a')}`
-              : `${format(jobDate, 'MMM d')} • ${format(jobDate, 'h:mm a')}`;
+              const formattedDate = isToday
+                ? `Today • ${format(jobDate, 'h:mm a')}`
+                : `${format(jobDate, 'MMM d')} • ${format(jobDate, 'h:mm a')}`;
 
-            return (
-              <div
-                key={job.id}
-                className={cn(
-                  'flex items-center justify-between rounded-md border p-2.5',
-                  isNewest && 'bg-muted',
-                )}
-              >
-                <div className="flex flex-col space-y-0.5">
-                  <Label className="text-sm font-medium">{formattedDate}</Label>
-                  <p className="text-muted-foreground text-xs">
-                    {formatStatusCase(job.status) || 'Unknown'}
-                  </p>
+              return (
+                <div
+                  key={job.id}
+                  className={cn(
+                    'flex items-center justify-between rounded-md border p-2.5',
+                    isNewest && 'bg-muted border-primary/20',
+                  )}
+                >
+                  <div className="flex flex-col space-y-0.5">
+                    <Label className="text-sm font-medium">
+                      {formattedDate}
+                    </Label>
+                    <p className="text-muted-foreground text-xs">
+                      {formatStatusCase(job.status) || 'Unknown'}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDownload(job.csv_url, job.id)}
+                      className="h-8 px-3"
+                    >
+                      Download
+                    </Button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-1.5">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => handleDownload(job.csv_url, job.id)}
-                    className="h-8 px-3"
-                  >
-                    Download
-                  </Button>
-                </div>
-              </div>
-            );
-          })}
-        <div className="mt-6 flex justify-end">
-          <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
-            Close
-          </Button>
+              );
+            })}
+        </div>
+        <div className="flex justify-end border-t px-6 pt-4">
+          <DialogClose asChild>
+            <Button variant="outline" size="sm">
+              Close
+            </Button>
+          </DialogClose>
         </div>
       </DialogContent>
     </Dialog>

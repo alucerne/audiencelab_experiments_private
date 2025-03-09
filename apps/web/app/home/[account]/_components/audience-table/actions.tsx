@@ -23,8 +23,8 @@ import { AudienceList } from '~/lib/audience/audience.service';
 import { audienceFiltersFormSchema } from '~/lib/audience/schema/audience-filters-form.schema';
 import { addAudienceFiltersAction } from '~/lib/audience/server-actions';
 
-import DeleteAudienceDialog from '../delete-audience-dialog';
-import DuplicateAudienceDialog from '../duplicate-audience-dialog';
+import DeleteAudienceDialog from './delete-audience-dialog';
+import DuplicateAudienceDialog from './duplicate-audience-dialog';
 import { DownloadCsvDialog } from './download-csv-dialog';
 
 export default function AudienceTableActions({
@@ -82,7 +82,7 @@ export default function AudienceTableActions({
                   differenceInMinutes(
                     new Date(),
                     new Date(audience.latest_job.created_at),
-                  ) >= 5) ||
+                  ) < 5) ||
                 isPending
               }
             >
