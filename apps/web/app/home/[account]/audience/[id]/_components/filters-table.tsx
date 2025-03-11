@@ -7,7 +7,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { PlusCircle, Trash2 } from 'lucide-react';
-import { Path, PathValue, useFormContext } from 'react-hook-form';
+import { Path, PathValue, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 
 import { Button } from '@kit/ui/button';
@@ -63,8 +63,14 @@ export default function FilterTable<
   const form = useFormContext<AudienceFiltersFormValues>();
   type AnyFieldRow = FieldRow<TFields[number]>;
   const [tableData, setTableData] = useState<AnyFieldRow[]>([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  const generateTableData = () => {
+  const watchedValues = useWatch({
+    control: form.control,
+    name: fields,
+  });
+
+  function generateTableData() {
     const rows: AnyFieldRow[] = [];
 
     fields.forEach((field) => {
@@ -99,9 +105,9 @@ export default function FilterTable<
     });
 
     return rows;
-  };
+  }
 
-  const handleDelete = (row: AnyFieldRow) => {
+  function handleDelete(row: AnyFieldRow) {
     const fieldName = row.fieldName;
     const currentValue = form.getValues(fieldName);
 
@@ -124,7 +130,13 @@ export default function FilterTable<
     }
 
     setTableData(generateTableData());
-  };
+  }
+
+  useEffect(() => {
+    if (!dialogOpen) {
+      setTableData(generateTableData());
+    }
+  }, [watchedValues, dialogOpen]);
 
   useEffect(() => {
     setTableData(generateTableData());
@@ -177,9 +189,10 @@ export default function FilterTable<
           fieldTypeOptions={fieldTypeOptions}
           fieldOptions={fieldOptions}
           onClose={() => setTableData(generateTableData())}
+          dialogOpen={dialogOpen}
+          setDialogOpen={setDialogOpen}
         />
       </div>
-
       <div className="rounded-md border">
         <Table>
           <TableHeader>
@@ -241,6 +254,8 @@ interface AddFieldValueDialogProps<
   fieldTypeOptions: FieldOption<TFields[number]>[];
   fieldOptions: Partial<Record<TFields[number], string[]>>;
   onClose: () => void;
+  dialogOpen: boolean;
+  setDialogOpen: (open: boolean) => void;
 }
 
 interface SelectedField<TField extends Path<AudienceFiltersFormValues>> {
@@ -254,12 +269,13 @@ function AddFieldValueDialog<
   fieldTypeOptions,
   fieldOptions,
   onClose,
+  dialogOpen,
+  setDialogOpen,
 }: AddFieldValueDialogProps<TFields>) {
   type AnySelectedField = SelectedField<TFields[number]>;
   const [selectedField, setSelectedField] = useState<AnySelectedField | null>(
     null,
   );
-  const [dialogOpen, setDialogOpen] = useState(false);
   const [initialValue, setInitialValue] = useState<
     NumberRange | string[] | null
   >(null);
