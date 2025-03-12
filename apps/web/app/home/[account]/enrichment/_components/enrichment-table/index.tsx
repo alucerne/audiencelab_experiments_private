@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 
+import Link from 'next/link';
+
 import {
   FilterFn,
   flexRender,
@@ -16,6 +18,7 @@ import {
 
 import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
+import { buttonVariants } from '@kit/ui/button';
 import {
   Table,
   TableBody,
@@ -24,17 +27,16 @@ import {
   TableHeader,
   TableRow,
 } from '@kit/ui/table';
+import { cn } from '@kit/ui/utils';
 
 import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
 import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
-import { AudienceList } from '~/lib/audience/audience.service';
-import { getAudienceByIdAction } from '~/lib/audience/server-actions';
-import { Database } from '~/lib/database.types';
+import pathsConfig from '~/config/paths.config';
+import { Tables } from '~/lib/database.types';
 
-import AddAudienceDialog from '../add-audience-dialog';
 import { columns } from './columns';
 
-const nameIdFilterFn: FilterFn<AudienceList> = (
+const nameIdFilterFn: FilterFn<Tables<'enrichment'>> = (
   row,
   _,
   filterValue: string,
@@ -45,58 +47,42 @@ const nameIdFilterFn: FilterFn<AudienceList> = (
   return fullName.includes(searchText);
 };
 
-export default function AudienceTable({
-  audience: initialAudience,
+export default function EnrichmentTable({
+  enrichment: initialEnrichment,
 }: React.PropsWithChildren<{
-  audience: AudienceList[];
+  enrichment: Tables<'enrichment'>[];
 }>) {
-  const [audience, setAudience] = useState(initialAudience || []);
+  const [enrichment, setEnrichment] = useState(initialEnrichment || []);
   const {
-    account: { id: accountId },
+    account: { id: accountId, slug },
   } = useTeamAccountWorkspace();
   const client = useSupabase();
 
   useEffect(() => {
-    if (initialAudience) {
-      setAudience(initialAudience);
+    if (initialEnrichment) {
+      setEnrichment(initialEnrichment);
     }
 
     const subscription = client
-      .channel(`enqueue-job-channel-${accountId}`)
-      .on<Database['public']['Tables']['enqueue_job']['Row']>(
+      .channel(`enrichment-channel-${accountId}`)
+      .on<Tables<'enrichment'>>(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'enqueue_job',
+          table: 'enrichment',
           filter: `account_id=eq.${accountId}`,
         },
-        async (payload) => {
-          if (
-            payload.eventType === 'INSERT' ||
-            payload.eventType === 'UPDATE'
-          ) {
+        (payload) => {
+          if (payload.eventType === 'UPDATE') {
             try {
-              const updatedAudience = await getAudienceByIdAction({
-                id: payload.new.audience_id,
-              });
-
-              if (updatedAudience && updatedAudience.latest_job) {
-                setAudience((current) =>
-                  current.map((item) => {
-                    if (item.id === payload.new.audience_id) {
-                      return {
-                        ...updatedAudience,
-                        latest_job:
-                          updatedAudience.latest_job || item.latest_job,
-                      };
-                    }
-                    return item;
-                  }),
-                );
-              }
+              setEnrichment((current) =>
+                current.map((item) =>
+                  item.id === payload.new.id ? payload.new : item,
+                ),
+              );
             } catch (error) {
-              console.error('Error updating audience:', error);
+              console.error('Error updating enrichment:', error);
             }
           }
         },
@@ -106,10 +92,10 @@ export default function AudienceTable({
     return () => {
       subscription.unsubscribe();
     };
-  }, [initialAudience, client, accountId]);
+  }, [initialEnrichment, client, accountId]);
 
-  const table = useReactTable<AudienceList>({
-    data: audience,
+  const table = useReactTable<Tables<'enrichment'>>({
+    data: enrichment,
     columns: columns,
     initialState: {
       sorting: [{ id: 'created_at', desc: true }],
@@ -129,9 +115,19 @@ export default function AudienceTable({
     <div className="flex flex-col space-y-4">
       <DataTableToolbar
         table={table}
-        dataName="Audience List"
+        dataName="Enrichment List"
         searchPlaceholder="Search by name..."
-        actions={<AddAudienceDialog />}
+        actions={
+          <Link
+            href={pathsConfig.app.accountEnrichmentUpload.replace(
+              '[account]',
+              slug,
+            )}
+            className={cn(buttonVariants({ className: 'w-fit' }))}
+          >
+            Upload
+          </Link>
+        }
       />
       <div className="w-full overflow-hidden rounded-md border">
         <Table>

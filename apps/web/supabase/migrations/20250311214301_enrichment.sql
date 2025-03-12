@@ -21,6 +21,8 @@ create index ix_enrichment_account_id on public.enrichment(account_id);
 -- RLS
 alter table public.enrichment enable row level security;
 
+-- Realtime
+alter publication supabase_realtime add table enrichment;
 
 -- SELECT(public.enrichment)
 create policy select_enrichment

@@ -1,9 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
-import { Badge } from '@kit/ui/badge';
-
 import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
+import StatusBadge from '~/components/ui/status-badge';
 import { AudienceList } from '~/lib/audience/audience.service';
 
 import AudienceTableActions from './actions';
@@ -20,7 +19,7 @@ export const columns: ColumnDef<AudienceList>[] = [
     header: 'Status',
     accessorFn: (audience) => audience.latest_job.status,
     cell: ({ row: { original } }) => {
-      return <AudienceStatusBadge status={original.latest_job.status} />;
+      return <StatusBadge status={original.latest_job.status} />;
     },
   },
   {
@@ -76,27 +75,6 @@ export const columns: ColumnDef<AudienceList>[] = [
     ),
   },
 ];
-
-function AudienceStatusBadge({ status }: { status: string }) {
-  switch (status.toLowerCase()) {
-    case 'no data':
-      return <Badge variant={'destructive'}>No Data</Badge>;
-    case 'processing':
-      return <Badge variant={'info'}>Processing</Badge>;
-    case 'completed':
-      return <Badge variant={'success'}>Completed</Badge>;
-    case 'refreshing':
-      return <Badge variant={'info'}>Refreshing</Badge>;
-    case 'refreshed':
-      return <Badge variant={'success'}>Refreshed</Badge>;
-    default:
-      return (
-        <Badge variant={'secondary'} className="capitalize">
-          {status.toLowerCase().replace(/[-_]/g, ' ')}
-        </Badge>
-      );
-  }
-}
 
 function getDateString(date: Date) {
   return format(date, 'MMM d yyyy, h:mm a');

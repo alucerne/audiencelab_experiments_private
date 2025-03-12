@@ -1,4 +1,10 @@
-import { BookUser, CreditCard, Settings, Users } from 'lucide-react';
+import {
+  BookUser,
+  CreditCard,
+  Settings,
+  UserSearch,
+  Users,
+} from 'lucide-react';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
 
@@ -16,6 +22,11 @@ const getRoutes = (account: string) => [
         path: pathsConfig.app.accountHome.replace('[account]', account),
         Icon: <BookUser className={iconClasses} />,
         end: true,
+      },
+      {
+        label: 'Enrichment',
+        path: pathsConfig.app.accountEnrichment.replace('[account]', account),
+        Icon: <UserSearch className={iconClasses} />,
       },
     ],
   },

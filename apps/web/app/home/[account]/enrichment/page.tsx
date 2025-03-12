@@ -4,17 +4,13 @@ import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { PageBody } from '@kit/ui/page';
 
-import { createAudienceService } from '~/lib/audience/audience.service';
+import { createEnrichmentService } from '~/lib/enrichment/enrichment.service';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
-import AudienceTable from './_components/audience-table';
-import { TeamAccountLayoutPageHeader } from './_components/team-account-layout-page-header';
-import { loadTeamWorkspace } from './_lib/server/team-account-workspace.loader';
-
-interface TeamAccountHomePageProps {
-  params: Promise<{ account: string }>;
-}
+import { TeamAccountLayoutPageHeader } from '../_components/team-account-layout-page-header';
+import { loadTeamWorkspace } from '../_lib/server/team-account-workspace.loader';
+import EnrichmentTable from './_components/enrichment-table';
 
 export const generateMetadata = async () => {
   const i18n = await createI18nServerInstance();
@@ -25,29 +21,29 @@ export const generateMetadata = async () => {
   };
 };
 
-function TeamAccountHomePage({ params }: TeamAccountHomePageProps) {
+function EnrichmentPage({ params }: { params: Promise<{ account: string }> }) {
   const account = use(params).account;
   const workspace = use(loadTeamWorkspace(account));
   const accountId = workspace.account.id;
 
   const client = getSupabaseServerClient();
-  const service = createAudienceService(client);
+  const service = createEnrichmentService(client);
 
-  const { data: audience } = use(service.getAudience({ accountId }));
+  const enrichment = use(service.getEnrichments({ accountId }));
 
   return (
     <>
       <TeamAccountLayoutPageHeader
         account={account}
-        title="Audience Lists"
+        title="Enrichment"
         description={<AppBreadcrumbs />}
       />
 
       <PageBody>
-        <AudienceTable audience={audience} />
+        <EnrichmentTable enrichment={enrichment} />
       </PageBody>
     </>
   );
 }
 
-export default withI18n(TeamAccountHomePage);
+export default withI18n(EnrichmentPage);

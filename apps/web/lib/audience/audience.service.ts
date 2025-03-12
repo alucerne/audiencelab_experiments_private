@@ -19,7 +19,7 @@ export type AudienceList = Awaited<
 class AudienceService {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
-  async getAudience() {
+  async getAudience({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('audience')
       .select(
@@ -28,6 +28,7 @@ class AudienceService {
         enqueue_job(*)
       `,
       )
+      .eq('account_id', accountId)
       .order('created_at', { ascending: false });
 
     if (error) {
