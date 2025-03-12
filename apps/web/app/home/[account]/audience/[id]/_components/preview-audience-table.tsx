@@ -10,7 +10,6 @@ import {
 } from '@tanstack/react-table';
 
 import {
-  Table,
   TableBody,
   TableCell,
   TableHead,
@@ -98,65 +97,60 @@ export default function PreviewAudienceTable({
   });
 
   return (
-    <div className="w-full overflow-hidden border">
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
+    <table className="w-full caption-bottom text-sm">
+      <TableHeader className="bg-muted sticky top-0 z-10 shadow-sm">
+        {table.getHeaderGroups().map((headerGroup) => (
+          <TableRow key={headerGroup.id}>
+            {headerGroup.headers.map((header, index) => (
+              <TableHead
+                key={header.id}
+                className={cn(
+                  'text-secondary-foreground/80 h-fit py-1.5 whitespace-nowrap',
+                  header.id !== 'rowNumber' ? 'min-w-28' : 'min-w-12',
+                  index > 1 && 'border-l-muted-foreground/20 border-l',
+                )}
+              >
+                {header.isPlaceholder
+                  ? null
+                  : flexRender(
+                      header.column.columnDef.header,
+                      header.getContext(),
+                    )}
+              </TableHead>
+            ))}
+          </TableRow>
+        ))}
+      </TableHeader>
+      <TableBody className="bg-background">
+        {table.getRowModel().rows?.length ? (
+          table.getRowModel().rows.map((row) => (
             <TableRow
-              key={headerGroup.id}
+              key={row.id}
+              data-state={row.getIsSelected() && 'selected'}
               className="border-muted-foreground/20"
             >
-              {headerGroup.headers.map((header, index) => (
-                <TableHead
-                  key={header.id}
+              {row.getVisibleCells().map((cell, index) => (
+                <TableCell
+                  key={cell.id}
                   className={cn(
-                    'text-secondary-foreground/80 h-fit py-1.5 whitespace-nowrap',
-                    header.id !== 'rowNumber' ? 'min-w-28' : 'min-w-12',
+                    'max-w-40 truncate py-1.5 whitespace-nowrap',
+                    cell.column.id !== 'rowNumber' && 'min-w-28',
                     index > 1 && 'border-muted-foreground/20 border-l',
                   )}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext(),
-                      )}
-                </TableHead>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </TableCell>
               ))}
             </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody className="bg-background">
-          {table.getRowModel().rows?.length ? (
-            table.getRowModel().rows.map((row) => (
-              <TableRow
-                key={row.id}
-                data-state={row.getIsSelected() && 'selected'}
-                className="border-muted-foreground/20"
-              >
-                {row.getVisibleCells().map((cell, index) => (
-                  <TableCell
-                    key={cell.id}
-                    className={cn(
-                      'max-w-40 truncate py-1.5 whitespace-nowrap',
-                      cell.column.id !== 'rowNumber' && 'min-w-28',
-                      index > 1 && 'border-muted-foreground/20 border-l',
-                    )}
-                  >
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                  </TableCell>
-                ))}
-              </TableRow>
-            ))
-          ) : (
-            <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </div>
+          ))
+        ) : (
+          <TableRow>
+            <TableCell colSpan={columns.length} className="h-24 text-center">
+              No results.
+            </TableCell>
+          </TableRow>
+        )}
+      </TableBody>
+    </table>
   );
 }
