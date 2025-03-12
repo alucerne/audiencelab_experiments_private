@@ -42,7 +42,6 @@ import {
   DialogTitle,
 } from '@kit/ui/dialog';
 import { Form } from '@kit/ui/form';
-import { PageBody } from '@kit/ui/page';
 import { Separator } from '@kit/ui/separator';
 import { cn } from '@kit/ui/utils';
 
@@ -259,64 +258,64 @@ export default function AudienceFiltersForm({
 
   return (
     <>
-      <div className="flex flex-col justify-between pb-6 min-[896px]:flex-row min-[896px]:pr-6 lg:pb-0">
-        <TeamAccountLayoutPageHeader
-          account={account}
-          title={`${audienceName} Audience Filters`}
-          description={<AppBreadcrumbs uuidLabel="Filters" />}
-        />
-        <div className="flex flex-col-reverse items-center gap-4 md:flex-row">
-          {previewData && (
-            <div className="flex items-center gap-4">
-              <div className="text-sm font-medium whitespace-nowrap">
-                <span className="font-semibold">
-                  {previewData.count.toLocaleString()}
-                </span>{' '}
-                {` result${previewData.count === 1 ? '' : 's found'}`}
+      <div className="flex-none">
+        <div className="flex flex-col justify-between pb-6 min-[896px]:flex-row lg:pr-4 lg:pb-0">
+          <TeamAccountLayoutPageHeader
+            account={account}
+            title={`${audienceName} Audience Filters`}
+            description={<AppBreadcrumbs uuidLabel="Filters" />}
+          />
+          <div className="flex flex-col-reverse items-center gap-4 md:flex-row">
+            {previewData && (
+              <div className="flex items-center gap-4">
+                <div className="text-sm font-medium whitespace-nowrap">
+                  <span className="font-semibold">
+                    {previewData.count.toLocaleString()}
+                  </span>{' '}
+                  {` result${previewData.count === 1 ? '' : 's found'}`}
+                </div>
+                <Separator
+                  orientation={'vertical'}
+                  className="hidden h-5 md:block"
+                />
               </div>
-              <Separator
-                orientation={'vertical'}
-                className="hidden h-5 md:block"
-              />
+            )}
+            <div className="flex items-center gap-4">
+              <Button
+                type="button"
+                disabled={pending}
+                className="px-3 py-1.5"
+                variant="secondary"
+                onClick={() =>
+                  form.trigger().then((isValid) => {
+                    if (isValid) {
+                      getPreview();
+                    } else {
+                      onError(form.formState.errors);
+                    }
+                  })
+                }
+              >
+                <Search className="mr-2 size-4" />
+                Preview
+              </Button>
+              <Button
+                type="submit"
+                disabled={pending || !form.formState.isValid}
+                className="px-3 py-1.5"
+              >
+                <Database className="mr-2 size-4" />
+                Generate Audience
+              </Button>
             </div>
-          )}
-          <div className="flex items-center gap-4">
-            <Button
-              type="button"
-              disabled={pending}
-              className="px-3 py-1.5"
-              variant="secondary"
-              onClick={() =>
-                form.trigger().then((isValid) => {
-                  if (isValid) {
-                    getPreview();
-                  } else {
-                    onError(form.formState.errors);
-                  }
-                })
-              }
-            >
-              <Search className="mr-2 size-4" />
-              Preview
-            </Button>
-            <Button
-              type="submit"
-              disabled={pending || !form.formState.isValid}
-              className="px-3 py-1.5"
-            >
-              <Database className="mr-2 size-4" />
-              Generate Audience
-            </Button>
           </div>
         </div>
-      </div>
-      <PageBody className="lg:px-0">
         <Form {...form}>
           <form
             className="relative"
             onSubmit={form.handleSubmit(onSubmit, onError)}
           >
-            <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 pb-3 lg:px-6">
+            <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 pb-3 lg:px-4">
               {steps.map((step, index) => {
                 const appliedCount = step.fields.reduce((count, fieldName) => {
                   const value = form.getValues(fieldName);
@@ -395,100 +394,100 @@ export default function AudienceFiltersForm({
               </Dialog>
             ))}
           </form>
-          <div className="bg-muted h-full">
-            {isIdle && (
-              <div className="flex h-[80%] flex-col items-center justify-center">
-                <div className="max-w-md text-center">
-                  <FileSearch className="mx-auto mb-4 h-12 w-12" />
-                  <h3 className="mb-2 text-lg font-medium">
-                    Preview Your Audience
-                  </h3>
-                  <p className="text-muted-foreground mb-6">
-                    Customize your filters to build your audience. Get started
-                    by building your core target audience.
-                  </p>
-                  {form.getValues('segment').length > 0 ? (
-                    <Button
-                      type="button"
-                      className="mx-auto"
-                      onClick={() =>
-                        form.trigger().then((isValid) => {
-                          if (isValid) {
-                            getPreview();
-                          } else {
-                            onError(form.formState.errors);
-                          }
-                        })
-                      }
-                    >
-                      <Search className="mr-2 size-4" />
-                      Get Preview
-                    </Button>
-                  ) : (
-                    <Button
-                      type="button"
-                      className="mx-auto"
-                      onClick={() => setCurrentDialog(0)}
-                    >
-                      <ListChecks className="mr-2 h-4 w-4" />
-                      Build Audience
-                    </Button>
-                  )}
-                </div>
-              </div>
-            )}
-            {isPending && (
-              <div className="flex h-[80%] flex-col items-center justify-center">
-                <Loader2 className="size-12 animate-spin" />
-                <h3 className="mt-6 mb-2 text-lg font-medium">
-                  Generating Audience Preview
-                </h3>
-                <p className="text-muted-foreground max-w-md text-center text-sm">
-                  We&apos;re analyzing your filters and determining matching
-                  profiles. This may take a few moments...
-                </p>
-              </div>
-            )}
-            {isError && (
-              <div className="flex h-[80%] flex-col items-center justify-center text-center">
-                <AlertCircle className="text-destructive mb-4 h-12 w-12" />
-                <h3 className="text-destructive mb-2 text-lg font-medium">
-                  Preview Generation Failed
-                </h3>
-                <p className="text-destructive mb-6 max-w-md">
-                  {error instanceof Error
-                    ? error.message
-                    : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
-                </p>
+        </Form>
+      </div>
+      <div className="bg-muted h-full flex-1 overflow-y-auto">
+        {isIdle && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <div className="max-w-md text-center">
+              <FileSearch className="mx-auto mb-4 h-12 w-12" />
+              <h3 className="mb-2 text-lg font-medium">
+                Preview Your Audience
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Customize your filters to build your audience. Get started by
+                building your core target audience.
+              </p>
+              {form.getValues('segment').length > 0 ? (
                 <Button
                   type="button"
-                  variant="outline"
-                  onClick={() => getPreview()}
                   className="mx-auto"
+                  onClick={() =>
+                    form.trigger().then((isValid) => {
+                      if (isValid) {
+                        getPreview();
+                      } else {
+                        onError(form.formState.errors);
+                      }
+                    })
+                  }
                 >
-                  <RefreshCw className="mr-2 h-4 w-4" />
-                  Try Again
+                  <Search className="mr-2 size-4" />
+                  Get Preview
                 </Button>
-              </div>
-            )}
-            {previewData && previewData.result.length === 0 && (
-              <div className="flex h-[80%] flex-col items-center justify-center text-center">
-                <FileX className="mb-4 h-12 w-12" />
-                <h3 className="mb-2 text-lg font-medium">
-                  No Matching Profiles Found
-                </h3>
-                <p className="text-muted-foreground mb-6 max-w-md">
-                  Your current filter selection doesn&apos;t match any profiles
-                  in our database. Try broadening your criteria to see results.
-                </p>
-              </div>
-            )}
-            {previewData && previewData.result.length > 0 && (
-              <PreviewAudienceTable data={previewData.result} />
-            )}
+              ) : (
+                <Button
+                  type="button"
+                  className="mx-auto"
+                  onClick={() => setCurrentDialog(0)}
+                >
+                  <ListChecks className="mr-2 h-4 w-4" />
+                  Build Audience
+                </Button>
+              )}
+            </div>
           </div>
-        </Form>
-      </PageBody>
+        )}
+        {isPending && (
+          <div className="flex h-[80%] flex-col items-center justify-center">
+            <Loader2 className="size-12 animate-spin" />
+            <h3 className="mt-6 mb-2 text-lg font-medium">
+              Generating Audience Preview
+            </h3>
+            <p className="text-muted-foreground max-w-md text-center text-sm">
+              We&apos;re analyzing your filters and determining matching
+              profiles. This may take a few moments...
+            </p>
+          </div>
+        )}
+        {isError && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <AlertCircle className="text-destructive mb-4 h-12 w-12" />
+            <h3 className="text-destructive mb-2 text-lg font-medium">
+              Preview Generation Failed
+            </h3>
+            <p className="text-destructive mb-6 max-w-md">
+              {error instanceof Error
+                ? error.message
+                : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
+            </p>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => getPreview()}
+              className="mx-auto"
+            >
+              <RefreshCw className="mr-2 h-4 w-4" />
+              Try Again
+            </Button>
+          </div>
+        )}
+        {previewData && previewData.result.length === 0 && (
+          <div className="flex h-[80%] flex-col items-center justify-center text-center">
+            <FileX className="mb-4 h-12 w-12" />
+            <h3 className="mb-2 text-lg font-medium">
+              No Matching Profiles Found
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md">
+              Your current filter selection doesn&apos;t match any profiles in
+              our database. Try broadening your criteria to see results.
+            </p>
+          </div>
+        )}
+        {previewData && previewData.result.length > 0 && (
+          <PreviewAudienceTable data={previewData.result} />
+        )}
+      </div>
     </>
   );
 }

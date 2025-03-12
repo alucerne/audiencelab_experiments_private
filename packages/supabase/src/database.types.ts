@@ -319,6 +319,58 @@ export type Database = {
           },
         ];
       };
+      enrichment: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          csv_url: string | null;
+          id: string;
+          name: string;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          csv_url?: string | null;
+          id?: string;
+          name: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          csv_url?: string | null;
+          id?: string;
+          name?: string;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'enrichment_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'enrichment_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'enrichment_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       invitations: {
         Row: {
           account_id: string;
