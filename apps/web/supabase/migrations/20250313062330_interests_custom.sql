@@ -4,7 +4,7 @@ create table if not exists public.interests_custom (
   topic_id text not null,
   topic text not null,
   description text not null,
-  available boolean null default false,
+  available boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

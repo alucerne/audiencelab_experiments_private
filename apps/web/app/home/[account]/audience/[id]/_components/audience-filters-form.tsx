@@ -303,6 +303,7 @@ export default function AudienceFiltersForm({
                 type="submit"
                 disabled={pending || !form.formState.isValid}
                 className="px-3 py-1.5"
+                onClick={() => form.handleSubmit(onSubmit, onError)()}
               >
                 <Database className="mr-2 size-4" />
                 Generate Audience

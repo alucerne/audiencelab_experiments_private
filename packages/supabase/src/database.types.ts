@@ -322,7 +322,7 @@ export type Database = {
       interests_custom: {
         Row: {
           account_id: string;
-          available: boolean | null;
+          available: boolean;
           created_at: string;
           description: string;
           id: string;
@@ -332,7 +332,7 @@ export type Database = {
         };
         Insert: {
           account_id: string;
-          available?: boolean | null;
+          available?: boolean;
           created_at?: string;
           description: string;
           id?: string;
@@ -342,7 +342,7 @@ export type Database = {
         };
         Update: {
           account_id?: string;
-          available?: boolean | null;
+          available?: boolean;
           created_at?: string;
           description?: string;
           id?: string;
