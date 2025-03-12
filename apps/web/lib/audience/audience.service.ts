@@ -266,4 +266,43 @@ class AudienceService {
 
     return data;
   }
+
+  async createCustomInterest({
+    accountId,
+    topic,
+    description,
+  }: {
+    accountId: string;
+    topic: string;
+    description: string;
+  }) {
+    const response = await fetch(
+      `${miscConfig.audienceApiUrl}/audience/topics`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: accountId,
+          topic,
+          description,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `API request failed ${response.status}: ${
+          errorData.message || errorData.error || JSON.stringify(errorData)
+        }`,
+      );
+    }
+
+    return z
+      .object({
+        status: z.string(),
+        topic_id: z.string(),
+      })
+      .parse(await response.json());
+  }
 }

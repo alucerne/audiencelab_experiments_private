@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
 import { Path, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -9,6 +9,13 @@ import { z } from 'zod';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kit/ui/dialog';
 import {
   FormControl,
   FormDescription,
@@ -36,6 +43,7 @@ import {
 } from '~/lib/audience/schema/audience-filters-form.schema';
 
 import {
+  createCustomInterestAction,
   getCustomInterestsAction,
   searchPremadeListsAction,
 } from '../_lib/server-actions';
@@ -197,15 +205,12 @@ export default function AudienceStep() {
 }
 
 function CustomAudience() {
-  //  const [pending, startTransition] = useTransition();
-
   const {
     account: { id: accountId },
   } = useTeamAccountWorkspace();
 
-  const { control, resetField } =
+  const { control } =
     useFormContext<z.infer<typeof audienceFiltersFormSchema>>();
-  const [isNew, setIsNew] = useState<'existing' | 'new'>('existing');
 
   const { data, isLoading, error } = useQuery({
     queryKey: ['customInterests', accountId],
@@ -213,147 +218,219 @@ function CustomAudience() {
     enabled: Boolean(accountId),
   });
 
-  useEffect(() => {
-    resetField('segment');
-    resetField('audience.customTopic');
-    resetField('audience.customDescription');
-  }, [isNew, resetField]);
-
-  //create button shows toast switches back to existing view, invalidates query, resets fields
-
-  // function handleCreate() {
-  //   //!validate custom fields
-
-  //   startTransition(() => {
-  //     toast.promise(
-  //       addAudienceFiltersAction({
-  //         accountId,
-  //         audienceId: id,
-  //         filters: values,
-  //       }),
-  //       {
-  //         loading: 'Creating custom audience...',
-  //         success: () => {
-  //           setIsNew('existing');
-  //           queryClient.invalidateQueries('customInterests');
-  //           resetField('audience.customTopic');
-  //           resetField('audience.customDescription');
-  //           return 'Your custom audience is being created. This process can take up to 24 hours.';
-  //         },
-  //         error: 'Failed to create custom audience',
-  //       },
-  //     );
-  //   });
-  // }
-
   return (
     <>
-      <FormItem>
-        <FormLabel>Manage Your Custom Audiences</FormLabel>
-        <FormDescription>Use or create a custom audience.</FormDescription>
-        <ToggleGroup
-          type="single"
-          variant="outline"
-          value={isNew}
-          onValueChange={(value) => setIsNew(value as 'existing' | 'new')}
-          className="mt-1.5 justify-start"
-        >
-          <ToggleGroupItem value="existing" className="px-3 py-1">
-            Existing
-          </ToggleGroupItem>
-          <ToggleGroupItem value="new" className="px-3 py-1">
-            New
-          </ToggleGroupItem>
-        </ToggleGroup>
-      </FormItem>
-      {isNew === 'new' ? (
-        <>
-          <FormField
-            control={control}
-            name="audience.customTopic"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Topic</FormLabel>
-                <FormDescription>
-                  What is the topic of your custom audience?
-                </FormDescription>
-                <FormControl>
-                  <Input {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={control}
-            name="audience.customDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Description</FormLabel>
-                <FormDescription>
-                  Describe your custom audience.
-                </FormDescription>
-                <FormControl>
-                  <Textarea {...field} rows={5} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <Button onClick={() => setIsNew('existing')}>Cancel</Button>
-        </>
-      ) : (
-        <FormField
-          control={control}
-          name="segment"
-          render={({ field }) => (
-            <FormItem className="gap-y-4">
-              <FormLabel>Your Ready Custom Audiences</FormLabel>
-              <Select
-                onValueChange={(val) => field.onChange([val])}
-                defaultValue={field.value?.[0] || ''}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select..." />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {isLoading ? (
-                    <SelectItem value="loading" disabled>
-                      Loading...
-                    </SelectItem>
-                  ) : error ? (
-                    <SelectItem value="error" disabled>
-                      Error loading custom audiences
-                    </SelectItem>
-                  ) : data?.length ? (
-                    data.map((interest, index) => (
+      <FormField
+        control={control}
+        name="segment"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Your Custom Audiences</FormLabel>
+            <FormDescription>
+              Select a custom audience you have created.
+            </FormDescription>
+            <Select
+              onValueChange={(val) => field.onChange([val])}
+              defaultValue={field.value?.[0] || ''}
+            >
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                {isLoading ? (
+                  <SelectItem value="loading" disabled>
+                    Loading...
+                  </SelectItem>
+                ) : error ? (
+                  <SelectItem value="error" disabled>
+                    Error loading custom audiences
+                  </SelectItem>
+                ) : data?.length ? (
+                  data
+                    .slice()
+                    .sort((a, b) =>
+                      a.available === b.available ? 0 : a.available ? -1 : 1,
+                    )
+                    .map((interest, index) => (
                       <SelectItem
                         key={index}
                         value={interest.topic_id}
                         disabled={!interest.available}
                       >
                         {interest.topic}
-                        <Badge className="ml-6" variant={'info'}>
+                        <Badge className="ml-6" variant="info">
                           {interest.available
                             ? `Created on ${format(new Date(interest.created_at), 'MMM dd, yyyy')}`
                             : 'Processing'}
                         </Badge>
                       </SelectItem>
                     ))
-                  ) : (
-                    <SelectItem value="no-results" disabled>
-                      No custom audiences found
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
+                ) : (
+                  <SelectItem value="no-results" disabled>
+                    No custom audiences found
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <CreateCustomAudienceDialog />
+    </>
+  );
+}
+function CreateCustomAudienceDialog() {
+  const { control, getValues, setError, clearErrors, reset } =
+    useFormContext<AudienceFiltersFormValues>();
+  const [open, setOpen] = useState(false);
+  const [pending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
+
+  const {
+    account: { id: accountId },
+  } = useTeamAccountWorkspace();
+
+  function resetDialogFields() {
+    reset({
+      ...getValues(),
+      audience: {
+        ...getValues().audience,
+        customTopic: '',
+        customDescription: '',
+      },
+    });
+    clearErrors(['audience.customTopic', 'audience.customDescription']);
+  }
+
+  function handleClose() {
+    setOpen(false);
+    resetDialogFields();
+  }
+
+  function validateCustomFields() {
+    let isValid = true;
+
+    const topic = getValues('audience.customTopic');
+    if (!topic || topic.trim().length === 0) {
+      setError('audience.customTopic', {
+        type: 'manual',
+        message: 'Topic is required',
+      });
+      isValid = false;
+    }
+
+    const description = getValues('audience.customDescription');
+    if (!description || description.trim().length === 0) {
+      setError('audience.customDescription', {
+        type: 'manual',
+        message: 'Description is required',
+      });
+      isValid = false;
+    }
+
+    return isValid;
+  }
+
+  function handleCreate() {
+    clearErrors(['audience.customTopic', 'audience.customDescription']);
+
+    if (!validateCustomFields()) {
+      return;
+    }
+
+    startTransition(() => {
+      toast.promise(
+        createCustomInterestAction({
+          accountId,
+          topic: getValues('audience.customTopic'),
+          description: getValues('audience.customDescription'),
+        }),
+        {
+          loading: 'Creating custom audience...',
+          success: () => {
+            queryClient.invalidateQueries({
+              queryKey: ['customInterests', accountId],
+            });
+            handleClose();
+            return 'Your custom audience is being created. This process can take up to 24 hours.';
+          },
+          error: 'Failed to create custom audience',
+        },
+      );
+    });
+  }
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(isOpen) => {
+        if (!isOpen) {
+          resetDialogFields();
+        }
+        setOpen(isOpen);
+      }}
+    >
+      <DialogTrigger asChild>
+        <Button size="sm" className="w-fit gap-2 text-sm">
+          New Custom Audience
+        </Button>
+      </DialogTrigger>
+      <DialogContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-xl"
+      >
+        <DialogHeader>
+          <DialogTitle>Create Custom Audience</DialogTitle>
+        </DialogHeader>
+        <FormField
+          control={control}
+          name="audience.customTopic"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Topic</FormLabel>
+              <FormDescription>
+                What is the topic of your custom audience?
+              </FormDescription>
+              <FormControl>
+                <Input {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-      )}
-    </>
+        <FormField
+          control={control}
+          name="audience.customDescription"
+          render={({ field }) => (
+            <FormItem className="mt-2">
+              <FormLabel>Description</FormLabel>
+              <FormDescription>Describe your custom audience.</FormDescription>
+              <FormControl>
+                <Textarea {...field} rows={5} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <div className="flex justify-end space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            disabled={pending}
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+          <Button size="sm" disabled={pending} onClick={handleCreate}>
+            Create
+          </Button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

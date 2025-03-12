@@ -35,3 +35,19 @@ export const getCustomInterestsAction = enhanceAction(
     }),
   },
 );
+
+export const createCustomInterestAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    return service.createCustomInterest(data);
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      topic: z.string(),
+      description: z.string(),
+    }),
+  },
+);
