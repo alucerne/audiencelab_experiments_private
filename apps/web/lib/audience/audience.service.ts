@@ -253,4 +253,56 @@ class AudienceService {
 
     return data;
   }
+
+  async getCustomInterests({ accountId }: { accountId: string }) {
+    const { data, error } = await this.client
+      .from('interests_custom')
+      .select('topic_id, topic, created_at, available')
+      .eq('account_id', accountId);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async createCustomInterest({
+    accountId,
+    topic,
+    description,
+  }: {
+    accountId: string;
+    topic: string;
+    description: string;
+  }) {
+    const response = await fetch(
+      `${miscConfig.audienceApiUrl}/audience/topics`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: accountId,
+          topic,
+          description,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `API request failed ${response.status}: ${
+          errorData.message || errorData.error || JSON.stringify(errorData)
+        }`,
+      );
+    }
+
+    return z
+      .object({
+        status: z.string(),
+        topic_id: z.string(),
+      })
+      .parse(await response.json());
+  }
 }

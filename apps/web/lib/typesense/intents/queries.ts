@@ -7,6 +7,12 @@ export async function get4EyesIntentIds({
   keywords: string[];
   audienceType: 'keyword' | 'premade' | 'custom';
 }) {
+  if (audienceType === 'custom') {
+    return Array.from(
+      new Set(keywords.map((keyword) => keyword.replace(/^c_/, 'c_4eyes_'))),
+    );
+  }
+
   const interests = await (audienceType === 'keyword'
     ? Promise.all(
         keywords.map(async (keyword) => {

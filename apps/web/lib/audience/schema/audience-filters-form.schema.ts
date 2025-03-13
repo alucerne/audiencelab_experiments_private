@@ -105,38 +105,14 @@ export const audienceFiltersFormSchema = z
     }),
   })
   .superRefine((data, ctx) => {
-    if (data.audience.type === 'custom') {
-      if (
-        !data.audience.customTopic ||
-        data.audience.customTopic.trim().length === 0
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message: 'Custom topic is required when creating a custom audience.',
-          path: ['audience', 'customTopic'],
-        });
-      }
-
-      if (
-        !data.audience.customDescription ||
-        data.audience.customDescription.trim().length === 0
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          message:
-            'Custom description is required when creating a custom audience.',
-          path: ['audience', 'customDescription'],
-        });
-      }
-    }
-
     if (data.segment.length < 1) {
-      let message = 'Please select at least 1 item.';
-
+      let message = 'Please add a premade list, keyword, or custom list.';
       if (data.audience.type === 'premade') {
         message = 'Please select at least 1 premade list.';
       } else if (data.audience.type === 'keyword') {
         message = 'Please add at least 1 keyword.';
+      } else if (data.audience.type === 'custom') {
+        message = 'Please select a custom list.';
       }
 
       ctx.addIssue({
