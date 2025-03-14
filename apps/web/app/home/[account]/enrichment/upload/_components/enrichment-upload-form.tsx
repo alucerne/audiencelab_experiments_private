@@ -129,7 +129,7 @@ export default function EnrichmentUploadForm() {
           let isFirstChunk = true;
 
           await new Promise<void>((resolve, reject) => {
-            Papa.parse<Record<string, string>>(currentFile!, {
+            Papa.parse<Record<string, string>>(currentFile, {
               header: true,
               skipEmptyLines: true,
               chunk: (results) => {
@@ -169,7 +169,7 @@ export default function EnrichmentUploadForm() {
           const transformedBlob = new Blob([finalCsv], { type: 'text/csv' });
           const transformedFile = new File(
             [transformedBlob],
-            `transformed_${currentFile.name}`,
+            currentFile.name,
             { type: 'text/csv', lastModified: new Date().getTime() },
           );
 
