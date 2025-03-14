@@ -39,9 +39,11 @@ type EnrichmentNameFormValues = z.infer<typeof enrichmentNameSchema>;
 export default function EnrichmentNameDialog({
   onSubmit,
   disabled,
+  onBeforeOpen,
 }: {
   onSubmit: (name: string) => void;
   disabled?: boolean;
+  onBeforeOpen?: () => boolean;
 }) {
   const [open, setOpen] = useState(false);
 
@@ -58,8 +60,18 @@ export default function EnrichmentNameDialog({
     setOpen(false);
   }
 
+  function handleOpenChange(isOpen: boolean) {
+    if (isOpen && onBeforeOpen) {
+      const shouldOpen = onBeforeOpen();
+      if (!shouldOpen) {
+        return;
+      }
+    }
+    setOpen(isOpen);
+  }
+
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button disabled={disabled}>Submit Enrichment</Button>
       </DialogTrigger>

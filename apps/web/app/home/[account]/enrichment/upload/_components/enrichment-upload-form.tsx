@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -82,7 +82,7 @@ export default function EnrichmentUploadForm() {
   const {
     account: { slug, id: accountId },
   } = useTeamAccountWorkspace();
-  const [pending, startTransition] = useTransition();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [sampleData, setSampleData] = useState<string[][]>([]);
@@ -97,116 +97,127 @@ export default function EnrichmentUploadForm() {
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  async function handleEnrichmentSubmit(enrichmentName: string) {
-    if (
-      !Object.entries(columnMapping).some(([field, headers]) => {
+  function validate() {
+    const hasValidMapping = Object.entries(columnMapping).some(
+      ([field, headers]) => {
         return field !== 'DO_NOT_IMPORT' && headers.length > 0;
-      })
-    ) {
+      },
+    );
+
+    if (!hasValidMapping) {
       toast.error('Please map at least one column to a field.');
-      return;
+      return false;
     }
 
+    // Check if a file is uploaded
     if (!currentFile) {
       toast.error('File not found. Please try uploading again.');
-      return;
+      return false;
     }
 
-    startTransition(() => {
-      toast.promise(
-        async () => {
-          const headerToFieldMap: Record<string, string> = {};
-          Object.entries(columnMapping).forEach(([field, headers]) => {
-            if (field !== 'DO_NOT_IMPORT') {
-              headers.forEach((header) => {
-                headerToFieldMap[header] = field;
-              });
-            }
-          });
+    return true;
+  }
 
-          const headersToKeep = Object.keys(headerToFieldMap);
-          if (headersToKeep.length === 0) {
-            toast.error('No columns mapped for import.');
-            return;
-          }
+  async function handleEnrichmentSubmit(enrichmentName: string) {
+    if (!validate() || !currentFile) return;
 
-          const transformedChunks: string[] = [];
-          let isFirstChunk = true;
-
-          await new Promise<void>((resolve, reject) => {
-            Papa.parse<Record<string, string>>(currentFile, {
-              header: true,
-              skipEmptyLines: true,
-              chunk: (results) => {
-                const chunkData = results.data as Record<string, string>[];
-                const transformedRows: Record<string, string>[] = [];
-
-                chunkData.forEach((row) => {
-                  const transformedRow: Record<string, string> = {};
-                  headersToKeep.forEach((originalHeader) => {
-                    const mappedField = headerToFieldMap[originalHeader];
-                    if (mappedField) {
-                      transformedRow[mappedField] = row[originalHeader] || '';
-                    }
-                  });
-                  transformedRows.push(transformedRow);
-                });
-
-                const csvContent = isFirstChunk
-                  ? Papa.unparse(transformedRows, { header: true })
-                  : Papa.unparse(transformedRows, { header: false });
-                isFirstChunk = false;
-                transformedChunks.push(csvContent);
-              },
-              complete: () => resolve(),
-              error: reject,
+    setIsSubmitting(true);
+    toast.promise(
+      async () => {
+        const headerToFieldMap: Record<string, string> = {};
+        Object.entries(columnMapping).forEach(([field, headers]) => {
+          if (field !== 'DO_NOT_IMPORT') {
+            headers.forEach((header) => {
+              headerToFieldMap[header] = field;
             });
-          });
-
-          let finalCsv = transformedChunks[0] || '';
-          for (let i = 1; i < transformedChunks.length; i++) {
-            const lines = transformedChunks[i]?.split('\n');
-            if (lines && lines.length > 1) {
-              finalCsv += '\n' + lines.slice(1).join('\n');
-            }
           }
+        });
 
-          const transformedBlob = new Blob([finalCsv], { type: 'text/csv' });
-          const transformedFile = new File(
-            [transformedBlob],
-            currentFile.name,
-            { type: 'text/csv', lastModified: new Date().getTime() },
+        const headersToKeep = Object.keys(headerToFieldMap);
+        if (headersToKeep.length === 0) {
+          toast.error('No columns mapped for import.');
+          return;
+        }
+
+        const transformedChunks: string[] = [];
+        let isFirstChunk = true;
+
+        await new Promise<void>((resolve, reject) => {
+          Papa.parse<Record<string, string>>(currentFile, {
+            header: true,
+            skipEmptyLines: true,
+            chunk: (results) => {
+              const chunkData = results.data as Record<string, string>[];
+              const transformedRows: Record<string, string>[] = [];
+
+              chunkData.forEach((row) => {
+                const transformedRow: Record<string, string> = {};
+                headersToKeep.forEach((originalHeader) => {
+                  const mappedField = headerToFieldMap[originalHeader];
+                  if (mappedField) {
+                    transformedRow[mappedField] = row[originalHeader] || '';
+                  }
+                });
+                transformedRows.push(transformedRow);
+              });
+
+              const csvContent = isFirstChunk
+                ? Papa.unparse(transformedRows, { header: true })
+                : Papa.unparse(transformedRows, { header: false });
+              isFirstChunk = false;
+              transformedChunks.push(csvContent);
+            },
+            complete: () => resolve(),
+            error: reject,
+          });
+        });
+
+        let finalCsv = transformedChunks[0] || '';
+        for (let i = 1; i < transformedChunks.length; i++) {
+          const lines = transformedChunks[i]?.split('\n');
+          if (lines && lines.length > 1) {
+            finalCsv += '\n' + lines.slice(1).join('\n');
+          }
+        }
+
+        const transformedBlob = new Blob([finalCsv], { type: 'text/csv' });
+        const transformedFile = new File([transformedBlob], currentFile.name, {
+          type: 'text/csv',
+          lastModified: new Date().getTime(),
+        });
+
+        const formData = new FormData();
+        formData.append('file', transformedFile);
+        formData.append('columnMapping', JSON.stringify(columnMapping));
+        formData.append('originalRowCount', rowCount.toString());
+        formData.append('accountId', accountId);
+        formData.append('name', enrichmentName);
+
+        const response = await fetch('/api/enrich', {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to upload file for enrichment');
+        }
+      },
+      {
+        loading: 'Preparing data for enrichment...',
+        success: () => {
+          setIsSubmitting(false);
+          router.push(
+            pathsConfig.app.accountEnrichment.replace('[account]', slug),
           );
 
-          const formData = new FormData();
-          formData.append('file', transformedFile);
-          formData.append('columnMapping', JSON.stringify(columnMapping));
-          formData.append('originalRowCount', rowCount.toString());
-          formData.append('accountId', accountId);
-          formData.append('name', enrichmentName);
-
-          const response = await fetch('/api/enrich', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (!response.ok) {
-            throw new Error('Failed to upload file for enrichment');
-          }
+          return 'Data uploaded successfully and queued for enrichment.';
         },
-        {
-          loading: 'Preparing data for enrichment...',
-          success: () => {
-            router.push(
-              pathsConfig.app.accountEnrichment.replace('[account]', slug),
-            );
-
-            return 'Data uploaded successfully and queued for enrichment.';
-          },
-          error: 'Error preparing data for enrichment.',
+        error: () => {
+          setIsSubmitting(false);
+          return 'Error preparing data for enrichment.';
         },
-      );
-    });
+      },
+    );
   }
 
   function handleFileChange(file: File) {
@@ -492,7 +503,8 @@ export default function EnrichmentUploadForm() {
           )}
           <EnrichmentNameDialog
             onSubmit={handleEnrichmentSubmit}
-            disabled={!currentFile || isProcessing || pending}
+            disabled={!currentFile || isProcessing || isSubmitting}
+            onBeforeOpen={validate}
           />
         </div>
       </div>
