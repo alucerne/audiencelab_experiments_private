@@ -29,6 +29,8 @@ import { cn } from '@kit/ui/utils';
 import FileDropZone from '~/components/ui/file-dropzone';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 
+import EnrichmentNameDialog from './enrichment-name-dialog';
+
 type FieldOption =
   | 'FIRST_NAME'
   | 'LAST_NAME'
@@ -90,7 +92,7 @@ export default function EnrichmentUploadForm() {
   const [currentFile, setCurrentFile] = useState<File | null>(null);
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  async function uploadForEnrichment() {
+  async function handleEnrichmentSubmit(enrichmentName: string) {
     if (
       !Object.entries(columnMapping).some(([field, headers]) => {
         return field !== 'DO_NOT_IMPORT' && headers.length > 0;
@@ -176,7 +178,7 @@ export default function EnrichmentUploadForm() {
           formData.append('columnMapping', JSON.stringify(columnMapping));
           formData.append('originalRowCount', rowCount.toString());
           formData.append('accountId', accountId);
-          formData.append('name', 'new enrichment!');
+          formData.append('name', enrichmentName);
 
           const response = await fetch('/api/enrich', {
             method: 'POST',
@@ -477,12 +479,10 @@ export default function EnrichmentUploadForm() {
               {`Detected ${(rowCount - 1).toLocaleString()} rows`}
             </span>
           )}
-          <Button
+          <EnrichmentNameDialog
+            onSubmit={handleEnrichmentSubmit}
             disabled={!currentFile || isProcessing || pending}
-            onClick={uploadForEnrichment}
-          >
-            Submit Enrichment
-          </Button>
+          />
         </div>
       </div>
     </>
