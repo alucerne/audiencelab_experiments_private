@@ -36,7 +36,6 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   const accountId = formData.get('accountId');
 
   if (!file || !(file instanceof File)) {
-    logger.error(ctx, 'No file provided or file is invalid.');
     return NextResponse.json(
       { error: 'No file provided or invalid file' },
       { status: 400 },
@@ -47,7 +46,6 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
     !accountId ||
     typeof accountId !== 'string'
   ) {
-    logger.error(ctx, 'Name or accountId not provided or invalid.');
     return NextResponse.json(
       { error: 'Name or accountId not provided' },
       { status: 400 },
@@ -59,11 +57,9 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   );
 
   const columnMappingRaw = formData.get('columnMapping');
-  logger.info(ctx, `Raw columnMapping: ${columnMappingRaw}`);
   const columnMapping = JSON.parse(
     columnMappingRaw?.toString() || '{}',
   ) as Record<string, string[]>;
-  logger.info(ctx, 'Parsed columnMapping:', columnMapping);
   const mappedColumns = Object.entries(columnMapping)
     .filter(
       ([field, headers]) => field !== 'DO_NOT_IMPORT' && headers.length > 0,
@@ -73,7 +69,6 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
 
   const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
   const uniqueFilename = `${timestamp}-${file.name}`;
-  logger.info(ctx, `Unique filename generated: ${uniqueFilename}`);
 
   const blob = bucket.file(uniqueFilename);
   logger.info(
@@ -107,7 +102,6 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   });
 
   const client = getSupabaseServerClient();
-  logger.info(ctx, 'Creating enrichment service job.');
   const service = createEnrichmentService(client);
   const job = await service.createEnrichment({ accountId, name });
   logger.info(ctx, `Enrichment job created with ID: ${job.id}`);
@@ -116,11 +110,13 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   const gcsPath = `gs://${bucketName}/${uniqueFilename}`;
   logger.info(
     ctx,
-    `Calling enqueue api: ${JSON.stringify({
-      gcsPath,
-      columns: mappedColumns,
-      jobId: job.id,
-    })}`,
+    `Calling enqueue api (${miscConfig.audienceApiUrl}/enrich/enqueue): ${JSON.stringify(
+      {
+        gcsPath,
+        columns: mappedColumns,
+        jobId: job.id,
+      },
+    )}`,
   );
   const response = await fetch(`${miscConfig.audienceApiUrl}/enrich/enqueue`, {
     method: 'POST',
