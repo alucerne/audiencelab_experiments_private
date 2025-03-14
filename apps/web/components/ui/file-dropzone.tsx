@@ -8,20 +8,20 @@ export default function FileDropZone({
   onFileChange,
   onFileRemove,
   accept,
+  file,
 }: {
   onFileChange: (file: File) => void;
   onFileRemove: () => void;
   accept?: string;
+  file: File | null;
 }) {
   const [dragActive, setDragActive] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
-  const [file, setFile] = useState<File | null>(null);
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     e.preventDefault();
     if (e.target.files && e.target.files[0]) {
       const selectedFile = e.target.files[0];
-      setFile(selectedFile);
       onFileChange(selectedFile);
     }
   }
@@ -32,7 +32,6 @@ export default function FileDropZone({
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const selectedFile = e.dataTransfer.files[0];
-      setFile(selectedFile);
       onFileChange(selectedFile);
     }
   }
@@ -56,7 +55,6 @@ export default function FileDropZone({
   }
 
   function removeFile() {
-    setFile(null);
     onFileRemove();
   }
 

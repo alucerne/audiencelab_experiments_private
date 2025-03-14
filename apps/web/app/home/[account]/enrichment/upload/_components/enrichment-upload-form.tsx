@@ -1,113 +1,292 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition } from 'react';
 
-import { CheckCircle } from 'lucide-react';
-import Papa from 'papaparse';
+import {
+  Check,
+  CheckCircle,
+  ChevronsUpDown,
+  Signpost,
+  Upload,
+} from 'lucide-react';
+import * as Papa from 'papaparse';
 import { toast } from 'sonner';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { Button } from '@kit/ui/button';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@kit/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@kit/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@kit/ui/popover';
+import { cn } from '@kit/ui/utils';
 
 import FileDropZone from '~/components/ui/file-dropzone';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 
+type FieldOption =
+  | 'FIRST_NAME'
+  | 'LAST_NAME'
+  | 'EMAIL'
+  | 'PHONE'
+  | 'PERSONAL_ADDRESS'
+  | 'PERSONAL_ZIP'
+  | 'PERSONAL_STATE'
+  | 'PERSONAL_CITY'
+  | 'COMPANY_INDUSTRY'
+  | 'SHA256_PERSONAL_EMAIL'
+  | 'LINKEDIN_URL'
+  | 'UP_ID'
+  | 'PERSONAL_EMAIL'
+  | 'BUSINESS_EMAIL'
+  | 'COMPANY_NAME'
+  | 'COMPANY_DOMAIN'
+  | 'DO_NOT_IMPORT';
+
+const fieldOptions: {
+  value: FieldOption;
+  label: string;
+}[] = [
+  { value: 'FIRST_NAME', label: 'First Name' },
+  { value: 'LAST_NAME', label: 'Last Name' },
+  { value: 'EMAIL', label: 'Email' },
+  { value: 'PHONE', label: 'Phone Number' },
+  { value: 'PERSONAL_ADDRESS', label: 'Personal Address' },
+  { value: 'PERSONAL_ZIP', label: 'Personal Zip' },
+  { value: 'PERSONAL_STATE', label: 'Personal State' },
+  { value: 'PERSONAL_CITY', label: 'Personal City' },
+  { value: 'COMPANY_INDUSTRY', label: 'Company Industry' },
+  { value: 'SHA256_PERSONAL_EMAIL', label: 'SHA256 Personal Email' },
+  { value: 'LINKEDIN_URL', label: 'LinkedIn URL' },
+  { value: 'UP_ID', label: 'UP ID' },
+  { value: 'PERSONAL_EMAIL', label: 'Personal Email' },
+  { value: 'BUSINESS_EMAIL', label: 'Business Email' },
+  { value: 'COMPANY_NAME', label: 'Company Name' },
+  { value: 'COMPANY_DOMAIN', label: 'Company Domain' },
+  { value: 'DO_NOT_IMPORT', label: 'Do Not Import' },
+];
+
 export default function EnrichmentUploadForm() {
   const {
-    account: { slug },
+    account: { slug, id: accountId },
   } = useTeamAccountWorkspace();
+  const [pending, startTransition] = useTransition();
 
-  const [csvData, setCsvData] = useState<Array<Record<string, string>> | null>(
-    null,
-  );
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [sampleData, setSampleData] = useState<string[][]>([]);
   const [columnMapping, setColumnMapping] = useState<Record<string, string[]>>(
     {},
   );
-  const [detectedDataRows, setDetectedDataRows] = useState(0);
-  const [selectedFields, setSelectedFields] = useState<Record<string, boolean>>(
-    {},
-  );
-
-  function handleFileChange(file: File) {
-    if (file) {
-      Papa.parse<Record<string, string>>(file, {
-        complete: (result) => {
-          if (result.meta.fields) {
-            setCsvData(result.data);
-            const headers = result.meta.fields;
-            const samples = result.data
-              .slice(0, 4)
-              .map((row) => headers.map((header) => row[header] || ''));
-
-            setCsvHeaders(headers);
-            setSampleData(samples);
-            setDetectedDataRows(result.data.length - 1);
-
-            calculateHeaderCompleteness(headers, result.data);
-          } else {
-            console.error('No headers found in CSV file');
-          }
-        },
-        header: true,
-      });
-    }
-  }
-
+  const [openPopover, setOpenPopover] = useState<Record<string, boolean>>({});
   const [headerCompleteness, setHeaderCompleteness] = useState<
     Record<string, number>
   >({});
+  const [rowCount, setRowCount] = useState<number>(0);
+  const [currentFile, setCurrentFile] = useState<File | null>(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
 
-  function calculateHeaderCompleteness(
-    headers: string[],
-    data: Array<Record<string, string>>,
-  ) {
-    const completeness: Record<string, number> = {};
+  async function uploadForEnrichment() {
+    if (
+      !Object.entries(columnMapping).some(([field, headers]) => {
+        return field !== 'DO_NOT_IMPORT' && headers.length > 0;
+      })
+    ) {
+      toast.error('Please map at least one column to a field.');
+      return;
+    }
 
-    headers.forEach((header) => {
-      const nonNullCount = data.filter(
-        (row) =>
-          row[header] !== null &&
-          row[header] !== undefined &&
-          row[header].trim() !== '',
-      ).length;
+    if (!currentFile) {
+      toast.error('File not found. Please try uploading again.');
+      return;
+    }
 
-      const percentage =
-        data.length > 0 ? (nonNullCount / data.length) * 100 : 0;
-      completeness[header] = Math.round(percentage);
+    startTransition(() => {
+      toast.promise(
+        async () => {
+          const headerToFieldMap: Record<string, string> = {};
+          Object.entries(columnMapping).forEach(([field, headers]) => {
+            if (field !== 'DO_NOT_IMPORT') {
+              headers.forEach((header) => {
+                headerToFieldMap[header] = field;
+              });
+            }
+          });
+
+          const headersToKeep = Object.keys(headerToFieldMap);
+          if (headersToKeep.length === 0) {
+            toast.error('No columns mapped for import.');
+            return;
+          }
+
+          const transformedChunks: string[] = [];
+          let isFirstChunk = true;
+
+          await new Promise<void>((resolve, reject) => {
+            Papa.parse<Record<string, string>>(currentFile!, {
+              header: true,
+              skipEmptyLines: true,
+              chunk: (results) => {
+                const chunkData = results.data as Record<string, string>[];
+                const transformedRows: Record<string, string>[] = [];
+
+                chunkData.forEach((row) => {
+                  const transformedRow: Record<string, string> = {};
+                  headersToKeep.forEach((originalHeader) => {
+                    const mappedField = headerToFieldMap[originalHeader];
+                    if (mappedField) {
+                      transformedRow[mappedField] = row[originalHeader] || '';
+                    }
+                  });
+                  transformedRows.push(transformedRow);
+                });
+
+                const csvContent = isFirstChunk
+                  ? Papa.unparse(transformedRows, { header: true })
+                  : Papa.unparse(transformedRows, { header: false });
+                isFirstChunk = false;
+                transformedChunks.push(csvContent);
+              },
+              complete: () => resolve(),
+              error: reject,
+            });
+          });
+
+          let finalCsv = transformedChunks[0] || '';
+          for (let i = 1; i < transformedChunks.length; i++) {
+            const lines = transformedChunks[i]?.split('\n');
+            if (lines && lines.length > 1) {
+              finalCsv += '\n' + lines.slice(1).join('\n');
+            }
+          }
+
+          const transformedBlob = new Blob([finalCsv], { type: 'text/csv' });
+          const transformedFile = new File(
+            [transformedBlob],
+            `transformed_${currentFile.name}`,
+            { type: 'text/csv', lastModified: new Date().getTime() },
+          );
+
+          const formData = new FormData();
+          formData.append('file', transformedFile);
+          formData.append('columnMapping', JSON.stringify(columnMapping));
+          formData.append('originalRowCount', rowCount.toString());
+          formData.append('accountId', accountId);
+          formData.append('name', 'new enrichment!');
+
+          const response = await fetch('/api/enrich', {
+            method: 'POST',
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error('Failed to upload file for enrichment');
+          }
+        },
+        {
+          loading: 'Preparing data for enrichment...',
+          success: 'Data uploaded successfully and queued for enrichment.',
+          error: 'Error preparing data for enrichment.',
+        },
+      );
     });
-
-    setHeaderCompleteness(completeness);
   }
 
-  function handleFileRemove() {
-    setCsvData(null);
+  function handleFileChange(file: File) {
     setCsvHeaders([]);
     setSampleData([]);
     setColumnMapping({});
-    setDetectedDataRows(0);
-    setSelectedFields({});
     setHeaderCompleteness({});
+    setRowCount(0);
+    setIsProcessing(true);
+    setCurrentFile(file);
+
+    let headers: string[] = [];
+    const sampleRows: string[][] = [];
+    let tempRowCount = 0;
+    const completenessTracker: Record<
+      string,
+      { filled: number; total: number }
+    > = {};
+
+    Papa.parse(file, {
+      header: true,
+      chunk: (results) => {
+        const chunkData = results.data as Record<string, string>[];
+
+        if (tempRowCount === 0 && results.meta.fields) {
+          headers = results.meta.fields;
+          setCsvHeaders(headers);
+
+          headers.forEach((header) => {
+            completenessTracker[header] = { filled: 0, total: 0 };
+          });
+        }
+
+        if (headers.length === 0) return;
+
+        chunkData.forEach((row) => {
+          tempRowCount++;
+
+          if (sampleRows.length < 4) {
+            sampleRows.push(headers.map((header) => row[header] || ''));
+          }
+
+          headers.forEach((header) => {
+            if (!completenessTracker[header]) {
+              completenessTracker[header] = { filled: 0, total: 0 };
+            }
+
+            completenessTracker[header].total++;
+            if (row[header] && row[header].trim() !== '') {
+              completenessTracker[header].filled++;
+            }
+          });
+        });
+
+        if (tempRowCount % 10000 === 0) {
+          setRowCount(tempRowCount);
+        }
+      },
+      complete: () => {
+        const headerCompleteness: Record<string, number> = {};
+        Object.entries(completenessTracker).forEach(([header, counts]) => {
+          headerCompleteness[header] =
+            counts.total > 0
+              ? Math.round((counts.filled / counts.total) * 100)
+              : 0;
+        });
+
+        setSampleData(sampleRows);
+        setHeaderCompleteness(headerCompleteness);
+        setRowCount(tempRowCount);
+        setIsProcessing(false);
+
+        toast.success(
+          `Successfully processed ${(tempRowCount - 1).toLocaleString()} rows.`,
+        );
+      },
+      error: () => {
+        toast.error(`Error processing file. Please try again.`);
+        setIsProcessing(false);
+      },
+    });
   }
 
-  function handleSelectChange(csvHeader: string, selectedField: string) {
-    let previouslySelectedField: string | null = null;
+  function handleFileRemove() {
+    setCsvHeaders([]);
+    setSampleData([]);
+    setColumnMapping({});
+    setHeaderCompleteness({});
+    setRowCount(0);
+    setCurrentFile(null);
+  }
 
-    Object.entries(columnMapping).forEach(([field, headers]) => {
-      if (headers.includes(csvHeader)) {
-        previouslySelectedField = field;
-      }
-    });
-
+  function handleSelectChange(csvHeader: string, selectedField: FieldOption) {
     setColumnMapping((prevMapping) => {
       const newMapping = { ...prevMapping };
 
@@ -127,36 +306,13 @@ export default function EnrichmentUploadForm() {
       return newMapping;
     });
 
-    setSelectedFields((prev) => {
-      const newSelectedFields = { ...prev };
-
-      if (
-        previouslySelectedField &&
-        previouslySelectedField !== 'doNotImport'
-      ) {
-        const stillInUse = Object.entries(columnMapping).some(
-          ([field, headers]) => {
-            return (
-              field === previouslySelectedField &&
-              headers.some((h) => h !== csvHeader)
-            );
-          },
-        );
-
-        if (!stillInUse) {
-          newSelectedFields[previouslySelectedField] = false;
-        }
-      }
-
-      if (selectedField !== 'doNotImport') {
-        newSelectedFields[selectedField] = true;
-      }
-
-      return newSelectedFields;
-    });
+    setOpenPopover((prev) => ({
+      ...prev,
+      [csvHeader]: false,
+    }));
   }
 
-  function getSelectedValueForHeader(header: string): string | undefined {
+  function getSelectedValueForHeader(header: string) {
     let selectedValue: string | undefined;
 
     Object.entries(columnMapping).forEach(([field, headers]) => {
@@ -168,17 +324,13 @@ export default function EnrichmentUploadForm() {
     return selectedValue;
   }
 
-  const fieldOptions = [
-    { value: 'firstName', label: 'First Name' },
-    { value: 'lastName', label: 'Last Name' },
-    { value: 'name', label: 'Full Name' },
-    { value: 'email', label: 'Email' },
-    { value: 'domain', label: 'Domain' },
-    { value: 'phone', label: 'Phone Number' },
-    { value: 'title', label: 'Job Title' },
-    { value: 'company', label: 'Company' },
-    { value: 'doNotImport', label: 'Do Not Import' },
-  ];
+  function getSelectedLabelForHeader(header: string) {
+    const value = getSelectedValueForHeader(header);
+    if (!value) return 'Select field';
+
+    const option = fieldOptions.find((opt) => opt.value === value);
+    return option ? option.label : 'Select field';
+  }
 
   return (
     <>
@@ -188,21 +340,34 @@ export default function EnrichmentUploadForm() {
           title="Enrichment"
           description={<AppBreadcrumbs />}
         />
-        <div className="mx-auto w-full max-w-5xl">
-          <h3 className="mb-4 text-xl font-semibold">Upload CSV File</h3>
+        <div className="mx-auto w-full max-w-5xl lg:px-4">
+          <h3 className="mb-4 flex gap-2 text-xl font-semibold">
+            <Upload />
+            Upload CSV File
+          </h3>
           <FileDropZone
             onFileChange={handleFileChange}
             onFileRemove={handleFileRemove}
             accept=".csv"
+            file={currentFile}
           />
-          {csvHeaders.length > 0 && (
+          {isProcessing && currentFile && (
+            <div className="my-40 flex flex-col items-center justify-center gap-3">
+              <p className="text-muted-foreground max-w-md text-center text-sm">
+                Processing your file. This may take a few moments for large
+                files...
+              </p>
+            </div>
+          )}
+          {!isProcessing && csvHeaders.length > 0 && (
             <>
-              <h3 className="mt-8 mb-4 text-xl font-semibold">
+              <h3 className="mt-8 mb-4 flex gap-2 text-xl font-semibold">
+                <Signpost />
                 Map CSV Columns to Fields
               </h3>
-              <div className="mb-4 grid grid-cols-3 gap-4">
+              <div className="mb-4 grid grid-cols-3 gap-4 max-sm:hidden">
                 <div className="font-bold">Column Name</div>
-                <div className="font-bold">Select Type</div>
+                <div className="font-bold">Select Fields</div>
                 <div className="font-bold">Samples</div>
               </div>
               {csvHeaders.map((header, index) => (
@@ -215,7 +380,8 @@ export default function EnrichmentUploadForm() {
                   <div>
                     <div className="flex items-center">
                       {getSelectedValueForHeader(header) &&
-                        getSelectedValueForHeader(header) !== 'doNotImport' && (
+                        getSelectedValueForHeader(header) !==
+                          'DO_NOT_IMPORT' && (
                           <CheckCircle className="mr-2 h-4 w-4 text-green-500" />
                         )}
                       <span>{header}</span>
@@ -227,31 +393,69 @@ export default function EnrichmentUploadForm() {
                     )}
                   </div>
                   <div>
-                    <Select
-                      value={getSelectedValueForHeader(header)}
-                      onValueChange={(selectedValue) =>
-                        handleSelectChange(header, selectedValue)
-                      }
+                    <Popover
+                      open={openPopover[header] || false}
+                      onOpenChange={(open) => {
+                        setOpenPopover((prev) => ({ ...prev, [header]: open }));
+                      }}
                     >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {fieldOptions
-                          .filter(
-                            (option) =>
-                              option.value === 'doNotImport' ||
-                              columnMapping[option.value]?.includes(header) ||
-                              (!selectedFields[option.value] &&
-                                option.value !== 'doNotImport'),
-                          )
-                          .map((option) => (
-                            <SelectItem key={option.value} value={option.value}>
-                              {option.label}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'w-full justify-between',
+                            !getSelectedValueForHeader(header) &&
+                              'text-muted-foreground',
+                          )}
+                        >
+                          {getSelectedLabelForHeader(header)}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 opacity-50" />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="max-h-[var(--radix-popover-content-available-height)] w-[var(--radix-popover-trigger-width)] p-0">
+                        <Command>
+                          <CommandInput
+                            placeholder="Search fields..."
+                            className="h-9"
+                          />
+                          <CommandList>
+                            <CommandEmpty>No field found.</CommandEmpty>
+                            <CommandGroup>
+                              {fieldOptions
+                                .filter(
+                                  (option) =>
+                                    option.value === 'DO_NOT_IMPORT' ||
+                                    !columnMapping[option.value] ||
+                                    columnMapping[option.value]?.includes(
+                                      header,
+                                    ),
+                                )
+                                .map((option) => (
+                                  <CommandItem
+                                    key={option.value}
+                                    value={option.label}
+                                    onSelect={() =>
+                                      handleSelectChange(header, option.value)
+                                    }
+                                  >
+                                    <Check
+                                      className={cn(
+                                        'mr-2 h-4 w-4',
+                                        getSelectedValueForHeader(header) ===
+                                          option.value
+                                          ? 'opacity-100'
+                                          : 'opacity-0',
+                                      )}
+                                    />
+                                    {option.label}
+                                  </CommandItem>
+                                ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     {sampleData.map((sample, sampleIndex) => (
@@ -266,18 +470,16 @@ export default function EnrichmentUploadForm() {
           )}
         </div>
       </div>
-      <div className="bg-background flex-none border-t py-4">
+      <div className="bg-background flex-none border-t py-4 lg:px-4">
         <div className="mx-auto flex max-w-5xl items-center justify-end gap-6">
-          {csvHeaders.length > 0 && (
+          {rowCount > 0 && !isProcessing && (
             <span className="text-sm">
-              Detected {detectedDataRows.toLocaleString()} rows
+              {`Detected ${(rowCount - 1).toLocaleString()} rows`}
             </span>
           )}
           <Button
-            disabled={!csvData}
-            onClick={() =>
-              toast.error('still need to integrate api, just showing ui')
-            }
+            disabled={!currentFile || isProcessing || pending}
+            onClick={uploadForEnrichment}
           >
             Submit Enrichment
           </Button>

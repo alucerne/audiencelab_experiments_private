@@ -8,7 +8,7 @@ import StatusBadge from '~/components/ui/status-badge';
 
 import EnrichmentTableActions from './actions';
 
-export const columns: ColumnDef<Tables<'enrichment'>>[] = [
+export const columns: ColumnDef<Tables<'job_enrich'>>[] = [
   {
     accessorKey: 'name',
     accessorFn: (enrichment) => enrichment.name,

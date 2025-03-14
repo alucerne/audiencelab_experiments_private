@@ -21,7 +21,7 @@ export default function DeleteEnrichmentDialog({
   enrichment,
   children,
 }: {
-  enrichment: Tables<'enrichment'>;
+  enrichment: Tables<'job_enrich'>;
   children: React.ReactNode;
 }) {
   const [pending, startTransition] = useTransition();
