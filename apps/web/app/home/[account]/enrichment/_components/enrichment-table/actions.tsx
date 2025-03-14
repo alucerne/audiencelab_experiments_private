@@ -16,7 +16,7 @@ import DeleteEnrichmentDialog from './delete-enrichment-dialog';
 export default function EnrichmentTableActions({
   enrichment,
 }: {
-  enrichment: Tables<'enrichment'>;
+  enrichment: Tables<'job_enrich'>;
 }) {
   function handleDownloadCSV() {
     if (!enrichment.csv_url) return;

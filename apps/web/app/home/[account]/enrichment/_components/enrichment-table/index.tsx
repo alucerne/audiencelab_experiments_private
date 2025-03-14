@@ -36,7 +36,7 @@ import { Tables } from '~/lib/database.types';
 
 import { columns } from './columns';
 
-const nameIdFilterFn: FilterFn<Tables<'enrichment'>> = (
+const nameIdFilterFn: FilterFn<Tables<'job_enrich'>> = (
   row,
   _,
   filterValue: string,
@@ -50,7 +50,7 @@ const nameIdFilterFn: FilterFn<Tables<'enrichment'>> = (
 export default function EnrichmentTable({
   enrichment: initialEnrichment,
 }: React.PropsWithChildren<{
-  enrichment: Tables<'enrichment'>[];
+  enrichment: Tables<'job_enrich'>[];
 }>) {
   const [enrichment, setEnrichment] = useState(initialEnrichment || []);
   const {
@@ -65,7 +65,7 @@ export default function EnrichmentTable({
 
     const subscription = client
       .channel(`enrichment-channel-${accountId}`)
-      .on<Tables<'enrichment'>>(
+      .on<Tables<'job_enrich'>>(
         'postgres_changes',
         {
           event: '*',
@@ -94,7 +94,7 @@ export default function EnrichmentTable({
     };
   }, [initialEnrichment, client, accountId]);
 
-  const table = useReactTable<Tables<'enrichment'>>({
+  const table = useReactTable<Tables<'job_enrich'>>({
     data: enrichment,
     columns: columns,
     initialState: {

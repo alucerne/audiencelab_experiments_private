@@ -11,7 +11,7 @@ class EnrichmentService {
 
   async getEnrichments(params: { accountId: string }) {
     const { data, error } = await this.client
-      .from('enrichment')
+      .from('job_enrich')
       .select('*')
       .eq('account_id', params.accountId);
 
@@ -22,9 +22,28 @@ class EnrichmentService {
     return data;
   }
 
+  async createEnrichment(params: { accountId: string; name: string }) {
+    const { data, error } = await this.client
+      .from('job_enrich')
+      .insert([
+        {
+          account_id: params.accountId,
+          name: params.name,
+        },
+      ])
+      .select('*')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
   async deleteEnrichment(params: { enrichmentId: string }) {
     const { error } = await this.client
-      .from('enrichment')
+      .from('job_enrich')
       .delete()
       .eq('id', params.enrichmentId);
 
