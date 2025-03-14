@@ -70,7 +70,7 @@ export default function EnrichmentTable({
         {
           event: '*',
           schema: 'public',
-          table: 'enrichment',
+          table: 'job_enrich',
           filter: `account_id=eq.${accountId}`,
         },
         (payload) => {
