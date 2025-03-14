@@ -2,6 +2,8 @@
 
 import { useState, useTransition } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import {
   Check,
   CheckCircle,
@@ -27,6 +29,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@kit/ui/popover';
 import { cn } from '@kit/ui/utils';
 
 import FileDropZone from '~/components/ui/file-dropzone';
+import pathsConfig from '~/config/paths.config';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 
 import EnrichmentNameDialog from './enrichment-name-dialog';
@@ -74,6 +77,8 @@ const fieldOptions: {
 ];
 
 export default function EnrichmentUploadForm() {
+  const router = useRouter();
+
   const {
     account: { slug, id: accountId },
   } = useTeamAccountWorkspace();
@@ -191,7 +196,13 @@ export default function EnrichmentUploadForm() {
         },
         {
           loading: 'Preparing data for enrichment...',
-          success: 'Data uploaded successfully and queued for enrichment.',
+          success: () => {
+            router.push(
+              pathsConfig.app.accountEnrichment.replace('[account]', slug),
+            );
+
+            return 'Data uploaded successfully and queued for enrichment.';
+          },
           error: 'Error preparing data for enrichment.',
         },
       );

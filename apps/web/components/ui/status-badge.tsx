@@ -12,6 +12,8 @@ export default function StatusBadge({ status }: { status: string }) {
       return <Badge variant={'info'}>Refreshing</Badge>;
     case 'refreshed':
       return <Badge variant={'success'}>Refreshed</Badge>;
+    case 'failed':
+      return <Badge variant={'destructive'}>Failed</Badge>;
     default:
       return (
         <Badge variant={'secondary'} className="capitalize">

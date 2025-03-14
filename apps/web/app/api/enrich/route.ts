@@ -1,3 +1,4 @@
+import { revalidatePath } from 'next/cache';
 import { NextResponse } from 'next/server';
 
 import { Storage } from '@google-cloud/storage';
@@ -110,11 +111,16 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   const service = createEnrichmentService(client);
   const job = await service.createEnrichment({ accountId, name });
   logger.info(ctx, `Enrichment job created with ID: ${job.id}`);
+  revalidatePath('/home/[account]/enrichment', 'page');
 
   const gcsPath = `gs://${bucketName}/${uniqueFilename}`;
   logger.info(
     ctx,
-    `Calling external API with gcsPath: ${gcsPath} and columns: ${mappedColumns.join(', ')}`,
+    `Calling enqueue api: ${JSON.stringify({
+      gcsPath,
+      columns: mappedColumns,
+      jobId: job.id,
+    })}`,
   );
   const response = await fetch(`${miscConfig.audienceApiUrl}/enrich/enqueue`, {
     method: 'POST',
