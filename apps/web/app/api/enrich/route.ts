@@ -110,7 +110,7 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
   const gcsPath = `gs://${bucketName}/${uniqueFilename}`;
   logger.info(
     ctx,
-    `Calling enqueue api (${miscConfig.audienceApiUrl}/enrich/enqueue): ${JSON.stringify(
+    `Calling enqueue api (${miscConfig.enrichmentApiUrl}/enrich/enqueue): ${JSON.stringify(
       {
         gcsPath,
         columns: mappedColumns,
@@ -118,15 +118,18 @@ export const POST = enhanceRouteHandler(async ({ request }) => {
       },
     )}`,
   );
-  const response = await fetch(`${miscConfig.audienceApiUrl}/enrich/enqueue`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      gcsPath,
-      columns: mappedColumns,
-      jobId: job.id,
-    }),
-  });
+  const response = await fetch(
+    `${miscConfig.enrichmentApiUrl}/enrich/enqueue`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        gcsPath,
+        columns: mappedColumns,
+        jobId: job.id,
+      }),
+    },
+  );
   logger.info(ctx, `External API responded with status: ${response.status}`);
 
   if (!response.ok) {
