@@ -32,6 +32,10 @@ import FileDropZone from '~/components/ui/file-dropzone';
 import pathsConfig from '~/config/paths.config';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 
+import {
+  getUploadUrlAction,
+  processEnrichmentAction,
+} from '../_lib/server-actions';
 import EnrichmentNameDialog from './enrichment-name-dialog';
 
 type FieldOption =
@@ -109,7 +113,6 @@ export default function EnrichmentUploadForm() {
       return false;
     }
 
-    // Check if a file is uploaded
     if (!currentFile) {
       toast.error('File not found. Please try uploading again.');
       return false;
@@ -134,10 +137,6 @@ export default function EnrichmentUploadForm() {
         });
 
         const headersToKeep = Object.keys(headerToFieldMap);
-        if (headersToKeep.length === 0) {
-          toast.error('No columns mapped for import.');
-          return;
-        }
 
         const transformedChunks: string[] = [];
         let isFirstChunk = true;
@@ -186,21 +185,33 @@ export default function EnrichmentUploadForm() {
           lastModified: new Date().getTime(),
         });
 
-        const formData = new FormData();
-        formData.append('file', transformedFile);
-        formData.append('columnMapping', JSON.stringify(columnMapping));
-        formData.append('originalRowCount', rowCount.toString());
-        formData.append('accountId', accountId);
-        formData.append('name', enrichmentName);
-
-        const response = await fetch('/api/enrich', {
-          method: 'POST',
-          body: formData,
+        const { signedUrl, uniqueFilename } = await getUploadUrlAction({
+          fileName: transformedFile.name,
+          fileType: transformedFile.type,
         });
 
-        if (!response.ok) {
-          throw new Error('Failed to upload file for enrichment');
+        const uploadResponse = await fetch(signedUrl, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': transformedFile.type,
+          },
+          body: transformedFile,
+        });
+
+        if (!uploadResponse.ok) {
+          const errorText = await uploadResponse.text();
+          throw new Error(
+            `Upload failed: ${uploadResponse.status} ${errorText}`,
+          );
         }
+
+        await processEnrichmentAction({
+          uniqueFilename,
+          name: enrichmentName,
+          accountId,
+          columnMapping,
+          originalFileName: currentFile.name,
+        });
       },
       {
         loading: 'Preparing data for enrichment...',
@@ -451,6 +462,7 @@ export default function EnrichmentUploadForm() {
                                   (option) =>
                                     option.value === 'DO_NOT_IMPORT' ||
                                     !columnMapping[option.value] ||
+                                    columnMapping[option.value]?.length === 0 ||
                                     columnMapping[option.value]?.includes(
                                       header,
                                     ),
