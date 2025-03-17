@@ -145,6 +145,9 @@ export type Database = {
           filters: Json;
           id: string;
           name: string;
+          next_scheduled_refresh: string | null;
+          refresh_interval: number | null;
+          scheduled_refresh: boolean;
           updated_at: string;
         };
         Insert: {
@@ -153,6 +156,9 @@ export type Database = {
           filters?: Json;
           id?: string;
           name: string;
+          next_scheduled_refresh?: string | null;
+          refresh_interval?: number | null;
+          scheduled_refresh?: boolean;
           updated_at?: string;
         };
         Update: {
@@ -161,6 +167,9 @@ export type Database = {
           filters?: Json;
           id?: string;
           name?: string;
+          next_scheduled_refresh?: string | null;
+          refresh_interval?: number | null;
+          scheduled_refresh?: boolean;
           updated_at?: string;
         };
         Relationships: [
@@ -958,6 +967,16 @@ export type Database = {
         };
         Returns: boolean;
       };
+      create_audience_refresh_cron: {
+        Args: {
+          p_job_name: string;
+          p_cron_expression: string;
+          p_audience_id: string;
+          p_account_id: string;
+          p_refresh_interval: number;
+        };
+        Returns: undefined;
+      };
       create_invitation: {
         Args: {
           account_id: string;
@@ -1116,6 +1135,13 @@ export type Database = {
           user_id: string;
         };
         Returns: boolean;
+      };
+      remove_audience_cron_job: {
+        Args: {
+          p_job_name: string;
+          p_audience_id: string;
+        };
+        Returns: undefined;
       };
       revoke_nonce: {
         Args: {
