@@ -90,14 +90,19 @@ BEGIN
     p_cron_expression, 
     format(
       $cmd$
-      SELECT supabase_functions.http_request(
-        'http://host.docker.internal:3000/api/db/refresh',
-        'POST',
-        '{"Content-Type":"application/json", "X-Supabase-Event-Signature":"WEBHOOKSECRET"}',
-        '{"audience_id": "%s", "account_id": "%s"}',
-        '5000'
-      );
-      $cmd$, 
+        SELECT net.http_post(
+          url := 'http://host.docker.internal:3000/api/db/refresh',
+          headers := jsonb_build_object(
+            'Content-Type', 'application/json',
+            'X-Supabase-Event-Signature', 'WEBHOOKSECRET'
+          ),
+          body := jsonb_build_object(
+            'audience_id', '%s',
+            'account_id', '%s'
+          ),
+          timeout_milliseconds := 5000
+        ) AS request_id;
+      $cmd$,
       p_audience_id,
       p_account_id
     )

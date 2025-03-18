@@ -65,19 +65,14 @@ export const columns: ColumnDef<AudienceList>[] = [
   },
   {
     accessorKey: 'next_scheduled_refresh',
-    accessorFn: (audience) =>
-      audience.next_scheduled_refresh
-        ? parseISO(audience.next_scheduled_refresh)
-        : null,
+    accessorFn: (audience) => audience.next_scheduled_refresh,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Next Scheduled Refresh" />
     ),
-    cell({ row }) {
-      const nextScheduledRefresh = row.getValue<Date | null>(
-        'next_scheduled_refresh',
-      );
-
-      return nextScheduledRefresh ? getDateString(nextScheduledRefresh) : '';
+    cell({ row: { original } }) {
+      return original.next_scheduled_refresh
+        ? getDateString(parseISO(original.next_scheduled_refresh))
+        : null;
     },
   },
   {

@@ -24,13 +24,13 @@ export const POST = enhanceRouteHandler(
       const client = getSupabaseServerAdminClient();
       const service = createAudienceService(client);
 
-      const audience = await service.getAudienceById(body.audienceId);
+      const audience = await service.getAudienceById(body.audience_id);
 
       const parsedFilters = audienceFiltersFormSchema.parse(audience.filters);
 
       await service.generateAudience({
-        accountId: body.accountId,
-        audienceId: body.audienceId,
+        accountId: body.account_id,
+        audienceId: body.audience_id,
         filters: parsedFilters,
       });
 
@@ -39,7 +39,7 @@ export const POST = enhanceRouteHandler(
       }
 
       await service.updateNextScheduledRefresh({
-        audienceId: body.audienceId,
+        audienceId: body.audience_id,
         interval: audience.refresh_interval,
       });
 
@@ -56,8 +56,8 @@ export const POST = enhanceRouteHandler(
   {
     auth: false,
     schema: z.object({
-      accountId: z.string(),
-      audienceId: z.string(),
+      account_id: z.string(),
+      audience_id: z.string(),
     }),
   },
 );
