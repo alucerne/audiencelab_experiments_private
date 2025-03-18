@@ -43,19 +43,14 @@ export const columns: ColumnDef<AudienceList>[] = [
     },
   },
   {
-    header: 'Audience Size',
-    cell: ({ row: { original } }) => {
-      return (
-        <ProgressBar
-          current={original.latest_job.current}
-          total={original.latest_job.total}
-          csv_url={original.latest_job.csv_url}
-        />
-      );
-    },
+    accessorKey: 'audience_size',
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Audience Size" />
+    ),
+    cell: ({ row: { original } }) => original.latest_job.current,
   },
   {
-    accessorKey: 'refreshCount',
+    accessorKey: 'refresh_count',
     accessorFn: (audience) => {
       const length = audience.enqueue_jobs.length ?? 0;
       return Math.max(length - 1, 0);
@@ -64,8 +59,25 @@ export const columns: ColumnDef<AudienceList>[] = [
       <DataTableColumnHeader column={column} title="Refresh Count" />
     ),
     cell: ({ row }) => {
-      const refreshCount = row.getValue<number>('refreshCount');
+      const refreshCount = row.getValue<number>('refresh_count');
       return refreshCount;
+    },
+  },
+  {
+    accessorKey: 'next_scheduled_refresh',
+    accessorFn: (audience) =>
+      audience.next_scheduled_refresh
+        ? parseISO(audience.next_scheduled_refresh)
+        : null,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Next Scheduled Refresh" />
+    ),
+    cell({ row }) {
+      const nextScheduledRefresh = row.getValue<Date | null>(
+        'next_scheduled_refresh',
+      );
+
+      return nextScheduledRefresh ? getDateString(nextScheduledRefresh) : '';
     },
   },
   {
@@ -78,55 +90,4 @@ export const columns: ColumnDef<AudienceList>[] = [
 
 function getDateString(date: Date) {
   return format(date, 'MMM d yyyy, h:mm a');
-}
-
-function ProgressBar({
-  current,
-  total,
-  csv_url,
-}: {
-  current: number | null;
-  total: number | null;
-  csv_url: string | null;
-}) {
-  if (current === null || total === null || total === 0) {
-    return (
-      <div className="w-[60%]">
-        <div className="bg-muted h-2 w-full min-w-12 rounded-full"></div>
-      </div>
-    );
-  }
-
-  const percentage = Math.min(Math.round((current / total) * 100), 100);
-
-  const formatNumber = (num: number): string => {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
-    }
-    if (num >= 1000) {
-      return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
-    }
-    return num.toString();
-  };
-
-  const formattedCurrent = formatNumber(current);
-  const formattedTotal = formatNumber(total);
-
-  return (
-    <div className="w-full pr-4">
-      <div className="flex items-center gap-2">
-        <div className="bg-muted h-2 w-full min-w-12 rounded-full">
-          <div
-            className="bg-primary h-2 rounded-full transition-all duration-300"
-            style={{ width: `${percentage}%` }}
-          ></div>
-        </div>
-        <span className="text-muted-foreground text-xs whitespace-nowrap">
-          {csv_url
-            ? `${formattedCurrent}/${formattedCurrent}`
-            : `${formattedCurrent}/${formattedTotal}`}
-        </span>
-      </div>
-    </div>
-  );
 }

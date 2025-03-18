@@ -1,5 +1,6 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
+import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 
 import miscConfig from '~/config/misc.config';
@@ -304,5 +305,97 @@ class AudienceService {
         topic_id: z.string(),
       })
       .parse(await response.json());
+  }
+
+  async scheduleRefresh({
+    accountId,
+    audienceId,
+    interval,
+  }: {
+    accountId: string;
+    audienceId: string;
+    interval: number;
+  }) {
+    const jobName = `refresh_audience_${audienceId.replace(/-/g, '_')}`;
+    const cronExpression = this.getCronExpressionForDays(interval);
+
+    const { error } = await this.client.rpc('create_audience_refresh_cron', {
+      p_job_name: jobName,
+      p_cron_expression: cronExpression,
+      p_audience_id: audienceId,
+      p_account_id: accountId,
+      p_refresh_interval: interval,
+    });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  private getCronExpressionForDays(days: number) {
+    switch (days) {
+      case 1:
+        return '0 0 * * *';
+      case 3:
+        return '0 0 */3 * *';
+      case 7:
+        return '0 0 */7 * *';
+      case 14:
+        return '0 0 */14 * *';
+      case 30:
+        return '0 0 1 * *';
+      default:
+        return `0 0 */${days} * *`;
+    }
+  }
+
+  async unscheduleRefresh({ audienceId }: { audienceId: string }) {
+    const jobName = `refresh_audience_${audienceId.replace(/-/g, '_')}`;
+
+    const { error } = await this.client.rpc('remove_audience_cron_job', {
+      p_audience_id: audienceId,
+      p_job_name: jobName,
+    });
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async updateNextScheduledRefresh({
+    audienceId,
+    interval,
+  }: {
+    audienceId: string;
+    interval: number;
+  }) {
+    function getStartOfUTCDay(date: Date): Date {
+      return new Date(
+        Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
+      );
+    }
+
+    function getStartOfUTCMonth(date: Date): Date {
+      return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1));
+    }
+    const now = new Date();
+    let nextRun: Date;
+
+    if (interval === 30) {
+      nextRun = addMonths(getStartOfUTCMonth(now), 1);
+    } else {
+      nextRun = addDays(getStartOfUTCDay(now), interval);
+    }
+
+    const { error } = await this.client
+      .from('audience')
+      .update({
+        next_scheduled_refresh: nextRun.toISOString(),
+      })
+      .eq('id', audienceId);
+
+    if (error) {
+      throw error;
+    }
   }
 }

@@ -105,9 +105,7 @@ export const getAudienceByIdAction = enhanceAction(
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
 
-    const audience = await service.getAudienceById(data.id);
-
-    return audience;
+    return service.getAudienceById(data.id);
   },
   {
     schema: z.object({
@@ -158,5 +156,43 @@ export const getPreviewAudienceAction = enhanceAction(
       id: z.string(),
       filters: audienceFiltersFormSchema,
     }),
+  },
+);
+
+export const scheduleAudienceRefreshAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.scheduleRefresh({
+      accountId: data.accountId,
+      audienceId: data.audienceId,
+      interval: Number(data.interval),
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      audienceId: z.string(),
+      interval: z.enum(['1', '3', '7', '14', '30']),
+    }),
+  },
+);
+
+export const unscheduleAudienceRefreshAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.unscheduleRefresh(data);
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({ audienceId: z.string() }),
   },
 );
