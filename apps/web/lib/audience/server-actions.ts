@@ -181,3 +181,18 @@ export const scheduleAudienceRefreshAction = enhanceAction(
     }),
   },
 );
+
+export const unscheduleAudienceRefreshAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.unscheduleRefresh(data);
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({ audienceId: z.string() }),
+  },
+);

@@ -38,6 +38,7 @@ import { audienceFiltersFormSchema } from '~/lib/audience/schema/audience-filter
 import {
   addAudienceFiltersAction,
   scheduleAudienceRefreshAction,
+  unscheduleAudienceRefreshAction,
 } from '~/lib/audience/server-actions';
 
 export default function ScheduleRefreshDialog({
@@ -49,7 +50,7 @@ export default function ScheduleRefreshDialog({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [pendingAction, setPendingAction] = useState<
-    'refresh' | 'schedule' | null
+    'refresh' | 'schedule' | 'unschedule' | null
   >(null);
 
   async function handleRefresh() {
@@ -121,7 +122,6 @@ export default function ScheduleRefreshDialog({
     </Dialog>
   );
 }
-
 const scheduleFormSchema = z.object({
   interval: z.enum(['1', '3', '7', '14', '30']),
 });
@@ -134,16 +134,26 @@ function ScheduleForm({
 }: {
   audience: AudienceList;
   setIsOpen: (isOpen: boolean) => void;
-  pendingAction: 'refresh' | 'schedule' | null;
+  pendingAction: 'refresh' | 'schedule' | 'unschedule' | null;
   setPendingAction: React.Dispatch<
-    React.SetStateAction<'refresh' | 'schedule' | null>
+    React.SetStateAction<'refresh' | 'schedule' | 'unschedule' | null>
   >;
 }) {
+  function getDefaultInterval() {
+    if (audience.scheduled_refresh && audience.refresh_interval) {
+      const result = scheduleFormSchema.shape.interval.safeParse(
+        String(audience.refresh_interval),
+      );
+      if (result.success) {
+        return result.data;
+      }
+    }
+    return '7';
+  }
+
   const form = useForm<z.infer<typeof scheduleFormSchema>>({
     resolver: zodResolver(scheduleFormSchema),
-    defaultValues: {
-      interval: '7',
-    },
+    defaultValues: { interval: getDefaultInterval() },
   });
 
   async function onSubmit(values: z.infer<typeof scheduleFormSchema>) {
@@ -169,6 +179,27 @@ function ScheduleForm({
     );
   }
 
+  async function handleUnschedule() {
+    setPendingAction('unschedule');
+    toast.promise(
+      unscheduleAudienceRefreshAction({ audienceId: audience.id }),
+      {
+        loading: 'Unscheduling...',
+        success: () => {
+          setIsOpen(false);
+          setPendingAction(null);
+          return 'Audience refresh unscheduled successfully';
+        },
+        error: () => {
+          setPendingAction(null);
+          return 'Failed to unschedule audience refresh';
+        },
+      },
+    );
+  }
+
+  const isUpdating = audience.scheduled_refresh;
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -179,7 +210,9 @@ function ScheduleForm({
             <FormItem>
               <FormLabel>Refresh Interval</FormLabel>
               <FormDescription>
-                Choose how often you want the audience to be refreshed.
+                {isUpdating
+                  ? 'Update how often you want the audience to be refreshed.'
+                  : 'Choose how often you want the audience to be refreshed.'}
               </FormDescription>
               <Select onValueChange={field.onChange} defaultValue={field.value}>
                 <FormControl>
@@ -207,21 +240,28 @@ function ScheduleForm({
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          disabled={
-            (audience.latest_job.status !== 'COMPLETED' &&
-              audience.latest_job.created_at &&
-              differenceInMinutes(
-                new Date(),
-                new Date(audience.latest_job.created_at),
-              ) < 5) ||
-            !!pendingAction
-          }
-          className="w-full"
-        >
-          {pendingAction === 'schedule' ? 'Scheduling...' : 'Schedule'}
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" className="w-full">
+            {pendingAction === 'schedule'
+              ? 'Scheduling...'
+              : isUpdating
+                ? 'Update'
+                : 'Schedule'}
+          </Button>
+          {isUpdating && (
+            <Button
+              type="button"
+              className="w-full"
+              variant="destructive"
+              disabled={!!pendingAction}
+              onClick={handleUnschedule}
+            >
+              {pendingAction === 'unschedule'
+                ? 'Unscheduling...'
+                : 'Unschedule'}
+            </Button>
+          )}
+        </div>
       </form>
     </Form>
   );

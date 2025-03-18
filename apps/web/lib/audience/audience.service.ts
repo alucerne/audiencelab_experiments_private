@@ -349,6 +349,19 @@ class AudienceService {
     }
   }
 
+  async unscheduleRefresh({ audienceId }: { audienceId: string }) {
+    const jobName = `refresh_audience_${audienceId.replace(/-/g, '_')}`;
+
+    const { error } = await this.client.rpc('remove_audience_cron_job', {
+      p_audience_id: audienceId,
+      p_job_name: jobName,
+    });
+
+    if (error) {
+      throw error;
+    }
+  }
+
   async updateNextScheduledRefresh({
     audienceId,
     interval,
