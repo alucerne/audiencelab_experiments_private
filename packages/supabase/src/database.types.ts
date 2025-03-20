@@ -149,6 +149,7 @@ export type Database = {
           refresh_interval: number | null;
           scheduled_refresh: boolean;
           updated_at: string;
+          webhook_url: string | null;
         };
         Insert: {
           account_id: string;
@@ -160,6 +161,7 @@ export type Database = {
           refresh_interval?: number | null;
           scheduled_refresh?: boolean;
           updated_at?: string;
+          webhook_url?: string | null;
         };
         Update: {
           account_id?: string;
@@ -171,6 +173,7 @@ export type Database = {
           refresh_interval?: number | null;
           scheduled_refresh?: boolean;
           updated_at?: string;
+          webhook_url?: string | null;
         };
         Relationships: [
           {

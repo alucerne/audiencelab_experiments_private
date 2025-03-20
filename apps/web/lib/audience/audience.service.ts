@@ -398,4 +398,23 @@ class AudienceService {
       throw error;
     }
   }
+
+  async setWebhook({
+    audienceId,
+    webhookUrl,
+  }: {
+    audienceId: string;
+    webhookUrl: string | null;
+  }) {
+    const { error } = await this.client
+      .from('audience')
+      .update({
+        webhook_url: webhookUrl,
+      })
+      .eq('id', audienceId);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

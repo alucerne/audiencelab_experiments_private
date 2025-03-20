@@ -3,7 +3,14 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { Copy, Download, RefreshCw, SquarePen, Trash2 } from 'lucide-react';
+import {
+  Boxes,
+  Copy,
+  Download,
+  RefreshCw,
+  SquarePen,
+  Trash2,
+} from 'lucide-react';
 
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
@@ -17,6 +24,7 @@ import { cn } from '@kit/ui/utils';
 import FacebookLogo from '~/components/assets/facebook-logo';
 import { AudienceList } from '~/lib/audience/audience.service';
 
+import AudienceWebhookDialog from './audience-webhook-dialog';
 import DeleteAudienceDialog from './delete-audience-dialog';
 import { DownloadCsvDialog } from './download-csv-dialog';
 import DuplicateAudienceDialog from './duplicate-audience-dialog';
@@ -62,11 +70,11 @@ export default function AudienceTableActions({
                 buttonVariants({
                   variant: 'ghost',
                   size: 'icon',
-                  className: 'h-7 w-7 cursor-default',
+                  className: 'size-7 cursor-default',
                 }),
               )}
             >
-              <SquarePen className="h-3.5 w-3.5" />
+              <SquarePen className="size-3.5" />
             </Link>
           </TooltipTrigger>
           <TooltipContent>
@@ -74,10 +82,22 @@ export default function AudienceTableActions({
           </TooltipContent>
         </Tooltip>
         <Tooltip>
+          <AudienceWebhookDialog audience={audience}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-7">
+                <Boxes className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </AudienceWebhookDialog>
+          <TooltipContent>
+            <p>Webhook</p>
+          </TooltipContent>
+        </Tooltip>
+        <Tooltip>
           <DuplicateAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Copy className="h-3.5 w-3.5" />
+              <Button variant="ghost" size="icon" className="size-7">
+                <Copy className="size-3.5" />
               </Button>
             </TooltipTrigger>
           </DuplicateAudienceDialog>
@@ -91,14 +111,14 @@ export default function AudienceTableActions({
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 w-7"
+                className="size-7"
                 disabled={
                   audience.enqueue_jobs.filter(
                     (job) => typeof job.csv_url === 'string',
                   ).length === 0
                 }
               >
-                <Download className="h-3.5 w-3.5" />
+                <Download className="size-3.5" />
               </Button>
             </TooltipTrigger>
           </DownloadCsvDialog>
@@ -107,8 +127,8 @@ export default function AudienceTableActions({
         <Tooltip>
           <DeleteAudienceDialog audience={audience}>
             <TooltipTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <Trash2 className="text-destructive h-3.5 w-3.5" />
+              <Button variant="ghost" size="icon" className="size-7">
+                <Trash2 className="text-destructive size-3.5" />
               </Button>
             </TooltipTrigger>
           </DeleteAudienceDialog>

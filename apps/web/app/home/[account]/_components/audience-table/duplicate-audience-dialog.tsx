@@ -104,6 +104,7 @@ function DuplicateAudienceForm({ audience }: { audience: Tables<'audience'> }) {
       <form onSubmit={form.handleSubmit(onSubmit)}>
         <div className={'flex flex-col space-y-4'}>
           <FormField
+            control={form.control}
             name={'name'}
             render={({ field }) => {
               return (
