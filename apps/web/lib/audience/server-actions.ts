@@ -196,3 +196,24 @@ export const unscheduleAudienceRefreshAction = enhanceAction(
     schema: z.object({ audienceId: z.string() }),
   },
 );
+
+export const setAudienceWebhookAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.setWebhook({
+      audienceId: data.audienceId,
+      webhookUrl: data.webhookUrl,
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({
+      audienceId: z.string(),
+      webhookUrl: z.string().trim().url().nullable(),
+    }),
+  },
+);

@@ -3,6 +3,7 @@ create table if not exists public.audience (
   account_id uuid not null references public.accounts(id) on delete cascade,
   filters jsonb not null default '{}',
   name text not null,
+  webhook_url text null,
   scheduled_refresh boolean not null default false,
   refresh_interval integer null,
   next_scheduled_refresh timestamptz null,
@@ -132,7 +133,8 @@ RETURNS VOID AS $$
 BEGIN
   UPDATE public.audience
   SET scheduled_refresh = false,
-      refresh_interval = NULL
+      refresh_interval = NULL,
+      next_scheduled_refresh = NULL
   WHERE id = p_audience_id;
   
   PERFORM cron.unschedule(p_job_name);
@@ -140,7 +142,8 @@ EXCEPTION
   WHEN OTHERS THEN
     UPDATE public.audience
     SET scheduled_refresh = false,
-        refresh_interval = NULL
+        refresh_interval = NULL,
+        next_scheduled_refresh = NULL
     WHERE id = p_audience_id;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
