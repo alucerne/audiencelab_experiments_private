@@ -266,6 +266,70 @@ export type Database = {
         };
         Relationships: [];
       };
+      credits: {
+        Row: {
+          account_id: string;
+          audience_size_limit: number;
+          b2b_access: boolean;
+          created_at: string;
+          enrichment_size_limit: number;
+          id: string;
+          intent_access: boolean;
+          max_audience_lists: number;
+          max_custom_interests: number;
+          monthly_enrichment_limit: number;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          audience_size_limit?: number;
+          b2b_access?: boolean;
+          created_at?: string;
+          enrichment_size_limit?: number;
+          id?: string;
+          intent_access?: boolean;
+          max_audience_lists?: number;
+          max_custom_interests?: number;
+          monthly_enrichment_limit?: number;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          audience_size_limit?: number;
+          b2b_access?: boolean;
+          created_at?: string;
+          enrichment_size_limit?: number;
+          id?: string;
+          intent_access?: boolean;
+          max_audience_lists?: number;
+          max_custom_interests?: number;
+          monthly_enrichment_limit?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       enqueue_job: {
         Row: {
           account_id: string;
