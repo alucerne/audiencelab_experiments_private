@@ -162,7 +162,7 @@ function AudienceWebhookForm({
             )}
           />
           <div className="flex justify-end space-x-2">
-            {audience.webhook_url && (
+            {audience.webhook_url ? (
               <Button
                 variant="destructive"
                 size="sm"
@@ -172,17 +172,18 @@ function AudienceWebhookForm({
               >
                 Delete
               </Button>
+            ) : (
+              <DialogClose asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="button"
+                  disabled={pending}
+                >
+                  <Trans i18nKey="common:cancel" />
+                </Button>
+              </DialogClose>
             )}
-            <DialogClose asChild>
-              <Button
-                variant="outline"
-                size="sm"
-                type="button"
-                disabled={pending}
-              >
-                <Trans i18nKey="common:cancel" />
-              </Button>
-            </DialogClose>
             <Button size="sm" disabled={pending}>
               Add
             </Button>

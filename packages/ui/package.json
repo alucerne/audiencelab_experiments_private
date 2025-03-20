@@ -127,7 +127,8 @@
     "./empty-state": "./src/makerkit/empty-state.tsx",
     "./marketing": "./src/makerkit/marketing/index.tsx",
     "./toggle": "./src/shadcn/toggle.tsx",
-    "./toggle-group": "./src/shadcn/toggle-group.tsx"
+    "./toggle-group": "./src/shadcn/toggle-group.tsx",
+    "./progress": "./src/shadcn/progress.tsx"
   },
   "typesVersions": {
     "*": {

@@ -24,12 +24,13 @@ export const generateMetadata = async () => {
 function EnrichmentPage({ params }: { params: Promise<{ account: string }> }) {
   const account = use(params).account;
   const workspace = use(loadTeamWorkspace(account));
-  const accountId = workspace.account.id;
 
   const client = getSupabaseServerClient();
   const service = createEnrichmentService(client);
 
-  const enrichment = use(service.getEnrichments({ accountId }));
+  const enrichment = use(
+    service.getEnrichments({ accountId: workspace.account.id }),
+  );
 
   return (
     <>
