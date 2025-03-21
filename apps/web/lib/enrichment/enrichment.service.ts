@@ -13,7 +13,8 @@ class EnrichmentService {
     const { data, error } = await this.client
       .from('job_enrich')
       .select('*')
-      .eq('account_id', params.accountId);
+      .eq('account_id', params.accountId)
+      .eq('deleted', false);
 
     if (error) {
       throw error;
@@ -44,7 +45,7 @@ class EnrichmentService {
   async deleteEnrichment(params: { enrichmentId: string }) {
     const { error } = await this.client
       .from('job_enrich')
-      .delete()
+      .update({ deleted: true })
       .eq('id', params.enrichmentId);
 
     if (error) {

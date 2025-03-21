@@ -80,7 +80,11 @@ const fieldOptions: {
   { value: 'DO_NOT_IMPORT', label: 'Do Not Import' },
 ];
 
-export default function EnrichmentUploadForm() {
+export default function EnrichmentUploadForm({
+  sizeLimit,
+}: {
+  sizeLimit: number;
+}) {
   const router = useRouter();
 
   const {
@@ -256,7 +260,6 @@ export default function EnrichmentUploadForm() {
         if (tempRowCount === 0 && results.meta.fields) {
           headers = results.meta.fields;
           setCsvHeaders(headers);
-
           headers.forEach((header) => {
             completenessTracker[header] = { filled: 0, total: 0 };
           });
@@ -275,7 +278,6 @@ export default function EnrichmentUploadForm() {
             if (!completenessTracker[header]) {
               completenessTracker[header] = { filled: 0, total: 0 };
             }
-
             completenessTracker[header].total++;
             if (row[header] && row[header].trim() !== '') {
               completenessTracker[header].filled++;
@@ -288,6 +290,15 @@ export default function EnrichmentUploadForm() {
         }
       },
       complete: () => {
+        if (tempRowCount > sizeLimit) {
+          toast.error(
+            `File exceeds row limit of ${sizeLimit.toLocaleString()} rows. Please upload a smaller file.`,
+          );
+          handleFileRemove();
+          setIsProcessing(false);
+          return;
+        }
+
         const headerCompleteness: Record<string, number> = {};
         Object.entries(completenessTracker).forEach(([header, counts]) => {
           headerCompleteness[header] =
@@ -300,7 +311,6 @@ export default function EnrichmentUploadForm() {
         setHeaderCompleteness(headerCompleteness);
         setRowCount(tempRowCount);
         setIsProcessing(false);
-
         toast.success(
           `Successfully processed ${(tempRowCount - 1).toLocaleString()} rows.`,
         );

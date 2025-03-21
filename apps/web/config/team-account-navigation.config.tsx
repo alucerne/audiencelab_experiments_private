@@ -36,14 +36,14 @@ const getRoutes = (account: string) => [
     collapsible: false,
     children: [
       {
-        label: 'common:routes.settings',
-        path: createPath(pathsConfig.app.accountSettings, account),
-        Icon: <Settings className={iconClasses} />,
-      },
-      {
         label: 'Usage',
         path: createPath(pathsConfig.app.accountUsage, account),
         Icon: <Activity className={iconClasses} />,
+      },
+      {
+        label: 'common:routes.settings',
+        path: createPath(pathsConfig.app.accountSettings, account),
+        Icon: <Settings className={iconClasses} />,
       },
       {
         label: 'common:routes.members',

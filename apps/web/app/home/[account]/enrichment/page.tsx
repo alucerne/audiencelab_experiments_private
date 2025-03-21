@@ -4,6 +4,7 @@ import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { PageBody } from '@kit/ui/page';
 
+import { createCreditsService } from '~/lib/credits/credits.service';
 import { createEnrichmentService } from '~/lib/enrichment/enrichment.service';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
@@ -27,9 +28,13 @@ function EnrichmentPage({ params }: { params: Promise<{ account: string }> }) {
 
   const client = getSupabaseServerClient();
   const service = createEnrichmentService(client);
+  const credits = createCreditsService(client);
 
   const enrichment = use(
     service.getEnrichments({ accountId: workspace.account.id }),
+  );
+  const limits = use(
+    credits.canCreateEnrichment({ accountId: workspace.account.id }),
   );
 
   return (
@@ -41,7 +46,7 @@ function EnrichmentPage({ params }: { params: Promise<{ account: string }> }) {
       />
 
       <PageBody>
-        <EnrichmentTable enrichment={enrichment} />
+        <EnrichmentTable enrichment={enrichment} limits={limits} />
       </PageBody>
     </>
   );

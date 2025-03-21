@@ -520,6 +520,7 @@ export type Database = {
           account_id: string;
           created_at: string;
           csv_url: string | null;
+          deleted: boolean;
           id: string;
           name: string;
           path: string | null;
@@ -536,6 +537,7 @@ export type Database = {
           account_id: string;
           created_at?: string;
           csv_url?: string | null;
+          deleted?: boolean;
           id?: string;
           name: string;
           path?: string | null;
@@ -552,6 +554,7 @@ export type Database = {
           account_id?: string;
           created_at?: string;
           csv_url?: string | null;
+          deleted?: boolean;
           id?: string;
           name?: string;
           path?: string | null;

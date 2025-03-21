@@ -34,3 +34,19 @@ create policy select_credits
   using (
     public.has_role_on_account(account_id) 
   );
+
+CREATE OR REPLACE FUNCTION public.create_team_credits()
+RETURNS trigger AS $$
+BEGIN
+  IF NEW.is_personal_account = false THEN
+    INSERT INTO public.credits(account_id)
+    VALUES (NEW.id);
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER after_team_account_insert
+AFTER INSERT ON public.accounts
+FOR EACH ROW
+EXECUTE FUNCTION public.create_team_credits();

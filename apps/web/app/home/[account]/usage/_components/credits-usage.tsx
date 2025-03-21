@@ -63,7 +63,10 @@ export default function CreditsUsage({
                   {Math.min(100, audienceListsPercentage).toFixed(0)}%
                 </span>
               </div>
-              <Progress value={Math.min(100, audienceListsPercentage)} />
+              <Progress
+                value={Math.min(100, audienceListsPercentage)}
+                className="bg-muted"
+              />
             </div>
 
             <div className="bg-muted rounded-md p-3">
@@ -102,7 +105,10 @@ export default function CreditsUsage({
                 <span>Usage</span>
                 <span>{Math.min(100, enrichmentPercentage).toFixed(0)}%</span>
               </div>
-              <Progress value={Math.min(100, enrichmentPercentage)} />
+              <Progress
+                value={Math.min(100, enrichmentPercentage)}
+                className="bg-muted"
+              />
             </div>
 
             <div className="bg-muted rounded-md p-3">
@@ -130,6 +136,32 @@ export default function CreditsUsage({
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="flex items-center justify-between rounded-md border p-4">
                 <div>
+                  <h3 className="font-medium">Intent Access</h3>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Intent-based targeting
+                  </p>
+                </div>
+                {audienceFilters.intentAccess ? (
+                  <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
+                ) : (
+                  <Ban className="ml-2 h-5 w-5 text-red-500" />
+                )}
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-4">
+                <div>
+                  <h3 className="font-medium">B2B Access</h3>
+                  <p className="text-muted-foreground mt-1 text-sm">
+                    Business targeting filters
+                  </p>
+                </div>
+                {audienceFilters.b2bAccess ? (
+                  <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
+                ) : (
+                  <Ban className="ml-2 h-5 w-5 text-red-500" />
+                )}
+              </div>
+              <div className="flex items-center justify-between rounded-md border p-4">
+                <div>
                   <h3 className="font-medium">Custom Audiences</h3>
                   <p className="text-muted-foreground mt-1 text-sm">
                     Your unique leads
@@ -147,32 +179,6 @@ export default function CreditsUsage({
                   {audienceFilters.currentCustom} /{' '}
                   {audienceFilters.maxCustomInterests}
                 </Badge>
-              </div>
-              <div className="flex items-center justify-between rounded-md border p-4">
-                <div>
-                  <h3 className="font-medium">B2B Access</h3>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Business targeting filters
-                  </p>
-                </div>
-                {audienceFilters.b2bAccess ? (
-                  <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
-                ) : (
-                  <Ban className="ml-2 h-5 w-5 text-red-500" />
-                )}
-              </div>
-              <div className="flex items-center justify-between rounded-md border p-4">
-                <div>
-                  <h3 className="font-medium">Intent Access</h3>
-                  <p className="text-muted-foreground mt-1 text-sm">
-                    Intent-based targeting
-                  </p>
-                </div>
-                {audienceFilters.intentAccess ? (
-                  <CheckCircle className="ml-2 h-5 w-5 text-green-500" />
-                ) : (
-                  <Ban className="ml-2 h-5 w-5 text-red-500" />
-                )}
               </div>
             </div>
           </CardContent>
