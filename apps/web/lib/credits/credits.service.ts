@@ -66,76 +66,33 @@ class CreditsService {
     };
   }
 
-  async canCreateAudience({ accountId }: { accountId: string }) {
-    const [credits, audience] = await Promise.all([
+  async getAudienceLimits({ accountId }: { accountId: string }) {
+    const [credits, audience, customInterests] = await Promise.all([
       this.client
         .from('credits')
-        .select('max_audience_lists')
+        .select('*')
         .eq('account_id', accountId)
         .single(),
       this.client
         .from('audience')
         .select('id, enqueue_job!inner(id)', { count: 'exact', head: true })
         .eq('account_id', accountId),
-    ]);
-
-    if (credits.error || audience.error) {
-      throw new Error('Error fetching counts');
-    }
-
-    return {
-      enabled: (credits.data.max_audience_lists ?? 0) > (audience.count ?? 0),
-    };
-  }
-
-  async canCreateCustomInterest({ accountId }: { accountId: string }) {
-    const [credits, interests] = await Promise.all([
-      this.client
-        .from('credits')
-        .select('max_custom_interests')
-        .eq('account_id', accountId)
-        .single(),
       this.client
         .from('interests_custom')
         .select('id', { count: 'exact', head: true })
         .eq('account_id', accountId),
     ]);
 
-    if (credits.error || interests.error) {
+    if (credits.error || audience.error || customInterests.error) {
       throw new Error('Error fetching counts');
     }
 
     return {
-      enabled:
-        (credits.data.max_custom_interests ?? 0) > (interests.count ?? 0),
-    };
-  }
-
-  async canUseB2B({ accountId }: { accountId: string }) {
-    const { data, error } = await this.client
-      .from('credits')
-      .select('b2b_access')
-      .eq('account_id', accountId)
-      .single();
-
-    if (error) throw error;
-
-    return {
-      enabled: data.b2b_access,
-    };
-  }
-
-  async canUseIntent({ accountId }: { accountId: string }) {
-    const { data, error } = await this.client
-      .from('credits')
-      .select('intent_access')
-      .eq('account_id', accountId)
-      .single();
-
-    if (error) throw error;
-
-    return {
-      enabled: data.intent_access,
+      canCreate: (credits.data.max_audience_lists ?? 0) > (audience.count ?? 0),
+      canCreateCustomInterests:
+        (credits.data.max_custom_interests ?? 0) > (customInterests.count ?? 0),
+      b2bAccess: credits.data.b2b_access,
+      intentAccess: credits.data.intent_access,
     };
   }
 

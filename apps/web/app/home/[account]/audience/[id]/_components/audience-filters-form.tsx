@@ -75,85 +75,18 @@ today.setHours(0, 0, 0, 0);
 
 const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
-const steps = [
-  {
-    label: 'Audience Lists',
-    description: 'Build your core target audience.',
-    icon: <ListChecks />,
-    component: <AudienceStep />,
-    fields: audienceFields,
-  },
-  {
-    label: 'Date',
-    description: 'What is the date range for this audience?',
-    icon: <CalendarDays />,
-    component: <DateStep />,
-    fields: dateFields,
-  },
-  {
-    label: 'Business',
-    description: 'What business characteristics does this audience represent?',
-    icon: <Building2 />,
-    component: <BusinessProfileStep />,
-    fields: businessProfileFields,
-  },
-  {
-    label: 'Financial',
-    description: "What is your target audience's financial profile?",
-    icon: <Wallet />,
-    component: <FinancialStep />,
-    fields: financialFields,
-  },
-  {
-    label: 'Personal',
-    description: 'What are the personal characteristics of your audience?',
-    icon: <User />,
-    component: <PersonalStep />,
-    fields: personalFields,
-  },
-  {
-    label: 'Lifestyle',
-    description: 'What lifestyle characteristics define your target audience?',
-    icon: <Activity />,
-    component: <LifestyleStep />,
-    fields: lifestyleFields,
-  },
-  {
-    label: 'Family',
-    description: "What is your audience's family composition?",
-    icon: <Users />,
-    component: <FamilyStep />,
-    fields: familyFields,
-  },
-  {
-    label: 'Housing',
-    description: 'What type of housing does your target audience have?',
-    icon: <Home />,
-    component: <HousingStep />,
-    fields: housingFields,
-  },
-  {
-    label: 'Location',
-    description: 'Where are they located?',
-    icon: <MapPin />,
-    component: <LocationStep />,
-    fields: locationFields,
-  },
-  {
-    label: 'Emails',
-    description: 'What emails do you need from your audience?',
-    icon: <Mail />,
-    component: <EmailsStep />,
-    fields: emailsFields,
-  },
-] as const;
-
 export default function AudienceFiltersForm({
   defaultValues,
   audienceName,
+  limits,
 }: {
   defaultValues?: Json;
   audienceName: string;
+  limits: {
+    canCreateCustomInterests: boolean;
+    b2bAccess: boolean;
+    intentAccess: boolean;
+  };
 }) {
   const router = useRouter();
   const { account, id } = useParams<{ account: string; id: string }>();
@@ -181,6 +114,81 @@ export default function AudienceFiltersForm({
       }
     }
   }, [defaultValues]);
+
+  const steps = [
+    {
+      label: 'Audience Lists',
+      description: 'Build your core target audience.',
+      icon: <ListChecks />,
+      component: <AudienceStep limits={limits} />,
+      fields: audienceFields,
+    },
+    {
+      label: 'Date',
+      description: 'What is the date range for this audience?',
+      icon: <CalendarDays />,
+      component: <DateStep />,
+      fields: dateFields,
+    },
+    {
+      label: 'Business',
+      description:
+        'What business characteristics does this audience represent?',
+      icon: <Building2 />,
+      component: <BusinessProfileStep />,
+      fields: businessProfileFields,
+    },
+    {
+      label: 'Financial',
+      description: "What is your target audience's financial profile?",
+      icon: <Wallet />,
+      component: <FinancialStep />,
+      fields: financialFields,
+    },
+    {
+      label: 'Personal',
+      description: 'What are the personal characteristics of your audience?',
+      icon: <User />,
+      component: <PersonalStep />,
+      fields: personalFields,
+    },
+    {
+      label: 'Lifestyle',
+      description:
+        'What lifestyle characteristics define your target audience?',
+      icon: <Activity />,
+      component: <LifestyleStep />,
+      fields: lifestyleFields,
+    },
+    {
+      label: 'Family',
+      description: "What is your audience's family composition?",
+      icon: <Users />,
+      component: <FamilyStep />,
+      fields: familyFields,
+    },
+    {
+      label: 'Housing',
+      description: 'What type of housing does your target audience have?',
+      icon: <Home />,
+      component: <HousingStep />,
+      fields: housingFields,
+    },
+    {
+      label: 'Location',
+      description: 'Where are they located?',
+      icon: <MapPin />,
+      component: <LocationStep />,
+      fields: locationFields,
+    },
+    {
+      label: 'Emails',
+      description: 'What emails do you need from your audience?',
+      icon: <Mail />,
+      component: <EmailsStep />,
+      fields: emailsFields,
+    },
+  ] as const;
 
   const dateRangeValue = form.watch('dateRange');
 
@@ -338,6 +346,9 @@ export default function AudienceFiltersForm({
                     key={index}
                     type="button"
                     variant="ghost"
+                    disabled={
+                      !limits.intentAccess && step.label === 'Audience Lists'
+                    }
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-1.5',
                       appliedCount > 0 &&

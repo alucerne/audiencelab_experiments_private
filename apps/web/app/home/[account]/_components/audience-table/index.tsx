@@ -47,9 +47,11 @@ const nameIdFilterFn: FilterFn<AudienceList> = (
 
 export default function AudienceTable({
   audience: initialAudience,
-}: React.PropsWithChildren<{
+  canCreate,
+}: {
   audience: AudienceList[];
-}>) {
+  canCreate: boolean;
+}) {
   const [audience, setAudience] = useState(initialAudience || []);
   const {
     account: { id: accountId },
@@ -131,7 +133,7 @@ export default function AudienceTable({
         table={table}
         dataName="Audience List"
         searchPlaceholder="Search by name..."
-        actions={<AddAudienceDialog />}
+        actions={<AddAudienceDialog disabled={!canCreate} />}
       />
       <div className="w-full overflow-hidden rounded-md border">
         <Table>
