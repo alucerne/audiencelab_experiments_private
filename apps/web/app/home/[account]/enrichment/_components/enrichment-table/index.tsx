@@ -18,7 +18,7 @@ import {
 
 import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
-import { buttonVariants } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
 import {
   Table,
   TableBody,
@@ -49,8 +49,13 @@ const nameIdFilterFn: FilterFn<Tables<'job_enrich'>> = (
 
 export default function EnrichmentTable({
   enrichment: initialEnrichment,
+  limits,
 }: React.PropsWithChildren<{
   enrichment: Tables<'job_enrich'>[];
+  limits: {
+    sizeLimit: number;
+    enabled: boolean;
+  };
 }>) {
   const [enrichment, setEnrichment] = useState(initialEnrichment || []);
   const {
@@ -118,15 +123,21 @@ export default function EnrichmentTable({
         dataName="Enrichment List"
         searchPlaceholder="Search by name..."
         actions={
-          <Link
-            href={pathsConfig.app.accountEnrichmentUpload.replace(
-              '[account]',
-              slug,
-            )}
-            className={cn(buttonVariants({ className: 'w-fit' }))}
-          >
-            Upload
-          </Link>
+          limits.enabled ? (
+            <Link
+              href={pathsConfig.app.accountEnrichmentUpload.replace(
+                '[account]',
+                slug,
+              )}
+              className={cn(buttonVariants({ className: 'w-fit' }))}
+            >
+              Upload
+            </Link>
+          ) : (
+            <Button className="w-fit" disabled>
+              Upload
+            </Button>
+          )
         }
       />
       <div className="w-full overflow-hidden rounded-md border">

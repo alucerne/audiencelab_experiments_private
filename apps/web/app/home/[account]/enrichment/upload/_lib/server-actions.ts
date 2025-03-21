@@ -9,6 +9,7 @@ import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import miscConfig from '~/config/misc.config';
+import { createCreditsService } from '~/lib/credits/credits.service';
 import { createEnrichmentService } from '~/lib/enrichment/enrichment.service';
 
 const bucketName = 'v3-audiencelab-enrichment-upload';
@@ -78,6 +79,17 @@ export const processEnrichmentAction = enhanceAction(
     uniqueFilename,
     originalFileName,
   }) => {
+    const client = getSupabaseServerClient();
+    const credits = createCreditsService(client);
+
+    const { enabled } = await credits.canCreateEnrichment({
+      accountId,
+    });
+
+    if (!enabled) {
+      throw new Error('Enrichment limit exceeded');
+    }
+
     const bucket = storage.bucket(bucketName);
     const file = bucket.file(uniqueFilename);
 
@@ -94,11 +106,8 @@ export const processEnrichmentAction = enhanceAction(
       )
       .map(([field]) => field);
 
-    const client = getSupabaseServerClient();
     const service = createEnrichmentService(client);
     const job = await service.createEnrichment({ accountId, name });
-
-    revalidatePath('/home/[account]/enrichment', 'page');
 
     const response = await fetch(
       `${miscConfig.enrichmentApiUrl}/enrich/enqueue`,
@@ -116,6 +125,8 @@ export const processEnrichmentAction = enhanceAction(
     if (!response.ok) {
       throw new Error('Failed to enqueue enrichment job');
     }
+
+    revalidatePath('/home/[account]/enrichment', 'page');
 
     return;
   },

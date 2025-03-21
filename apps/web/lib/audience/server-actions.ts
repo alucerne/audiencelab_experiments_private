@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
+import { createCreditsService } from '../credits/credits.service';
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
@@ -15,6 +16,16 @@ import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema
 export const createAudienceAction = enhanceAction(
   async (data) => {
     const client = getSupabaseServerClient();
+    const credits = createCreditsService(client);
+
+    const { canCreate } = await credits.getAudienceLimits({
+      accountId: data.accountId,
+    });
+
+    if (!canCreate) {
+      throw new Error('You have reached your audience limit.');
+    }
+
     const service = createAudienceService(client);
 
     const { id } = await service.createAudience({
@@ -38,6 +49,18 @@ export const createAudienceAction = enhanceAction(
 export const addAudienceFiltersAction = enhanceAction(
   async (data) => {
     const client = getSupabaseServerClient();
+    const credits = createCreditsService(client);
+
+    const limits = await credits.getAudienceLimits({
+      accountId: data.accountId,
+    });
+
+    if (!limits.b2bAccess && data.filters.audience.b2b) {
+      throw new Error('You do not have access to B2B audiences.');
+    } else if (!limits.intentAccess && data.filters.segment.length > 0) {
+      throw new Error('You do not have access to intent audiences.');
+    }
+
     const service = createAudienceService(client);
 
     await service.generateAudience({

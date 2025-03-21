@@ -41,11 +41,17 @@ const addAudienceSchema = z.object({
     .max(50, 'Name cannot exceed 50 characters'),
 });
 
-export default function AddAudienceDialog() {
+export default function AddAudienceDialog({
+  disabled,
+}: {
+  disabled?: boolean;
+}) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button className="w-fit">Create</Button>
+        <Button disabled={disabled} className="w-fit">
+          Create
+        </Button>
       </DialogTrigger>
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}

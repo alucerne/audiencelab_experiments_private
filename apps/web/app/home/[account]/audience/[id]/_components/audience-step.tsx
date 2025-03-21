@@ -53,7 +53,14 @@ export const audienceFields = [
   'segment',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
-export default function AudienceStep() {
+export default function AudienceStep({
+  limits,
+}: {
+  limits: {
+    canCreateCustomInterests: boolean;
+    b2bAccess: boolean;
+  };
+}) {
   const { control, watch, resetField } =
     useFormContext<z.infer<typeof audienceFiltersFormSchema>>();
 
@@ -141,11 +148,15 @@ export default function AudienceStep() {
                     }}
                     className="mt-1.5 justify-start"
                   >
-                    <ToggleGroupItem value="B2B" className="px-3 py-1">
-                      B2B
-                    </ToggleGroupItem>
                     <ToggleGroupItem value="B2C" className="px-3 py-1">
                       B2C
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                      value="B2B"
+                      disabled={!limits.b2bAccess}
+                      className="px-3 py-1"
+                    >
+                      B2B
                     </ToggleGroupItem>
                   </ToggleGroup>
                 </FormControl>
@@ -198,13 +209,13 @@ export default function AudienceStep() {
           ) : null}
         </>
       ) : (
-        <CustomAudience />
+        <CustomAudience canCreate={!limits.canCreateCustomInterests} />
       )}
     </>
   );
 }
 
-function CustomAudience() {
+function CustomAudience({ canCreate }: { canCreate: boolean }) {
   const {
     account: { id: accountId },
   } = useTeamAccountWorkspace();
@@ -278,11 +289,11 @@ function CustomAudience() {
           </FormItem>
         )}
       />
-      <CreateCustomAudienceDialog />
+      <CreateCustomAudienceDialog disabled={!canCreate} />
     </>
   );
 }
-function CreateCustomAudienceDialog() {
+function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
   const { control, getValues, setError, clearErrors, reset } =
     useFormContext<AudienceFiltersFormValues>();
   const [open, setOpen] = useState(false);
@@ -374,7 +385,7 @@ function CreateCustomAudienceDialog() {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm" className="w-fit gap-2 text-sm">
+        <Button disabled={disabled} size="sm" className="w-fit gap-2 text-sm">
           New Custom Audience
         </Button>
       </DialogTrigger>

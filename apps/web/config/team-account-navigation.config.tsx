@@ -1,4 +1,5 @@
 import {
+  Activity,
   BookUser,
   CreditCard,
   Settings,
@@ -34,6 +35,11 @@ const getRoutes = (account: string) => [
     label: 'common:routes.settings',
     collapsible: false,
     children: [
+      {
+        label: 'Usage',
+        path: createPath(pathsConfig.app.accountUsage, account),
+        Icon: <Activity className={iconClasses} />,
+      },
       {
         label: 'common:routes.settings',
         path: createPath(pathsConfig.app.accountSettings, account),

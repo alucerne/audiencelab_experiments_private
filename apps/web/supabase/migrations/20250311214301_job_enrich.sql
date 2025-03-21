@@ -11,6 +11,7 @@ create table if not exists public.job_enrich (
   resolution_time double precision null,
   update_count integer null,
   path text null,
+  deleted boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
