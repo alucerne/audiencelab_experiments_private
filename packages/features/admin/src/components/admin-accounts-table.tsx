@@ -40,11 +40,16 @@ export function AdminAccountsTable(
     pageCount: number;
     pageSize: number;
     page: number;
+    isPersonal: boolean;
   }>,
 ) {
   return (
     <div className={'flex flex-col space-y-4'}>
-      <div className={'flex justify-end'}>
+      <div className={'flex justify-between items-center'}>
+        <h1 className={'text-xl font-semibold'}>
+          {props.isPersonal ? 'Personal Accounts' : 'Team Accounts'}
+        </h1>
+
         <AccountsTableFilters />
       </div>
 
@@ -53,7 +58,7 @@ export function AdminAccountsTable(
         pageIndex={props.page - 1}
         pageCount={props.pageCount}
         data={props.data}
-        columns={getColumns()}
+        columns={getColumns(props.isPersonal)}
       />
     </div>
   );
@@ -108,7 +113,7 @@ function AccountsTableFilters() {
   );
 }
 
-function getColumns(): ColumnDef<Account>[] {
+function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
   return [
     {
       id: 'name',
@@ -124,18 +129,15 @@ function getColumns(): ColumnDef<Account>[] {
         );
       },
     },
-    {
-      id: 'email',
-      header: 'Email',
-      accessorKey: 'email',
-    },
-    {
-      id: 'type',
-      header: 'Type',
-      cell: ({ row }) => {
-        return row.original.is_personal_account ? 'Personal' : 'Team';
-      },
-    },
+    ...(isPersonal
+      ? [
+          {
+            id: 'email',
+            header: 'Email',
+            accessorKey: 'email',
+          },
+        ]
+      : []),
     {
       id: 'created_at',
       header: 'Created At',
@@ -154,50 +156,52 @@ function getColumns(): ColumnDef<Account>[] {
         const userId = row.original.id;
 
         return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant={'ghost'}>
-                <EllipsisVertical className={'h-4'} />
-              </Button>
-            </DropdownMenuTrigger>
+          <div className="flex justify-end">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant={'ghost'}>
+                  <EllipsisVertical className={'h-4'} />
+                </Button>
+              </DropdownMenuTrigger>
 
-            <DropdownMenuContent align={'end'}>
-              <DropdownMenuGroup>
-                <DropdownMenuLabel>Actions</DropdownMenuLabel>
+              <DropdownMenuContent align={'end'}>
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
 
-                <DropdownMenuItem>
-                  <Link
-                    className={'h-full w-full'}
-                    href={`/admin/users/${userId}`}
-                  >
-                    View
-                  </Link>
-                </DropdownMenuItem>
+                  <DropdownMenuItem>
+                    <Link
+                      className={'h-full w-full'}
+                      href={`/admin/users/${userId}`}
+                    >
+                      View
+                    </Link>
+                  </DropdownMenuItem>
 
-                <If condition={isPersonalAccount}>
-                  <AdminImpersonateUserDialog userId={userId}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      Impersonate User
-                    </DropdownMenuItem>
-                  </AdminImpersonateUserDialog>
+                  <If condition={isPersonalAccount}>
+                    <AdminImpersonateUserDialog userId={userId}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        Impersonate User
+                      </DropdownMenuItem>
+                    </AdminImpersonateUserDialog>
 
-                  <AdminDeleteUserDialog userId={userId}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      Delete Personal Account
-                    </DropdownMenuItem>
-                  </AdminDeleteUserDialog>
-                </If>
+                    <AdminDeleteUserDialog userId={userId}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        Delete Personal Account
+                      </DropdownMenuItem>
+                    </AdminDeleteUserDialog>
+                  </If>
 
-                <If condition={!isPersonalAccount}>
-                  <AdminDeleteAccountDialog accountId={row.original.id}>
-                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
-                      Delete Team Account
-                    </DropdownMenuItem>
-                  </AdminDeleteAccountDialog>
-                </If>
-              </DropdownMenuGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  <If condition={!isPersonalAccount}>
+                    <AdminDeleteAccountDialog accountId={row.original.id}>
+                      <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                        Delete Team Account
+                      </DropdownMenuItem>
+                    </AdminDeleteAccountDialog>
+                  </If>
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         );
       },
     },

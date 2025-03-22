@@ -44,6 +44,7 @@ async function UsersPage(props: AdminUsersPageProps) {
                 pageSize={pageSize}
                 pageCount={pageCount}
                 data={data}
+                isPersonal={false}
               />
             );
           }}

@@ -12,6 +12,7 @@ import { createCreditsService } from '../credits/credits.service';
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
+import { getDateRange } from './utils';
 
 export const createAudienceAction = enhanceAction(
   async (data) => {
@@ -143,6 +144,7 @@ export const getPreviewAudienceAction = enhanceAction(
       keywords: filters.segment,
       audienceType: filters.audience.type,
     });
+    filters.dateRange = getDateRange(filters.audience.dateRange);
 
     const { audience: _audience, ...audienceFilters } = filters;
 

@@ -8,6 +8,7 @@ import { Database } from '~/lib/database.types';
 
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
+import { getDateRange } from './utils';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
   return new AudienceService(client);
@@ -158,6 +159,8 @@ class AudienceService {
     }
 
     filters.segment = intentIds;
+    filters.dateRange = getDateRange(filters.audience.dateRange);
+
     const { audience: _audience, ...audienceFilters } = filters;
 
     const response = await fetch(
