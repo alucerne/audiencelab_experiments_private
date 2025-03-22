@@ -15,6 +15,7 @@ import {
   ImpersonateUserSchema,
   ReactivateUserSchema,
 } from './schema/admin-actions.schema';
+import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { adminAction } from './utils/admin-action';
@@ -166,3 +167,24 @@ function getAdminAccountsService() {
 function revalidateAdmin() {
   revalidatePath('/admin', 'layout');
 }
+
+export const updateTeamPermissionsAction = enhanceAction(
+  async ({ id, ...data }) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const { error } = await adminClient
+      .from('credits')
+      .update(data)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath('/home/[account]/usage', 'page');
+    revalidatePath('/admin/users/[id]', 'page');
+  },
+  {
+    schema: AdminCreditsFormSchema,
+  },
+);

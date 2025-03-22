@@ -37,7 +37,7 @@ function getColumns(): ColumnDef<Memberships>[] {
 
             <Link
               className={'hover:underline'}
-              href={`/admin/accounts/${row.original.id}`}
+              href={`/admin/users/${row.original.id}`}
             >
               <span>{name}</span>
             </Link>

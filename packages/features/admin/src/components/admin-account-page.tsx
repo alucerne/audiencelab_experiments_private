@@ -26,6 +26,7 @@ import {
 } from '@kit/ui/table';
 
 import { AdminBanUserDialog } from './admin-ban-user-dialog';
+import AdminCreditsForm from './admin-credits-form';
 import { AdminDeleteAccountDialog } from './admin-delete-account-dialog';
 import { AdminDeleteUserDialog } from './admin-delete-user-dialog';
 import { AdminImpersonateUserDialog } from './admin-impersonate-user-dialog';
@@ -132,7 +133,7 @@ async function PersonalAccountPage(props: { account: Account }) {
         </div>
 
         <div className={'flex flex-col gap-y-8'}>
-          <SubscriptionsTable accountId={props.account.id} />
+          {/* <SubscriptionsTable accountId={props.account.id} /> */}
 
           <div className={'divider-divider-x flex flex-col gap-y-2.5'}>
             <Heading level={6}>Teams</Heading>
@@ -151,6 +152,7 @@ async function TeamAccountPage(props: {
   account: Account & { memberships: Membership[] };
 }) {
   const members = await getMembers(props.account.slug ?? '');
+  const permissions = await getPermissions(props.account.id);
 
   return (
     <>
@@ -193,7 +195,11 @@ async function TeamAccountPage(props: {
 
         <div>
           <div className={'flex flex-col gap-y-8'}>
-            <SubscriptionsTable accountId={props.account.id} />
+            <div className={'flex flex-col gap-y-2.5'}>
+              <Heading level={6}>Permissions</Heading>
+
+              <AdminCreditsForm credits={permissions} />
+            </div>
 
             <div className={'flex flex-col gap-y-2.5'}>
               <Heading level={6}>Team Members</Heading>
@@ -207,7 +213,7 @@ async function TeamAccountPage(props: {
   );
 }
 
-async function SubscriptionsTable(props: { accountId: string }) {
+async function _SubscriptionsTable(props: { accountId: string }) {
   const client = getSupabaseServerAdminClient();
 
   const { data: subscription, error } = await client
@@ -389,4 +395,20 @@ async function getMembers(accountSlug: string) {
   }
 
   return members.data;
+}
+
+async function getPermissions(accountId: string) {
+  const client = getSupabaseServerAdminClient();
+
+  const { data, error } = await client
+    .from('credits')
+    .select('*')
+    .eq('account_id', accountId)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
 }

@@ -8,19 +8,18 @@ import { PageBody, PageHeader } from '@kit/ui/page';
 
 interface SearchParams {
   page?: string;
-  account_type?: 'all' | 'team' | 'personal';
   query?: string;
 }
 
-interface AdminAccountsPageProps {
+interface AdminUsersPageProps {
   searchParams: Promise<SearchParams>;
 }
 
 export const metadata = {
-  title: `Accounts`,
+  title: `Users`,
 };
 
-async function AccountsPage(props: AdminAccountsPageProps) {
+async function UsersPage(props: AdminUsersPageProps) {
   const client = getSupabaseServerAdminClient();
   const searchParams = await props.searchParams;
 
@@ -36,7 +35,7 @@ async function AccountsPage(props: AdminAccountsPageProps) {
           table={'accounts'}
           client={client}
           page={page}
-          where={filters}
+          where={{ is_personal_account: { eq: true }, ...filters }}
         >
           {({ data, page, pageSize, pageCount }) => {
             return (
@@ -45,9 +44,6 @@ async function AccountsPage(props: AdminAccountsPageProps) {
                 pageSize={pageSize}
                 pageCount={pageCount}
                 data={data}
-                filters={{
-                  type: searchParams.account_type ?? 'all',
-                }}
               />
             );
           }}
@@ -66,12 +62,6 @@ function getFilters(params: SearchParams) {
     }
   > = {};
 
-  if (params.account_type && params.account_type !== 'all') {
-    filters.is_personal_account = {
-      eq: params.account_type === 'personal',
-    };
-  }
-
   if (params.query) {
     filters.name = {
       like: `%${params.query}%`,
@@ -81,4 +71,4 @@ function getFilters(params: SearchParams) {
   return filters;
 }
 
-export default AdminGuard(AccountsPage);
+export default AdminGuard(UsersPage);
