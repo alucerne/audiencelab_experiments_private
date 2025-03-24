@@ -171,6 +171,8 @@ class AudienceService {
         body: JSON.stringify({
           ...audienceFilters,
           jobId: job.data.id,
+          audienceId,
+          accountId,
         }),
       },
     );

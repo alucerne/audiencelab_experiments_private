@@ -118,6 +118,7 @@ export const processEnrichmentAction = enhanceAction(
           gcsPath: `gs://${bucketName}/${uniqueFilename}`,
           columns: mappedColumns,
           jobId: job.id,
+          accountId,
         }),
       },
     );
