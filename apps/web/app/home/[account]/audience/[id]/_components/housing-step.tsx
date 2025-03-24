@@ -35,7 +35,7 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.profile.homeowner',
-    label: 'Homeowner Status',
+    label: 'Homeowner Status BACKEND',
   },
   {
     value: 'filters.attributes.dwelling_type',
@@ -55,19 +55,19 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.home_heat',
-    label: 'Heating Type',
+    label: 'Heating Type BACKEND',
   },
   {
     value: 'filters.attributes.home_swimming_pool',
-    label: 'Swimming Pool',
+    label: 'Swimming Pool BACKEND',
   },
   {
     value: 'filters.attributes.home_aircon',
-    label: 'Air Conditioning',
+    label: 'Air Conditioning BACKEND',
   },
   {
     value: 'filters.attributes.home_sewer',
-    label: 'Sewer Type',
+    label: 'Sewer Type BACKEND',
   },
   {
     value: 'filters.attributes.home_water',
@@ -75,7 +75,7 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.estimated_home_value',
-    label: 'Estimated Home Value',
+    label: 'Estimated Home Value BACKEND',
   },
   {
     value: 'filters.attributes.sales_transaction_type',

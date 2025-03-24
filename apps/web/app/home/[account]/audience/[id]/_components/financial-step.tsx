@@ -35,7 +35,7 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.profile.incomeRange',
-    label: 'Income Range',
+    label: 'Income Range BACKEND',
   },
   {
     value: 'filters.profile.netWorth',
@@ -43,27 +43,27 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.credit_rating',
-    label: 'Credit Rating',
+    label: 'Credit Rating BACKEND',
   },
   {
     value: 'filters.attributes.credit_range_new_credit',
-    label: 'New Credit Range',
+    label: 'New Credit Range BACKEND',
   },
   {
     value: 'filters.attributes.credit_card_user',
-    label: 'Credit Card User',
+    label: 'Credit Card User BACKEND',
   },
   {
     value: 'filters.attributes.investment',
-    label: 'Investment',
+    label: 'Investment BACKEND',
   },
   {
     value: 'filters.attributes.mortgage_amount',
-    label: 'Mortgage Amount',
+    label: 'Mortgage Amount BACKEND',
   },
   {
     value: 'filters.attributes.mortgage_loan_type',
-    label: 'Mortgage Loan Type',
+    label: 'Mortgage Loan Type BACKEND',
   },
   {
     value: 'filters.attributes.mortgage_rate_type',
@@ -71,15 +71,15 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.occupation_group',
-    label: 'Occupation Group',
+    label: 'Occupation Group BACKEND',
   },
   {
     value: 'filters.attributes.occupation_type',
-    label: 'Occupation Type',
+    label: 'Occupation Type BACKEND',
   },
   {
     value: 'filters.attributes.cra_code',
-    label: 'CRA Code',
+    label: 'CRA Code BACKEND',
   },
 ] as const;
 

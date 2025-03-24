@@ -42,7 +42,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.seniority"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Seniority</FormLabel>
+            <FormLabel>Seniority BACKEND</FormLabel>
             <FormControl>
               <MultiSelect
                 options={seniorityOptions}
@@ -59,7 +59,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.department"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Departments</FormLabel>
+            <FormLabel>Departments BACKEND</FormLabel>
             <FormControl>
               <MultiSelect
                 options={departmentOptions}
@@ -125,7 +125,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.sic"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>SIC</FormLabel>
+            <FormLabel>SIC BACKEND</FormLabel>
             <FormControl>
               <MultiSelect
                 options={sicOptions}

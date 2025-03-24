@@ -1,7 +1,6 @@
 import { Path, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
-import { CardDescription, CardHeader, CardTitle } from '@kit/ui/card';
 import {
   FormControl,
   FormDescription,
@@ -26,18 +25,14 @@ export default function EmailsStep() {
 
   const notNulls = watch('filters.notNulls') || [];
 
-  // Helper function to check if a value exists in the notNulls array
   const hasValue = (value: string) => notNulls.includes(value);
 
-  // Helper function to toggle values in the notNulls array
-  const toggleValue = (value: string, checked: boolean) => {
+  function toggleValue (value: string, checked: boolean) {
     const currentValues = [...notNulls];
 
     if (checked && !currentValues.includes(value)) {
-      // Add the value
       setValue('filters.notNulls', [...currentValues, value]);
     } else if (!checked && currentValues.includes(value)) {
-      // Remove the value
       setValue(
         'filters.notNulls',
         currentValues.filter((item) => item !== value),
@@ -47,12 +42,6 @@ export default function EmailsStep() {
 
   return (
     <>
-      <CardHeader className="p-0">
-        <CardTitle>Emails</CardTitle>
-        <CardDescription>
-          What emails do you need from your audience?
-        </CardDescription>
-      </CardHeader>
       <FormField
         control={control}
         name="filters.notNulls"

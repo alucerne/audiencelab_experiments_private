@@ -69,15 +69,15 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.gender',
-    label: 'Gender',
+    label: 'Gender BACKEND',
   },
   {
     value: 'filters.attributes.ethnic_code',
-    label: 'Ethnicity',
+    label: 'Ethnicity BACKEND',
   },
   {
     value: 'filters.attributes.language_code',
-    label: 'Language',
+    label: 'Language BACKEND',
   },
   {
     value: 'filters.attributes.education',
@@ -85,7 +85,7 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.smoker',
-    label: 'Smoker',
+    label: 'Smoker BACKEND',
   },
 ];
 

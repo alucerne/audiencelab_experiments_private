@@ -33,7 +33,7 @@ export default function LocationStep() {
         name="filters.city"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Cities</FormLabel>
+            <FormLabel>Cities BACKEND</FormLabel>
             <FormControl>
               <CreatableInput
                 value={field.value}
@@ -49,7 +49,7 @@ export default function LocationStep() {
         name="filters.state"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>States</FormLabel>
+            <FormLabel>States BACKEND</FormLabel>
             <FormControl>
               <MultiSelect
                 options={states}
@@ -66,7 +66,7 @@ export default function LocationStep() {
         name="filters.zip"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Zip Codes</FormLabel>
+            <FormLabel>Zip Codes BACKEND</FormLabel>
             <FormControl>
               <CreatableInput
                 value={field.value.map((val) => val.toString())}
