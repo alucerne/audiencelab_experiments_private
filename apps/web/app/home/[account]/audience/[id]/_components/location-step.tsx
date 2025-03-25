@@ -69,10 +69,13 @@ export default function LocationStep() {
             <FormLabel>Zip Codes BACKEND</FormLabel>
             <FormControl>
               <CreatableInput
-                value={field.value.map((val) => val.toString())}
-                onChange={(newValue) =>
-                  field.onChange(newValue.map((val) => parseInt(val, 10)))
-                }
+                value={field.value.map(String)}
+                onChange={(newValue) => {
+                  const numeric = newValue
+                    .map((v) => Number(v.trim()))
+                    .filter((n) => !Number.isNaN(n));
+                  field.onChange(numeric);
+                }}
               />
             </FormControl>
             <FormMessage />

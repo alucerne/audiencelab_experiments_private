@@ -1,6 +1,12 @@
 'use client';
 
-import { cloneElement, useEffect, useState, useTransition } from 'react';
+import {
+  cloneElement,
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+} from 'react';
 
 import { useParams, useRouter } from 'next/navigation';
 
@@ -60,8 +66,8 @@ import AudienceStep, { audienceFields } from './audience-step';
 import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
-import DateStep, { dateFields } from './date-step';
 import EmailsStep, { emailsFields } from './contact-step';
+import DateStep, { dateFields } from './date-step';
 import FamilyStep, { familyFields } from './family-step';
 import FinancialStep, { financialFields } from './financial-step';
 import HousingStep, { housingFields } from './housing-step';
@@ -199,6 +205,14 @@ export default function AudienceFiltersForm({
       form.setValue('dateRange', { startDate, endDate });
     }
   }, []);
+
+  const watchedValues = form.watch();
+  const hasChanged = useMemo(
+    () =>
+      JSON.stringify(watchedValues) !==
+      JSON.stringify(audienceFiltersFormDefaultValues),
+    [watchedValues],
+  );
 
   function openDialog(stepIndex: number) {
     setCurrentDialog(stepIndex);
@@ -420,7 +434,7 @@ export default function AudienceFiltersForm({
                 Customize your filters to build your audience. Get started by
                 building your core target audience.
               </p>
-              {form.getValues('segment').length > 0 ? (
+              {hasChanged ? (
                 <Button
                   type="button"
                   className="mx-auto"

@@ -103,11 +103,7 @@ export default function AudienceStep({
                 type="single"
                 variant="outline"
                 value={field.value}
-                onValueChange={(value) => {
-                  if (value) {
-                    field.onChange(value);
-                  }
-                }}
+                onValueChange={(value) => field.onChange(value)}
                 className="mt-1.5 justify-start"
               >
                 <ToggleGroupItem value="premade" className="px-3 py-1">

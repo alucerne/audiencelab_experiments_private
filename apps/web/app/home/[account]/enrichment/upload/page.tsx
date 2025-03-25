@@ -40,7 +40,7 @@ function EnrichmentUploadPage({
     redirect(pathsConfig.app.accountEnrichment.replace('[account]', account));
   }
 
-  return <EnrichmentUploadForm sizeLimit={100} />;
+  return <EnrichmentUploadForm sizeLimit={limits.sizeLimit} />;
 }
 
 export default withI18n(EnrichmentUploadPage);

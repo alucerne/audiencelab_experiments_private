@@ -22,16 +22,14 @@ import {
   FormMessage,
 } from '@kit/ui/form';
 import { Input } from '@kit/ui/input';
+import { ToggleGroup, ToggleGroupItem } from '@kit/ui/toggle-group';
 
 const enrichmentNameSchema = z.object({
+  operator: z.enum(['OR', 'AND']),
   name: z
     .string()
-    .min(2, {
-      message: 'Enrichment name must be at least 2 characters.',
-    })
-    .max(50, {
-      message: "Enrichment name can't exceed 50 characters.",
-    }),
+    .min(2, { message: 'Enrichment name must be at least 2 characters.' })
+    .max(50, { message: "Enrichment name can't exceed 50 characters." }),
 });
 
 type EnrichmentNameFormValues = z.infer<typeof enrichmentNameSchema>;
@@ -41,32 +39,24 @@ export default function EnrichmentNameDialog({
   disabled,
   onBeforeOpen,
 }: {
-  onSubmit: (name: string) => void;
+  onSubmit: (name: string, operator: 'OR' | 'AND') => void;
   disabled?: boolean;
   onBeforeOpen?: () => boolean;
 }) {
   const [open, setOpen] = useState(false);
-
   const form = useForm<EnrichmentNameFormValues>({
     resolver: zodResolver(enrichmentNameSchema),
-    defaultValues: {
-      name: '',
-    },
+    defaultValues: { operator: 'OR', name: '' },
   });
 
   function handleSubmit(values: EnrichmentNameFormValues) {
-    onSubmit(values.name);
+    onSubmit(values.name, values.operator);
     form.reset();
     setOpen(false);
   }
 
   function handleOpenChange(isOpen: boolean) {
-    if (isOpen && onBeforeOpen) {
-      const shouldOpen = onBeforeOpen();
-      if (!shouldOpen) {
-        return;
-      }
-    }
+    if (isOpen && onBeforeOpen && !onBeforeOpen()) return;
     setOpen(isOpen);
   }
 
@@ -90,11 +80,38 @@ export default function EnrichmentNameDialog({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Enrichment Name</FormLabel>
-                  <FormDescription>
-                    Name your enrichment for later use.
-                  </FormDescription>
                   <FormControl>
                     <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="operator"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Operator</FormLabel>
+                  <FormDescription>
+                    Choose whether uploaded contact details must match all
+                    mapped fields (AND) or any single field (OR).
+                  </FormDescription>
+                  <FormControl>
+                    <ToggleGroup
+                      type="single"
+                      variant="outline"
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      className="mt-1.5 justify-start"
+                    >
+                      <ToggleGroupItem value="OR" className="px-3 py-1">
+                        OR
+                      </ToggleGroupItem>
+                      <ToggleGroupItem value="AND" className="px-3 py-1">
+                        AND
+                      </ToggleGroupItem>
+                    </ToggleGroup>
                   </FormControl>
                   <FormMessage />
                 </FormItem>

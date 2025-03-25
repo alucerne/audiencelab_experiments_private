@@ -78,6 +78,7 @@ export const processEnrichmentAction = enhanceAction(
     columnMapping,
     uniqueFilename,
     originalFileName,
+    operator,
   }) => {
     const client = getSupabaseServerClient();
     const credits = createCreditsService(client);
@@ -119,6 +120,7 @@ export const processEnrichmentAction = enhanceAction(
           columns: mappedColumns,
           jobId: job.id,
           accountId,
+          operator,
         }),
       },
     );
@@ -138,6 +140,7 @@ export const processEnrichmentAction = enhanceAction(
       accountId: z.string(),
       columnMapping: z.record(z.array(z.string())),
       originalFileName: z.string(),
+      operator: z.enum(['OR', 'AND']),
     }),
   },
 );

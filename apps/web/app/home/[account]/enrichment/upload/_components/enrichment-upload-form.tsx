@@ -125,7 +125,10 @@ export default function EnrichmentUploadForm({
     return true;
   }
 
-  async function handleEnrichmentSubmit(enrichmentName: string) {
+  async function handleEnrichmentSubmit(
+    enrichmentName: string,
+    operator: 'OR' | 'AND',
+  ) {
     if (!validate() || !currentFile) return;
 
     setIsSubmitting(true);
@@ -183,6 +186,11 @@ export default function EnrichmentUploadForm({
           }
         }
 
+        finalCsv = finalCsv
+          .split('\n')
+          .filter((line) => line.trim() !== '')
+          .join('\n');
+
         const transformedBlob = new Blob([finalCsv], { type: 'text/csv' });
         const transformedFile = new File([transformedBlob], currentFile.name, {
           type: 'text/csv',
@@ -215,6 +223,7 @@ export default function EnrichmentUploadForm({
           accountId,
           columnMapping,
           originalFileName: currentFile.name,
+          operator
         });
       },
       {
