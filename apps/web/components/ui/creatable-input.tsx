@@ -61,16 +61,24 @@ export default function CreatableInput({
 
   const handleKeyDown: KeyboardEventHandler = (event) => {
     if (!inputValue) return;
-    switch (event.key) {
-      case 'Enter':
-      case 'Tab':
-        event.preventDefault();
-        event.stopPropagation();
-        if (!value.some((v) => v.toLowerCase() === inputValue.toLowerCase())) {
-          onChange([...value, inputValue.trim()]);
+
+    if (event.key === 'Enter' || event.key === 'Tab') {
+      event.preventDefault();
+      event.stopPropagation();
+
+      const entries = inputValue
+        .split(',')
+        .map((entry) => entry.trim())
+        .filter((entry) => entry);
+
+      const newValues = [...value];
+      for (const entry of entries) {
+        if (!newValues.some((v) => v.toLowerCase() === entry.toLowerCase())) {
+          newValues.push(entry);
         }
-        setInputValue('');
-        break;
+      }
+      onChange(newValues);
+      setInputValue('');
     }
   };
 
