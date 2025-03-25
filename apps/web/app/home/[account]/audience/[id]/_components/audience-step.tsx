@@ -209,7 +209,7 @@ export default function AudienceStep({
           ) : null}
         </>
       ) : (
-        <CustomAudience canCreate={!limits.canCreateCustomInterests} />
+        <CustomAudience canCreate={limits.canCreateCustomInterests} />
       )}
     </>
   );

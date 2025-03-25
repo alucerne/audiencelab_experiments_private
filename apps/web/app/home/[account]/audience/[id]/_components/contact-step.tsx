@@ -1,13 +1,7 @@
 import { Path, useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
-import {
-  FormControl,
-  FormDescription,
-  FormField,
-  FormItem,
-  FormLabel,
-} from '@kit/ui/form';
+import { FormControl, FormField, FormItem, FormLabel } from '@kit/ui/form';
 import { Switch } from '@kit/ui/switch';
 
 import {
@@ -27,7 +21,7 @@ export default function EmailsStep() {
 
   const hasValue = (value: string) => notNulls.includes(value);
 
-  function toggleValue (value: string, checked: boolean) {
+  function toggleValue(value: string, checked: boolean) {
     const currentValues = [...notNulls];
 
     if (checked && !currentValues.includes(value)) {
@@ -38,26 +32,21 @@ export default function EmailsStep() {
         currentValues.filter((item) => item !== value),
       );
     }
-  };
+  }
 
   return (
-    <>
+    <div className="space-y-4">
       <FormField
         control={control}
         name="filters.notNulls"
         render={() => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
-            <div className="space-y-0.5">
-              <FormLabel>Personal Emails</FormLabel>
-              <FormDescription>
-                Include validated personal email addresses.
-              </FormDescription>
-            </div>
+            <FormLabel>Personal Emails</FormLabel>
             <FormControl>
               <Switch
-                checked={hasValue('PERSONAL_EMAILS')}
+                checked={hasValue('PERSONAL_EMAILS_VALIDATION_STATUS')}
                 onCheckedChange={(checked) =>
-                  toggleValue('PERSONAL_EMAILS', checked)
+                  toggleValue('PERSONAL_EMAILS_VALIDATION_STATUS', checked)
                 }
               />
             </FormControl>
@@ -69,12 +58,7 @@ export default function EmailsStep() {
         name="filters.notNulls"
         render={() => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
-            <div className="space-y-0.5">
-              <FormLabel>Business Emails</FormLabel>
-              <FormDescription>
-                Include validated business email addresses.
-              </FormDescription>
-            </div>
+            <FormLabel>Business Emails</FormLabel>
             <FormControl>
               <Switch
                 checked={hasValue('BUSINESS_EMAIL')}
@@ -86,6 +70,40 @@ export default function EmailsStep() {
           </FormItem>
         )}
       />
-    </>
+      <FormField
+        control={control}
+        name="filters.notNulls"
+        render={() => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+            <FormLabel>Skip Traced Wireless Phone Number</FormLabel>
+            <FormControl>
+              <Switch
+                checked={hasValue('SKIPTRACE_WIRELESS_NUMBERS')}
+                onCheckedChange={(checked) =>
+                  toggleValue('SKIPTRACE_WIRELESS_NUMBERS', checked)
+                }
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="filters.notNulls"
+        render={() => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+            <FormLabel>Skip Traced Wireless B2B Phone Number</FormLabel>
+            <FormControl>
+              <Switch
+                checked={hasValue('SKIPTRACE_B2B_PHONE')}
+                onCheckedChange={(checked) =>
+                  toggleValue('SKIPTRACE_B2B_PHONE', checked)
+                }
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+    </div>
   );
 }

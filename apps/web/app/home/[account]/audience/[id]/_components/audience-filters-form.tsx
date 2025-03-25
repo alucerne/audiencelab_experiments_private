@@ -61,7 +61,7 @@ import BusinessProfileStep, {
   businessProfileFields,
 } from './business-profile-step';
 import DateStep, { dateFields } from './date-step';
-import EmailsStep, { emailsFields } from './emails-step';
+import EmailsStep, { emailsFields } from './contact-step';
 import FamilyStep, { familyFields } from './family-step';
 import FinancialStep, { financialFields } from './financial-step';
 import HousingStep, { housingFields } from './housing-step';
@@ -182,8 +182,8 @@ export default function AudienceFiltersForm({
       fields: locationFields,
     },
     {
-      label: 'Emails',
-      description: 'What emails do you need from your audience?',
+      label: 'Contact',
+      description: 'What contact information should be included?',
       icon: <Mail />,
       component: <EmailsStep />,
       fields: emailsFields,
