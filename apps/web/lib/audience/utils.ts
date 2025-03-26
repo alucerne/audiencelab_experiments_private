@@ -59,7 +59,7 @@ async function mapFiltersAttributes(
   });
 
   attributes.credit_card_user = attributes.credit_card_user.map((v) =>
-    v.toLowerCase() === 'yes' ? 'Y' : 'N',
+    v.toLowerCase() === 'yes' ? 'Y' : 'null',
   );
 
   attributes.cra_code = attributes.cra_code.map((v) => {
