@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useRef } from 'react';
 
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from '@tanstack/react-table';
 
+import { Button } from '@kit/ui/button';
 import {
   TableBody,
   TableCell,
@@ -20,8 +22,10 @@ import { cn } from '@kit/ui/utils';
 
 export default function PreviewAudienceTable({
   data,
+  previewDataCount,
 }: {
   data: Record<string, string>[];
+  previewDataCount: number;
 }) {
   function formatColumnName(key: string) {
     const specialCases: Record<string, string> = {
@@ -93,64 +97,132 @@ export default function PreviewAudienceTable({
   const table = useReactTable({
     data,
     columns,
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 100,
+      },
+    },
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
   });
 
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  const resetScroll = () =>
+    scrollContainerRef.current?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+
   return (
-    <table className="w-full caption-bottom text-sm">
-      <TableHeader className="bg-muted sticky top-0 z-[1] shadow-sm">
-        {table.getHeaderGroups().map((headerGroup) => (
-          <TableRow key={headerGroup.id}>
-            {headerGroup.headers.map((header, index) => (
-              <TableHead
-                key={header.id}
-                className={cn(
-                  'text-secondary-foreground/80 h-fit py-1.5 whitespace-nowrap',
-                  header.id !== 'rowNumber' ? 'min-w-28' : 'min-w-12',
-                  index > 1 && 'border-l-muted-foreground/20 border-l',
-                )}
-              >
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext(),
+    <>
+      <div
+        ref={scrollContainerRef}
+        className="flex-1 space-y-4 overflow-y-auto"
+      >
+        <table className="w-full caption-bottom text-sm">
+          <TableHeader className="bg-muted sticky top-0 z-[1] shadow-sm">
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header, index) => (
+                  <TableHead
+                    key={header.id}
+                    className={cn(
+                      'text-secondary-foreground/80 h-fit py-1.5 whitespace-nowrap',
+                      header.id !== 'rowNumber' ? 'min-w-28' : 'min-w-12',
+                      index > 1 && 'border-l-muted-foreground/20 border-l',
                     )}
-              </TableHead>
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
             ))}
-          </TableRow>
-        ))}
-      </TableHeader>
-      <TableBody className="bg-background">
-        {table.getRowModel().rows?.length ? (
-          table.getRowModel().rows.map((row) => (
-            <TableRow
-              key={row.id}
-              data-state={row.getIsSelected() && 'selected'}
-              className="border-muted-foreground/20"
-            >
-              {row.getVisibleCells().map((cell, index) => (
-                <TableCell
-                  key={cell.id}
-                  className={cn(
-                    'max-w-40 truncate py-1.5 whitespace-nowrap',
-                    cell.column.id !== 'rowNumber' && 'min-w-28',
-                    index > 1 && 'border-muted-foreground/20 border-l',
-                  )}
+          </TableHeader>
+          <TableBody className="bg-background">
+            {table.getPaginationRowModel().rows?.length ? (
+              table.getPaginationRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && 'selected'}
+                  className="border-muted-foreground/20"
                 >
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  {row.getVisibleCells().map((cell, index) => (
+                    <TableCell
+                      key={cell.id}
+                      className={cn(
+                        'max-w-40 truncate py-1.5 whitespace-nowrap',
+                        cell.column.id !== 'rowNumber' && 'min-w-28',
+                        index > 1 && 'border-muted-foreground/20 border-l',
+                      )}
+                    >
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
                 </TableCell>
-              ))}
-            </TableRow>
-          ))
-        ) : (
-          <TableRow>
-            <TableCell colSpan={columns.length} className="h-24 text-center">
-              No results.
-            </TableCell>
-          </TableRow>
-        )}
-      </TableBody>
-    </table>
+              </TableRow>
+            )}
+          </TableBody>
+        </table>
+      </div>
+      <div className="bg-muted border-muted-foreground/20 flex items-center justify-between border-t px-4 py-3">
+        <div className="text-sm font-medium whitespace-nowrap">
+          <span className="font-semibold">
+            {previewDataCount.toLocaleString()}
+          </span>{' '}
+          {`result${previewDataCount === 1 ? '' : 's'} found`}
+        </div>
+        <div className="flex items-center gap-3">
+          {table.getPageCount() > 0 && (
+            <div className="text-xs font-medium">
+              {table.getState().pagination.pageIndex + 1}
+              {' / '}
+              {table.getPageCount()}
+            </div>
+          )}
+          {table.getRowModel().rows?.length ? (
+            <>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  table.previousPage();
+                  resetScroll();
+                }}
+                disabled={!table.getCanPreviousPage()}
+              >
+                Previous
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  table.nextPage();
+                  resetScroll();
+                }}
+                disabled={!table.getCanNextPage()}
+              >
+                Next
+              </Button>
+            </>
+          ) : null}
+        </div>
+      </div>
+    </>
   );
 }
