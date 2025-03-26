@@ -79,7 +79,7 @@ async function mapFiltersAttributes(
   });
 
   attributes.smoker = attributes.smoker.map((v) =>
-    v.toLowerCase() === 'yes' ? 'Y' : 'N',
+    v.toLowerCase() === 'yes' ? 'Y' : 'null',
   );
 
   attributes.marital_status = attributes.marital_status.map((v) => {
