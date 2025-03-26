@@ -70,6 +70,14 @@ async function mapFiltersAttributes(
     return v;
   });
 
+  attributes.education = attributes.education.map((v) => {
+    if (v === 'doctorate') return 'D';
+    if (v === 'master’s') return 'C';
+    if (v === 'bachelor’s') return 'B';
+    if (v === 'high school') return 'A';
+    return v;
+  });
+
   attributes.smoker = attributes.smoker.map((v) =>
     v.toLowerCase() === 'yes' ? 'Y' : 'N',
   );
