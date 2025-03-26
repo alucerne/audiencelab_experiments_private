@@ -209,9 +209,14 @@ async function mapFiltersAttributes(
 
   attributes.credit_range_new_credit = attributes.credit_range_new_credit.map(
     (v) => {
-      if (v === 'low') return '0';
-      if (v === 'moderate') return '4';
-      if (v === 'high') return '8';
+      if (v === '$0 - $100') return '0';
+      if (v === '$101 - $300') return '1';
+      if (v === '$301 - $500') return '2';
+      if (v === '$501 - $1,000') return '3';
+      if (v === '$1,001 - $3,000') return '4';
+      if (v === '$3,001 - $5,000') return '5';
+      if (v === '$5,001 - $9,999') return '6';
+      if (v === 'Greater than $9,999') return '7';
       return v;
     },
   );

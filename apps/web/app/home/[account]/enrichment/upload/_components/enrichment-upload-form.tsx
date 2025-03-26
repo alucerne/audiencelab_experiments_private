@@ -223,7 +223,7 @@ export default function EnrichmentUploadForm({
           accountId,
           columnMapping,
           originalFileName: currentFile.name,
-          operator
+          operator,
         });
       },
       {

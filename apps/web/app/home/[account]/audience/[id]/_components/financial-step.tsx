@@ -117,7 +117,16 @@ const fieldOptions: Partial<
     '500 - 549',
     'under 499',
   ],
-  'filters.attributes.credit_range_new_credit': ['low', 'moderate', 'high'],
+  'filters.attributes.credit_range_new_credit': [
+    '$0 - $100',
+    '$101 - $300',
+    '$301 - $500',
+    '$501 - $1,000',
+    '$1,001 - $3,000',
+    '$3,001 - $5,000',
+    '$5,001 - $9,999',
+    'Greater than $9,999',
+  ],
   'filters.attributes.credit_card_user': ['yes', 'no'],
   'filters.attributes.investment': ['investor'],
   'filters.attributes.occupation_group': [
