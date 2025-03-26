@@ -245,7 +245,6 @@ export async function mapFilters(
   filters: z.infer<typeof audienceFiltersFormSchema>['filters'],
 ) {
   filters.gender = filters.gender.map((v) => {
-    if (v === 'both') return 'B';
     if (v === 'male') return 'M';
     if (v === 'female') return 'F';
     if (v === 'unknown') return 'U';

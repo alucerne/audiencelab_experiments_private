@@ -90,7 +90,7 @@ const fieldTypeOptions: Array<{
 ];
 
 const fieldOptions: Partial<Record<PersonalFieldWithoutAge, string[]>> = {
-  'filters.gender': ['both', 'male', 'female', 'unknown'],
+  'filters.gender': ['male', 'female', 'unknown'],
   'filters.attributes.ethnic_code': [
     'afghani',
     'bengladesh',
