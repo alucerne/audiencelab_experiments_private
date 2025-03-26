@@ -300,7 +300,7 @@ export async function mapFilters(
     Wyoming: 'WY',
   };
 
-  filters.state = filters.state.map((v) => statesMap[v.toLowerCase()] || v);
+  filters.state = filters.state.map((v) => statesMap[v] || v);
 
   return {
     ...filters,
