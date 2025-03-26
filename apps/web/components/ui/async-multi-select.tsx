@@ -75,42 +75,45 @@ function Option(props: OptionProps<StringOption>) {
     </components.Option>
   );
 }
-
 export default function AsyncMultiSelect({
   value,
   onChange,
   className,
   searchAction,
+  batchSearchAction,
   debounceTime = 300,
+  placeholder = 'Type to search...',
 }: {
   value: string[];
   onChange: (value: string[]) => void;
   className?: string;
   searchAction: (search: string) => Promise<string[]>;
+  batchSearchAction?: (searchTerms: string[]) => Promise<string[]>;
   debounceTime?: number;
+  placeholder?: string;
 }) {
   const timerRef = React.useRef<NodeJS.Timeout | null>(null);
+  const [inputValue, setInputValue] = React.useState('');
 
-  const loadOptions = async (inputValue: string) => {
-    if (!inputValue || inputValue.length < 2) {
+  const loadOptions = async (input: string) => {
+    if (!input || input.length < 2) {
       return [];
     }
     try {
-      const results = await searchAction(inputValue);
-      const options = results.map(createOption);
-      return options;
+      const results = await searchAction(input);
+      return results.map(createOption);
     } catch (error) {
       console.error('Error fetching options:', error);
       return [];
     }
   };
 
-  const debouncedLoadOptions = (inputValue: string): Promise<StringOption[]> =>
+  const debouncedLoadOptions = (input: string): Promise<StringOption[]> =>
     new Promise((resolve, reject) => {
       if (timerRef.current) clearTimeout(timerRef.current);
       timerRef.current = setTimeout(async () => {
         try {
-          const options = await loadOptions(inputValue);
+          const options = await loadOptions(input);
           resolve(options);
         } catch (error) {
           reject(error);
@@ -118,10 +121,34 @@ export default function AsyncMultiSelect({
       }, debounceTime);
     });
 
+  const handleKeyDown = async (event: React.KeyboardEvent) => {
+    if (
+      batchSearchAction &&
+      event.key === 'Enter' &&
+      inputValue.includes(',')
+    ) {
+      event.preventDefault();
+      const tokens = inputValue
+        .split(',')
+        .map((t) => t.trim())
+        .filter(Boolean);
+      try {
+        const validTokens = await batchSearchAction(tokens);
+        const newValue = Array.from(new Set([...value, ...validTokens]));
+        onChange(newValue);
+      } catch (error) {
+        console.error('Error validating comma-separated values', error);
+      } finally {
+        setInputValue('');
+      }
+    }
+  };
+
   function handleChange(
     newValue: MultiValue<StringOption>,
     _: ActionMeta<StringOption>,
   ) {
+    setInputValue('');
     onChange(newValue.map((option) => option.value));
   }
 
@@ -133,13 +160,20 @@ export default function AsyncMultiSelect({
       onChange={handleChange}
       isMulti
       closeMenuOnSelect={false}
-      placeholder="Type to search..."
+      placeholder={placeholder}
       noOptionsMessage={({ inputValue }) =>
         inputValue && inputValue.length >= 2
           ? 'No options found'
           : 'Type to search'
       }
       loadingMessage={() => 'Searching...'}
+      inputValue={inputValue}
+      onInputChange={(newVal, { action }) => {
+        if (action === 'input-change') {
+          setInputValue(newVal);
+        }
+      }}
+      onKeyDown={handleKeyDown}
       unstyled
       styles={{
         input: (base) => ({

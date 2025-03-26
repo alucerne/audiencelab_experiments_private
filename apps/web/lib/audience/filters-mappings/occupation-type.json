@@ -1,0 +1,1222 @@
+[
+  {
+    "name": "Professional",
+    "id": "T999"
+  },
+  {
+    "name": "Architect",
+    "id": "T998"
+  },
+  {
+    "name": "Chemist",
+    "id": "T997"
+  },
+  {
+    "name": "Curator",
+    "id": "T996"
+  },
+  {
+    "name": "Engineer",
+    "id": "T995"
+  },
+  {
+    "name": "Engineer/Aerospace",
+    "id": "T994"
+  },
+  {
+    "name": "Engineer/Chemical",
+    "id": "T993"
+  },
+  {
+    "name": "Engineer/Civil",
+    "id": "T992"
+  },
+  {
+    "name": "Engineer/Electrical/Electronic",
+    "id": "T991"
+  },
+  {
+    "name": "Engineer/Field",
+    "id": "T990"
+  },
+  {
+    "name": "Engineer/Industrial",
+    "id": "T989"
+  },
+  {
+    "name": "Engineer/Mechanical",
+    "id": "T988"
+  },
+  {
+    "name": "Geologist",
+    "id": "T987"
+  },
+  {
+    "name": "Home Economist",
+    "id": "T986"
+  },
+  {
+    "name": "Legal/Attorney/Lawyer",
+    "id": "T985"
+  },
+  {
+    "name": "Librarian/Archivist",
+    "id": "T984"
+  },
+  {
+    "name": "Medical Doctor/Physician",
+    "id": "T983"
+  },
+  {
+    "name": "Pastor",
+    "id": "T982"
+  },
+  {
+    "name": "Pilot",
+    "id": "T981"
+  },
+  {
+    "name": "Scientist",
+    "id": "T980"
+  },
+  {
+    "name": "Statistician/Actuary",
+    "id": "T979"
+  },
+  {
+    "name": "Veterinarian",
+    "id": "T978"
+  },
+  {
+    "name": "Computer",
+    "id": "T899"
+  },
+  {
+    "name": "Computer Operator",
+    "id": "T898"
+  },
+  {
+    "name": "Computer Programmer",
+    "id": "T897"
+  },
+  {
+    "name": "Computer/Systems Analyst",
+    "id": "T896"
+  },
+  {
+    "name": "Executive/Upper Management",
+    "id": "E799"
+  },
+  {
+    "name": "CEO/CFO/Chairman/Corp Officer",
+    "id": "E798"
+  },
+  {
+    "name": "Comptroller",
+    "id": "E797"
+  },
+  {
+    "name": "Politician/Legislator/Diplomat",
+    "id": "E796"
+  },
+  {
+    "name": "President",
+    "id": "E795"
+  },
+  {
+    "name": "Treasurer",
+    "id": "E794"
+  },
+  {
+    "name": "Vice President",
+    "id": "E793"
+  },
+  {
+    "name": "Middle Management",
+    "id": "M699"
+  },
+  {
+    "name": "Account Executive",
+    "id": "M698"
+  },
+  {
+    "name": "Director/Art Director",
+    "id": "M697"
+  },
+  {
+    "name": "Director/Executive Director",
+    "id": "M696"
+  },
+  {
+    "name": "Editor",
+    "id": "M695"
+  },
+  {
+    "name": "Manager",
+    "id": "M694"
+  },
+  {
+    "name": "Manager/Assistant Manager",
+    "id": "M693"
+  },
+  {
+    "name": "Manager/Branch Manager",
+    "id": "M692"
+  },
+  {
+    "name": "Manager/Credit Manager",
+    "id": "M691"
+  },
+  {
+    "name": "Manager/District Manager",
+    "id": "M690"
+  },
+  {
+    "name": "Manager/Division Manager",
+    "id": "M689"
+  },
+  {
+    "name": "Manger/General Manager",
+    "id": "M688"
+  },
+  {
+    "name": "Manager/Marketing Manager",
+    "id": "M687"
+  },
+  {
+    "name": "Manager/Office Manager",
+    "id": "M686"
+  },
+  {
+    "name": "Manager/Plant Manager",
+    "id": "M685"
+  },
+  {
+    "name": "Manager/Product Manager",
+    "id": "M684"
+  },
+  {
+    "name": "Manager/Project Manager",
+    "id": "M683"
+  },
+  {
+    "name": "Manager/Property Manager",
+    "id": "M682"
+  },
+  {
+    "name": "Manager/Regional Manager",
+    "id": "M681"
+  },
+  {
+    "name": "Manager/Sales Manager",
+    "id": "M680"
+  },
+  {
+    "name": "Manager/Store Manager",
+    "id": "M679"
+  },
+  {
+    "name": "Manager/Traffic Manager",
+    "id": "M678"
+  },
+  {
+    "name": "Manager/Warehouse Manager",
+    "id": "M677"
+  },
+  {
+    "name": "Planner",
+    "id": "M676"
+  },
+  {
+    "name": "Principal/Dean/Educator",
+    "id": "M675"
+  },
+  {
+    "name": "Superintendent",
+    "id": "M674"
+  },
+  {
+    "name": "Supervisor",
+    "id": "M673"
+  },
+  {
+    "name": "White Collar Worker",
+    "id": "W599"
+  },
+  {
+    "name": "Accounting/Biller/Billing clerk",
+    "id": "W598"
+  },
+  {
+    "name": "Actor/Entertainer/Announcer",
+    "id": "W597"
+  },
+  {
+    "name": "Adjuster",
+    "id": "W596"
+  },
+  {
+    "name": "Administration/Management",
+    "id": "W595"
+  },
+  {
+    "name": "Advertising",
+    "id": "W594"
+  },
+  {
+    "name": "Agent",
+    "id": "W593"
+  },
+  {
+    "name": "Aide/Assistant",
+    "id": "W592"
+  },
+  {
+    "name": "Aide/Assistant/Executive",
+    "id": "W591"
+  },
+  {
+    "name": "Aide/Assistant/Office",
+    "id": "W590"
+  },
+  {
+    "name": "Aide/Assistant/School",
+    "id": "W589"
+  },
+  {
+    "name": "Aide/Assistant/Staff",
+    "id": "W588"
+  },
+  {
+    "name": "Aide/Assistant/Technical",
+    "id": "W587"
+  },
+  {
+    "name": "Analyst",
+    "id": "W586"
+  },
+  {
+    "name": "Appraiser",
+    "id": "W585"
+  },
+  {
+    "name": "Artist",
+    "id": "W584"
+  },
+  {
+    "name": "Auctioneer",
+    "id": "W583"
+  },
+  {
+    "name": "Auditor",
+    "id": "W582"
+  },
+  {
+    "name": "Banker",
+    "id": "W581"
+  },
+  {
+    "name": "Banker/Loan Office",
+    "id": "W580"
+  },
+  {
+    "name": "Banker/Loan Processor",
+    "id": "W579"
+  },
+  {
+    "name": "Bookkeeper",
+    "id": "W578"
+  },
+  {
+    "name": "Broker",
+    "id": "W577"
+  },
+  {
+    "name": "Broker/Stock/Trader",
+    "id": "W576"
+  },
+  {
+    "name": "Buyer",
+    "id": "W575"
+  },
+  {
+    "name": "Cashier",
+    "id": "W574"
+  },
+  {
+    "name": "Caterer",
+    "id": "W573"
+  },
+  {
+    "name": "Checker",
+    "id": "W572"
+  },
+  {
+    "name": "Claims Examiner/Rep/Adjudicator",
+    "id": "W571"
+  },
+  {
+    "name": "Clerk",
+    "id": "W570"
+  },
+  {
+    "name": "Clerk/File",
+    "id": "W569"
+  },
+  {
+    "name": "Collector",
+    "id": "W568"
+  },
+  {
+    "name": "Communications",
+    "id": "W567"
+  },
+  {
+    "name": "Conservation/Environment",
+    "id": "W566"
+  },
+  {
+    "name": "Consultant/Advisor",
+    "id": "W565"
+  },
+  {
+    "name": "Coordinator",
+    "id": "W564"
+  },
+  {
+    "name": "Customer Service/Representative",
+    "id": "W563"
+  },
+  {
+    "name": "Designer",
+    "id": "W562"
+  },
+  {
+    "name": "Detective/Investigator",
+    "id": "W561"
+  },
+  {
+    "name": "Dispatcher",
+    "id": "W560"
+  },
+  {
+    "name": "Draftsman",
+    "id": "W559"
+  },
+  {
+    "name": "Estimator",
+    "id": "W558"
+  },
+  {
+    "name": "Expeditor",
+    "id": "W557"
+  },
+  {
+    "name": "Finance",
+    "id": "W556"
+  },
+  {
+    "name": "Flight Attendant/Steward",
+    "id": "W555"
+  },
+  {
+    "name": "Florist",
+    "id": "W554"
+  },
+  {
+    "name": "Graphic Designer/Commercial Artist",
+    "id": "W553"
+  },
+  {
+    "name": "Hostess/Host/Usher",
+    "id": "W552"
+  },
+  {
+    "name": "Insurance/Agent",
+    "id": "W551"
+  },
+  {
+    "name": "Insurance/Underwriter",
+    "id": "W550"
+  },
+  {
+    "name": "Interior Designer",
+    "id": "W549"
+  },
+  {
+    "name": "Jeweler",
+    "id": "W548"
+  },
+  {
+    "name": "Marketing",
+    "id": "W547"
+  },
+  {
+    "name": "Merchandiser",
+    "id": "W546"
+  },
+  {
+    "name": "Model",
+    "id": "W545"
+  },
+  {
+    "name": "Musician/Music/Dance",
+    "id": "W544"
+  },
+  {
+    "name": "Personnel/Recruiter/Interviewer",
+    "id": "W543"
+  },
+  {
+    "name": "Photography",
+    "id": "W542"
+  },
+  {
+    "name": "Public Relations",
+    "id": "W541"
+  },
+  {
+    "name": "Publishing",
+    "id": "W540"
+  },
+  {
+    "name": "Purchasing",
+    "id": "W539"
+  },
+  {
+    "name": "Quality Control",
+    "id": "W538"
+  },
+  {
+    "name": "Real Estate/Realtor",
+    "id": "W537"
+  },
+  {
+    "name": "Receptionist",
+    "id": "W536"
+  },
+  {
+    "name": "Reporter",
+    "id": "W535"
+  },
+  {
+    "name": "Researcher",
+    "id": "W534"
+  },
+  {
+    "name": "Sales",
+    "id": "W533"
+  },
+  {
+    "name": "Sales Clerk/Counterman",
+    "id": "W532"
+  },
+  {
+    "name": "Security",
+    "id": "W531"
+  },
+  {
+    "name": "Surveyor",
+    "id": "W530"
+  },
+  {
+    "name": "Technician",
+    "id": "W529"
+  },
+  {
+    "name": "Telemarketer/Telephone/Operator",
+    "id": "W528"
+  },
+  {
+    "name": "Teller/Bank Teller",
+    "id": "W527"
+  },
+  {
+    "name": "Tester",
+    "id": "W526"
+  },
+  {
+    "name": "Transcripter/Translator",
+    "id": "W525"
+  },
+  {
+    "name": "Travel Agent",
+    "id": "W524"
+  },
+  {
+    "name": "Union Member/Rep.",
+    "id": "W523"
+  },
+  {
+    "name": "Ward Clerk",
+    "id": "W522"
+  },
+  {
+    "name": "Water Treatment",
+    "id": "W521"
+  },
+  {
+    "name": "Writer",
+    "id": "W520"
+  },
+  {
+    "name": "Blue Collar Worker",
+    "id": "L499"
+  },
+  {
+    "name": "Animal Technician/Groomer",
+    "id": "L498"
+  },
+  {
+    "name": "Apprentice",
+    "id": "L497"
+  },
+  {
+    "name": "Assembler",
+    "id": "L496"
+  },
+  {
+    "name": "Athlete/Professional",
+    "id": "L495"
+  },
+  {
+    "name": "Attendant",
+    "id": "L494"
+  },
+  {
+    "name": "Auto Mechanic",
+    "id": "L493"
+  },
+  {
+    "name": "Baker",
+    "id": "L492"
+  },
+  {
+    "name": "Barber/Hairstylist/Beautician",
+    "id": "L491"
+  },
+  {
+    "name": "Bartender",
+    "id": "L490"
+  },
+  {
+    "name": "Binder",
+    "id": "L489"
+  },
+  {
+    "name": "Bodyman",
+    "id": "L488"
+  },
+  {
+    "name": "Brakeman",
+    "id": "L487"
+  },
+  {
+    "name": "Brewer",
+    "id": "L486"
+  },
+  {
+    "name": "Butcher/Meat Cutter",
+    "id": "L485"
+  },
+  {
+    "name": "Carpenter/Furniture/Woodworking",
+    "id": "L484"
+  },
+  {
+    "name": "Chef/Butler",
+    "id": "L483"
+  },
+  {
+    "name": "Child Care/Day Care/Babysitter",
+    "id": "L482"
+  },
+  {
+    "name": "Cleaner/Laundry",
+    "id": "L481"
+  },
+  {
+    "name": "Clerk/Deli",
+    "id": "L480"
+  },
+  {
+    "name": "Clerk/Produce",
+    "id": "L479"
+  },
+  {
+    "name": "Clerk/Stock",
+    "id": "L478"
+  },
+  {
+    "name": "Conductor",
+    "id": "L477"
+  },
+  {
+    "name": "Construction",
+    "id": "L476"
+  },
+  {
+    "name": "Cook",
+    "id": "L475"
+  },
+  {
+    "name": "Cosmetologist",
+    "id": "L474"
+  },
+  {
+    "name": "Courier/Delivery/Messenger",
+    "id": "L473"
+  },
+  {
+    "name": "Crewman",
+    "id": "L472"
+  },
+  {
+    "name": "Custodian",
+    "id": "L471"
+  },
+  {
+    "name": "Cutter",
+    "id": "L470"
+  },
+  {
+    "name": "Dock Worker",
+    "id": "L469"
+  },
+  {
+    "name": "Driver",
+    "id": "L468"
+  },
+  {
+    "name": "Driver/Bus Driver",
+    "id": "L467"
+  },
+  {
+    "name": "Driver/Truck Driver",
+    "id": "L466"
+  },
+  {
+    "name": "Electrician",
+    "id": "L465"
+  },
+  {
+    "name": "Fabricator",
+    "id": "L464"
+  },
+  {
+    "name": "Factory Workman",
+    "id": "L463"
+  },
+  {
+    "name": "Farmer/Dairyman",
+    "id": "L462"
+  },
+  {
+    "name": "Finisher",
+    "id": "L461"
+  },
+  {
+    "name": "Fisherman/Seaman",
+    "id": "L460"
+  },
+  {
+    "name": "Fitter",
+    "id": "L459"
+  },
+  {
+    "name": "Food Service",
+    "id": "L458"
+  },
+  {
+    "name": "Foreman/Crew leader",
+    "id": "L457"
+  },
+  {
+    "name": "Foreman/Shop Foreman",
+    "id": "L456"
+  },
+  {
+    "name": "Forestry",
+    "id": "L455"
+  },
+  {
+    "name": "Foundry Worker",
+    "id": "L454"
+  },
+  {
+    "name": "Furrier",
+    "id": "L453"
+  },
+  {
+    "name": "Gardener/Landscaper",
+    "id": "L452"
+  },
+  {
+    "name": "Glazier",
+    "id": "L451"
+  },
+  {
+    "name": "Grinder",
+    "id": "L450"
+  },
+  {
+    "name": "Grocer",
+    "id": "L449"
+  },
+  {
+    "name": "Helper",
+    "id": "L448"
+  },
+  {
+    "name": "Housekeeper/Maid",
+    "id": "L447"
+  },
+  {
+    "name": "Inspector",
+    "id": "L446"
+  },
+  {
+    "name": "Installer",
+    "id": "L445"
+  },
+  {
+    "name": "Ironworker",
+    "id": "L444"
+  },
+  {
+    "name": "Janitor",
+    "id": "L443"
+  },
+  {
+    "name": "Journeyman",
+    "id": "L442"
+  },
+  {
+    "name": "Laborer",
+    "id": "L441"
+  },
+  {
+    "name": "Lineman",
+    "id": "L440"
+  },
+  {
+    "name": "Lithographer",
+    "id": "L439"
+  },
+  {
+    "name": "Loader",
+    "id": "L438"
+  },
+  {
+    "name": "Locksmith",
+    "id": "L437"
+  },
+  {
+    "name": "Machinist",
+    "id": "L436"
+  },
+  {
+    "name": "Maintenance",
+    "id": "L435"
+  },
+  {
+    "name": "Maintenance/Supervisor",
+    "id": "L434"
+  },
+  {
+    "name": "Mason/Brick/Etc.",
+    "id": "L433"
+  },
+  {
+    "name": "Material Handler",
+    "id": "L432"
+  },
+  {
+    "name": "Mechanic",
+    "id": "L431"
+  },
+  {
+    "name": "Meter Reader",
+    "id": "L430"
+  },
+  {
+    "name": "Mill worker",
+    "id": "L429"
+  },
+  {
+    "name": "Millwright",
+    "id": "L428"
+  },
+  {
+    "name": "Miner",
+    "id": "L427"
+  },
+  {
+    "name": "Mold Maker/Molder/Injection Mold",
+    "id": "L426"
+  },
+  {
+    "name": "Oil Industry/Driller",
+    "id": "L425"
+  },
+  {
+    "name": "Operator",
+    "id": "L424"
+  },
+  {
+    "name": "Operator/Boilermaker",
+    "id": "L423"
+  },
+  {
+    "name": "Operator/Crane Operator",
+    "id": "L422"
+  },
+  {
+    "name": "Operator/Forklift Operator",
+    "id": "L421"
+  },
+  {
+    "name": "Operator/Machine Operator",
+    "id": "L420"
+  },
+  {
+    "name": "Packer",
+    "id": "L419"
+  },
+  {
+    "name": "Painter",
+    "id": "L418"
+  },
+  {
+    "name": "Parts (Auto Etc.)",
+    "id": "L417"
+  },
+  {
+    "name": "Pipe fitter",
+    "id": "L416"
+  },
+  {
+    "name": "Plumber",
+    "id": "L415"
+  },
+  {
+    "name": "Polisher",
+    "id": "L414"
+  },
+  {
+    "name": "Porter",
+    "id": "L413"
+  },
+  {
+    "name": "Press Operator",
+    "id": "L412"
+  },
+  {
+    "name": "Presser",
+    "id": "L411"
+  },
+  {
+    "name": "Printer",
+    "id": "L410"
+  },
+  {
+    "name": "Production",
+    "id": "L409"
+  },
+  {
+    "name": "Repairman",
+    "id": "L408"
+  },
+  {
+    "name": "Roofer",
+    "id": "L407"
+  },
+  {
+    "name": "Sanitation/Exterminator",
+    "id": "L406"
+  },
+  {
+    "name": "Seamstress/Tailor/Handicraft",
+    "id": "L405"
+  },
+  {
+    "name": "Setup man",
+    "id": "L404"
+  },
+  {
+    "name": "Sheet Metal Worker/Steel Worker",
+    "id": "L403"
+  },
+  {
+    "name": "Shipping/Import/Export/Custom",
+    "id": "L402"
+  },
+  {
+    "name": "Sorter",
+    "id": "L401"
+  },
+  {
+    "name": "Toolmaker",
+    "id": "L400"
+  },
+  {
+    "name": "Transportation",
+    "id": "L399"
+  },
+  {
+    "name": "Typesetter",
+    "id": "L398"
+  },
+  {
+    "name": "Upholstery",
+    "id": "L397"
+  },
+  {
+    "name": "Utility",
+    "id": "L396"
+  },
+  {
+    "name": "Waiter/Waitress",
+    "id": "L395"
+  },
+  {
+    "name": "Welder",
+    "id": "L394"
+  },
+  {
+    "name": "Health Services",
+    "id": "H349"
+  },
+  {
+    "name": "Chiropractor",
+    "id": "H348"
+  },
+  {
+    "name": "Dental Assistant",
+    "id": "H347"
+  },
+  {
+    "name": "Dental Hygienist",
+    "id": "H346"
+  },
+  {
+    "name": "Dentist",
+    "id": "H345"
+  },
+  {
+    "name": "Dietician",
+    "id": "H344"
+  },
+  {
+    "name": "Health Care",
+    "id": "H343"
+  },
+  {
+    "name": "Medical Assistant",
+    "id": "H342"
+  },
+  {
+    "name": "Medical Secretary",
+    "id": "H341"
+  },
+  {
+    "name": "Medical Technician",
+    "id": "H340"
+  },
+  {
+    "name": "Medical/Paramedic",
+    "id": "H339"
+  },
+  {
+    "name": "Nurses Aide/Orderly",
+    "id": "H338"
+  },
+  {
+    "name": "Optician",
+    "id": "H337"
+  },
+  {
+    "name": "Optometrist",
+    "id": "H336"
+  },
+  {
+    "name": "Pharmacist/Pharmacy",
+    "id": "H335"
+  },
+  {
+    "name": "Psychologist",
+    "id": "H334"
+  },
+  {
+    "name": "Technician/Lab",
+    "id": "H333"
+  },
+  {
+    "name": "Technician/X-ray",
+    "id": "H332"
+  },
+  {
+    "name": "Therapist",
+    "id": "H331"
+  },
+  {
+    "name": "Therapists/Physical",
+    "id": "H330"
+  },
+  {
+    "name": "Nurse",
+    "id": "H329"
+  },
+  {
+    "name": "Nurse (Registered)",
+    "id": "H328"
+  },
+  {
+    "name": "Nurse/LPN",
+    "id": "H327"
+  },
+  {
+    "name": "Social Worker/Case Worker",
+    "id": "H326"
+  },
+  {
+    "name": "Legal/Paralegal/Assistant",
+    "id": "S299"
+  },
+  {
+    "name": "Legal Secretary",
+    "id": "S298"
+  },
+  {
+    "name": "Secretary",
+    "id": "S297"
+  },
+  {
+    "name": "Typist",
+    "id": "S296"
+  },
+  {
+    "name": "Data Entry/Key Punch",
+    "id": "S295"
+  },
+  {
+    "name": "Homemaker",
+    "id": "P249"
+  },
+  {
+    "name": "Retired",
+    "id": "P248"
+  },
+  {
+    "name": "Retired/Pensioner",
+    "id": "P247"
+  },
+  {
+    "name": "Part Time",
+    "id": "P246"
+  },
+  {
+    "name": "Student",
+    "id": "P245"
+  },
+  {
+    "name": "Volunteer",
+    "id": "P244"
+  },
+  {
+    "name": "Armed Forces",
+    "id": "A199"
+  },
+  {
+    "name": "Army Credit Union Trades",
+    "id": "A198"
+  },
+  {
+    "name": "Navy Credit Union Trades",
+    "id": "A197"
+  },
+  {
+    "name": "Air Force",
+    "id": "A196"
+  },
+  {
+    "name": "National Guard",
+    "id": "A195"
+  },
+  {
+    "name": "Coast Guard",
+    "id": "A194"
+  },
+  {
+    "name": "Marines",
+    "id": "A193"
+  },
+  {
+    "name": "Coach",
+    "id": "I149"
+  },
+  {
+    "name": "Counselor",
+    "id": "I148"
+  },
+  {
+    "name": "Instructor",
+    "id": "I147"
+  },
+  {
+    "name": "Lecturer",
+    "id": "I146"
+  },
+  {
+    "name": "Professor",
+    "id": "I145"
+  },
+  {
+    "name": "Teacher",
+    "id": "I144"
+  },
+  {
+    "name": "Trainer",
+    "id": "I143"
+  },
+  {
+    "name": "Civil Service",
+    "id": "C129"
+  },
+  {
+    "name": "Air Traffic Control",
+    "id": "C128"
+  },
+  {
+    "name": "Civil Service/Government",
+    "id": "C127"
+  },
+  {
+    "name": "Corrections/Probation/Parole",
+    "id": "C126"
+  },
+  {
+    "name": "Court Reporter",
+    "id": "C125"
+  },
+  {
+    "name": "Firefighter",
+    "id": "C124"
+  },
+  {
+    "name": "Judge/Referee",
+    "id": "C123"
+  },
+  {
+    "name": "Mail Carrier/Postal",
+    "id": "C122"
+  },
+  {
+    "name": "Mail/Postmaster",
+    "id": "C121"
+  },
+  {
+    "name": "Police/Trooper",
+    "id": "C120"
+  }
+]

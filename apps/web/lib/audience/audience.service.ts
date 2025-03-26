@@ -8,7 +8,7 @@ import { Database } from '~/lib/database.types';
 
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
-import { getDateRange } from './utils';
+import { getDateRange, mapFilters } from './utils';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
   return new AudienceService(client);
@@ -158,10 +158,10 @@ class AudienceService {
       throw audience.error || job.error;
     }
 
-    filters.segment = intentIds;
-    filters.dateRange = getDateRange(filters.audience.dateRange);
-
-    const { audience: _audience, ...audienceFilters } = filters;
+    const audienceFilters = await this.getAudienceFiltersApiBody({
+      filters,
+      intentIds,
+    });
 
     const response = await fetch(
       `${miscConfig.audienceApiUrl}/audience/enqueue`,
@@ -421,5 +421,22 @@ class AudienceService {
     if (error) {
       throw error;
     }
+  }
+
+  async getAudienceFiltersApiBody({
+    filters,
+    intentIds,
+  }: {
+    filters: z.infer<typeof audienceFiltersFormSchema>;
+    intentIds: string[];
+  }) {
+    filters.segment = intentIds;
+    filters.dateRange = getDateRange(filters.audience.dateRange);
+
+    const { audience: _audience, ...audienceFilters } = filters;
+
+    filters.filters = await mapFilters(audienceFilters.filters);
+
+    return audienceFilters;
   }
 }

@@ -28,27 +28,28 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.profile.married',
-    label: 'Marrie BACKEND',
+    label: 'Married',
   },
   {
     value: 'filters.profile.children',
-    label: 'Children BACKEND',
+    label: 'Children',
   },
   {
     value: 'filters.attributes.marital_status',
-    label: 'Marital Status BACKEND',
+    label: 'Marital Status',
   },
   {
     value: 'filters.attributes.single_parent',
-    label: 'Single Parent BACKEND',
+    label: 'Single Parent',
   },
   {
     value: 'filters.attributes.generations_in_household',
-    label: 'Generations in Household BACKEND',
+    label: 'Generations in Household',
   },
 ] as const;
 
 const fieldOptions: Partial<Record<(typeof familyFields)[number], string[]>> = {
+  'filters.profile.married': ['yes', 'no'],
   'filters.profile.children': ['0', '1', '2', '3', '4', '5', '6'],
   'filters.attributes.marital_status': [
     'inferred married',

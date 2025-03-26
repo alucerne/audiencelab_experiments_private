@@ -12,7 +12,6 @@ import { createCreditsService } from '../credits/credits.service';
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
-import { getDateRange } from './utils';
 
 export const createAudienceAction = enhanceAction(
   async (data) => {
@@ -140,13 +139,18 @@ export const getAudienceByIdAction = enhanceAction(
 
 export const getPreviewAudienceAction = enhanceAction(
   async ({ id, filters }) => {
-    filters.segment = await get4EyesIntentIds({
+    const intentIds = await get4EyesIntentIds({
       keywords: filters.segment,
       audienceType: filters.audience.type,
     });
-    filters.dateRange = getDateRange(filters.audience.dateRange);
 
-    const { audience: _audience, ...audienceFilters } = filters;
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    const audienceFilters = await service.getAudienceFiltersApiBody({
+      filters,
+      intentIds,
+    });
 
     const fullTimestamp = Number(
       `${format(new Date(), 'T')}${Math.floor(Math.random() * 1000)
@@ -239,6 +243,53 @@ export const setAudienceWebhookAction = enhanceAction(
     schema: z.object({
       audienceId: z.string(),
       webhookUrl: z.string().trim().url().nullable(),
+    }),
+  },
+);
+
+export const searchCitiesAction = enhanceAction(
+  async ({ search }) => {
+    const { default: cities } = await import('./filters-mappings/cities.json');
+
+    const filteredCities = cities.filter((city) =>
+      city.toLowerCase().includes(search.toLowerCase()),
+    );
+
+    return filteredCities.slice(0, 20);
+  },
+  {
+    schema: z.object({
+      search: z.string(),
+    }),
+  },
+);
+
+export const searchZipsAction = enhanceAction(
+  async ({ search }) => {
+    const { default: zips } = await import('./filters-mappings/zips.json');
+
+    return zips
+      .filter((zip) => zip.toLowerCase().includes(search.toLowerCase()))
+      .slice(0, 20);
+  },
+  {
+    schema: z.object({
+      search: z.string(),
+    }),
+  },
+);
+
+export const searchBatchZipsAction = enhanceAction(
+  async ({ search: searchTokens }: { search: string[] }) => {
+    const { default: zips } = await import('./filters-mappings/zips.json');
+    const validTokens = searchTokens.filter((token) =>
+      zips.some((zip: string) => zip.toLowerCase() === token.toLowerCase()),
+    );
+    return validTokens;
+  },
+  {
+    schema: z.object({
+      search: z.array(z.string()),
     }),
   },
 );

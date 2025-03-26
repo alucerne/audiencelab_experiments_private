@@ -12,7 +12,6 @@ export const financialFields = [
   'filters.attributes.credit_card_user',
   'filters.attributes.investment',
   'filters.attributes.mortgage_amount',
-  'filters.attributes.mortgage_loan_type',
   'filters.attributes.mortgage_rate_type',
   'filters.attributes.occupation_group',
   'filters.attributes.occupation_type',
@@ -35,7 +34,7 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.profile.incomeRange',
-    label: 'Income Range BACKEND',
+    label: 'Income Range',
   },
   {
     value: 'filters.profile.netWorth',
@@ -43,27 +42,23 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.credit_rating',
-    label: 'Credit Rating BACKEND',
+    label: 'Credit Rating',
   },
   {
     value: 'filters.attributes.credit_range_new_credit',
-    label: 'New Credit Range BACKEND',
+    label: 'New Credit Range',
   },
   {
     value: 'filters.attributes.credit_card_user',
-    label: 'Credit Card User BACKEND',
+    label: 'Credit Card User',
   },
   {
     value: 'filters.attributes.investment',
-    label: 'Investment BACKEND',
+    label: 'Investment',
   },
   {
     value: 'filters.attributes.mortgage_amount',
-    label: 'Mortgage Amount BACKEND',
-  },
-  {
-    value: 'filters.attributes.mortgage_loan_type',
-    label: 'Mortgage Loan Type BACKEND',
+    label: 'Mortgage Amount',
   },
   {
     value: 'filters.attributes.mortgage_rate_type',
@@ -71,15 +66,15 @@ const fieldTypeOptions: Array<{
   },
   {
     value: 'filters.attributes.occupation_group',
-    label: 'Occupation Group BACKEND',
+    label: 'Occupation Group',
   },
   {
     value: 'filters.attributes.occupation_type',
-    label: 'Occupation Type BACKEND',
+    label: 'Occupation Type',
   },
   {
     value: 'filters.attributes.cra_code',
-    label: 'CRA Code BACKEND',
+    label: 'CRA Code',
   },
 ] as const;
 
@@ -119,13 +114,12 @@ const fieldOptions: Partial<
     '650 - 699',
     '600 - 649',
     '550 - 599',
-    '500-549',
+    '500 - 549',
     'under 499',
   ],
   'filters.attributes.credit_range_new_credit': ['low', 'moderate', 'high'],
   'filters.attributes.credit_card_user': ['yes', 'no'],
-  'filters.attributes.investment': ['investor', 'non-investor'],
-  //!mortage fields
+  'filters.attributes.investment': ['investor'],
   'filters.attributes.occupation_group': [
     'professional / technical',
     'administration / managerial',

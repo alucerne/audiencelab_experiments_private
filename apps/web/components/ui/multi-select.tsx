@@ -57,7 +57,9 @@ function Option(props: OptionProps<StringOption>) {
       {...props}
       className="relative rounded px-2 py-1.5 hover:cursor-pointer"
     >
-      <div className="text-accent-foreground text-sm">{props.label}</div>
+      <div className="text-accent-foreground text-sm capitalize">
+        {props.label}
+      </div>
     </components.Option>
   );
 }
@@ -133,7 +135,7 @@ export default function MultiSelect({
         valueContainer: () => 'gap-1.5 flex-wrap',
         singleValue: () => 'leading-7 ml-1 text-foreground',
         multiValue: () =>
-          'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5',
+          'bg-secondary text-accent-foreground rounded items-center px-1.5 gap-1.5 text-[13px] my-0.5 capitalize',
         multiValueLabel: () => 'py-0.5',
         multiValueRemove: () =>
           'border border-transparent hover:bg-destructive/5 hover:text-destructive text-muted-foreground border-muted-foreground hover:border-destructive rounded-md',

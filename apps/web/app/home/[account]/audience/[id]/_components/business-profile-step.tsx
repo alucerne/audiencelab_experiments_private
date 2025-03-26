@@ -42,7 +42,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.seniority"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Seniority BACKEND</FormLabel>
+            <FormLabel>Seniority</FormLabel>
             <FormControl>
               <MultiSelect
                 options={seniorityOptions}
@@ -59,7 +59,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.department"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Departments BACKEND</FormLabel>
+            <FormLabel>Departments</FormLabel>
             <FormControl>
               <MultiSelect
                 options={departmentOptions}
@@ -125,7 +125,7 @@ export default function BusinessProfileStep() {
         name="filters.businessProfile.sic"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>SIC BACKEND</FormLabel>
+            <FormLabel>SIC</FormLabel>
             <FormControl>
               <MultiSelect
                 options={sicOptions}
@@ -192,27 +192,24 @@ export default function BusinessProfileStep() {
   );
 }
 
-const seniorityOptions = ['Cxo', 'Director', 'Manager', 'Staff', 'VP'];
+const seniorityOptions = ['cxo', 'director', 'manager', 'staff', 'vp'];
 
 const departmentOptions = [
-  'Administrative',
-  'Community And Social Services',
-  'Education',
-  'Engineering',
-  'Executive',
-  'Finance',
-  'Government',
-  'Health Services',
-  'Human Resources',
-  'Information Technology',
-  'Legal',
-  'Marketing',
-  'Media And Communications',
-  'Military And Protective Services',
-  'Operations',
-  'Product Management',
-  'Real Estate',
-  'Sales',
+  'administrative',
+  'community and social services',
+  'education',
+  'engineering',
+  'executive',
+  'finance',
+  'government',
+  'health services',
+  'human resources',
+  'information technology',
+  'legal',
+  'media and communications',
+  'military and protective services',
+  'marketing',
+  'operations',
 ];
 
 const employeeCountOptions = [
@@ -750,6 +747,7 @@ const sicOptions = [
   '5075',
   '3751',
   '6351',
+  '1743',
   '0191',
   '5995',
   '3731',
@@ -783,6 +781,10 @@ const sicOptions = [
   '2653',
   '9661',
   '2842',
+  '3499',
+  '3443',
+  '3621',
+  '3317',
   '5148',
   '2022',
   '4725',
@@ -847,6 +849,7 @@ const sicOptions = [
   '3944',
   '4214',
   '3822',
+  '5736',
   '2033',
   '2087',
   '5949',
@@ -926,6 +929,8 @@ const sicOptions = [
   '5551',
   '2064',
   '8422',
+  '5142',
+  '3053',
   '6011',
   '6221',
   '2522',
@@ -961,6 +966,15 @@ const sicOptions = [
   '3821',
   '6289',
   '3448',
+  '5983',
+  '3911',
+  '1793',
+  '3542',
+  '8072',
+  '3411',
+  '5043',
+  '1442',
+  '3844',
   '2085',
   '3446',
   '3355',
@@ -989,6 +1003,9 @@ const sicOptions = [
   '3433',
   '3399',
   '2812',
+  '5162',
+  '3241',
+  '2211',
   '5984',
   '5441',
   '3498',
@@ -1001,6 +1018,9 @@ const sicOptions = [
   '3334',
   '5146',
   '3639',
+  '7216',
+  '2079',
+  '5993',
   '3629',
   '3645',
   '2092',
@@ -1029,6 +1049,9 @@ const sicOptions = [
   '2074',
   '4142',
   '3449',
+  '2992',
+  '4923',
+  '3354',
   '4619',
   '0762',
   '3452',
@@ -1041,6 +1064,7 @@ const sicOptions = [
   '0291',
   '2435',
   '7312',
+  '3341',
   '3715',
   '3315',
   '3143',
