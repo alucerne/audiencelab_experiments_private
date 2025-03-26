@@ -6,7 +6,6 @@ import FilterTable from './filters-table';
 
 export const familyFields = [
   'filters.profile.married',
-  'filters.profile.children',
   'filters.attributes.marital_status',
   'filters.attributes.single_parent',
   'filters.attributes.generations_in_household',
@@ -31,10 +30,6 @@ const fieldTypeOptions: Array<{
     label: 'Married',
   },
   {
-    value: 'filters.profile.children',
-    label: 'Children',
-  },
-  {
     value: 'filters.attributes.marital_status',
     label: 'Marital Status',
   },
@@ -50,7 +45,6 @@ const fieldTypeOptions: Array<{
 
 const fieldOptions: Partial<Record<(typeof familyFields)[number], string[]>> = {
   'filters.profile.married': ['yes', 'no'],
-  'filters.profile.children': ['0', '1', '2', '3', '4', '5', '6'],
   'filters.attributes.marital_status': [
     'inferred married',
     'inferred single',

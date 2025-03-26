@@ -229,6 +229,12 @@ async function mapFiltersAttributes(
     },
   );
 
+  attributes.dwelling_type = attributes.dwelling_type.map((v) => {
+    if (v === 'multi-family') return 'm';
+    if (v === 'single-family') return 's';
+    return v;
+  });
+
   return attributes;
 }
 
