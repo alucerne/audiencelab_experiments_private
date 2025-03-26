@@ -12,7 +12,6 @@ export const financialFields = [
   'filters.attributes.credit_card_user',
   'filters.attributes.investment',
   'filters.attributes.mortgage_amount',
-  'filters.attributes.mortgage_rate_type',
   'filters.attributes.occupation_group',
   'filters.attributes.occupation_type',
   'filters.attributes.cra_code',
@@ -59,10 +58,6 @@ const fieldTypeOptions: Array<{
   {
     value: 'filters.attributes.mortgage_amount',
     label: 'Mortgage Amount',
-  },
-  {
-    value: 'filters.attributes.mortgage_rate_type',
-    label: 'Mortgage Rate Type',
   },
   {
     value: 'filters.attributes.occupation_group',

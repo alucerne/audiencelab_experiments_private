@@ -82,7 +82,6 @@ export const audienceFiltersFormSchema = z.object({
       smoker: z.array(z.string()),
       home_purchase_price: numberRangeSchema,
       home_purchase_year: numberRangeSchema,
-      mortgage_rate_type: z.array(z.string()),
       estimated_home_value: z.array(z.string()),
       mortgage_amount: numberRangeSchema,
       generations_in_household: z.array(z.string()),
@@ -170,7 +169,6 @@ export const audienceFiltersFormDefaultValues = {
         min: null,
         max: null,
       },
-      mortgage_rate_type: [],
       estimated_home_value: [],
       mortgage_amount: {
         min: null,
