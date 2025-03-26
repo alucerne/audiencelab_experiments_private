@@ -72,8 +72,8 @@ async function mapFiltersAttributes(
 
   attributes.education = attributes.education.map((v) => {
     if (v === 'doctorate') return 'D';
-    if (v === 'master’s') return 'C';
-    if (v === 'bachelor’s') return 'B';
+    if (v === "master's") return 'C';
+    if (v === "bachelor's") return 'B';
     if (v === 'high school') return 'A';
     return v;
   });
