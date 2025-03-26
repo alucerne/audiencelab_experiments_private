@@ -1,0 +1,650 @@
+[
+  {
+    "name": "Afghani",
+    "id": "C1"
+  },
+  {
+    "name": "Bengladesh",
+    "id": "C2"
+  },
+  {
+    "name": "Indian",
+    "id": "C3"
+  },
+  {
+    "name": "Pakistani",
+    "id": "C4"
+  },
+  {
+    "name": "Sri Lankan",
+    "id": "C5"
+  },
+  {
+    "name": "Nepal",
+    "id": "C6"
+  },
+  {
+    "name": "Telugan",
+    "id": "C7"
+  },
+  {
+    "name": "Algerian",
+    "id": "D0"
+  },
+  {
+    "name": "Arab",
+    "id": "D1"
+  },
+  {
+    "name": "Bahrain",
+    "id": "D2"
+  },
+  {
+    "name": "Egyptian",
+    "id": "D3"
+  },
+  {
+    "name": "Greek",
+    "id": "D4"
+  },
+  {
+    "name": "Iraqi",
+    "id": "D5"
+  },
+  {
+    "name": "Kurdish",
+    "id": "D6"
+  },
+  {
+    "name": "Jewish",
+    "id": "D7"
+  },
+  {
+    "name": "Kuwaiti",
+    "id": "D8"
+  },
+  {
+    "name": "Libyan",
+    "id": "D9"
+  },
+  {
+    "name": "Macedonian",
+    "id": "DE"
+  },
+  {
+    "name": "Moroccan",
+    "id": "DF"
+  },
+  {
+    "name": "Qatar",
+    "id": "DG"
+  },
+  {
+    "name": "Persian",
+    "id": "DH"
+  },
+  {
+    "name": "Saudi",
+    "id": "DJ"
+  },
+  {
+    "name": "Syrian",
+    "id": "DK"
+  },
+  {
+    "name": "Tunisian",
+    "id": "DL"
+  },
+  {
+    "name": "Turkish",
+    "id": "DM"
+  },
+  {
+    "name": "Yemeni",
+    "id": "DN"
+  },
+  {
+    "name": "Maltese",
+    "id": "DS"
+  },
+  {
+    "name": "Native American",
+    "id": "KS"
+  },
+  {
+    "name": "African American 1",
+    "id": "M0"
+  },
+  {
+    "name": "Angolan",
+    "id": "M1"
+  },
+  {
+    "name": "Ashanti",
+    "id": "M2"
+  },
+  {
+    "name": "Basotho",
+    "id": "M3"
+  },
+  {
+    "name": "Benin",
+    "id": "M4"
+  },
+  {
+    "name": "Bhutanese",
+    "id": "M5"
+  },
+  {
+    "name": "Burkina Faso",
+    "id": "M6"
+  },
+  {
+    "name": "Burundi",
+    "id": "M7"
+  },
+  {
+    "name": "Cameroon",
+    "id": "M8"
+  },
+  {
+    "name": "Cent Afric Rep",
+    "id": "M9"
+  },
+  {
+    "name": "Chad",
+    "id": "MA"
+  },
+  {
+    "name": "Comoros",
+    "id": "MB"
+  },
+  {
+    "name": "Congo",
+    "id": "MC"
+  },
+  {
+    "name": "Equat Guinea",
+    "id": "MD"
+  },
+  {
+    "name": "Ethiopian",
+    "id": "ME"
+  },
+  {
+    "name": "Gabon",
+    "id": "MF"
+  },
+  {
+    "name": "Gambia",
+    "id": "MG"
+  },
+  {
+    "name": "Ghana",
+    "id": "MH"
+  },
+  {
+    "name": "Guinea-Bissea",
+    "id": "MJ"
+  },
+  {
+    "name": "Guyana",
+    "id": "MK"
+  },
+  {
+    "name": "Ivory Coast",
+    "id": "ML"
+  },
+  {
+    "name": "Kenya",
+    "id": "MM"
+  },
+  {
+    "name": "Lesotho",
+    "id": "MN"
+  },
+  {
+    "name": "Liberian",
+    "id": "MO"
+  },
+  {
+    "name": "Madagascar",
+    "id": "MP"
+  },
+  {
+    "name": "Malawi",
+    "id": "MQ"
+  },
+  {
+    "name": "Mali",
+    "id": "MR"
+  },
+  {
+    "name": "Namibian",
+    "id": "MS"
+  },
+  {
+    "name": "Nigerian",
+    "id": "MT"
+  },
+  {
+    "name": "Mozambique",
+    "id": "MU"
+  },
+  {
+    "name": "Papua New Guinea",
+    "id": "MV"
+  },
+  {
+    "name": "Ruandan",
+    "id": "MW"
+  },
+  {
+    "name": "Senegalese",
+    "id": "MX"
+  },
+  {
+    "name": "Siere Leone",
+    "id": "MY"
+  },
+  {
+    "name": "Somalia",
+    "id": "MZ"
+  },
+  {
+    "name": "Danish",
+    "id": "N1"
+  },
+  {
+    "name": "Dutch",
+    "id": "N2"
+  },
+  {
+    "name": "Finnish",
+    "id": "N3"
+  },
+  {
+    "name": "Icelandic",
+    "id": "N4"
+  },
+  {
+    "name": "Norwegian",
+    "id": "N5"
+  },
+  {
+    "name": "Scotch",
+    "id": "N6"
+  },
+  {
+    "name": "Swedish",
+    "id": "N7"
+  },
+  {
+    "name": "Welsh",
+    "id": "N8"
+  },
+  {
+    "name": "Aleut",
+    "id": "R1"
+  },
+  {
+    "name": "Myanmar",
+    "id": "R2"
+  },
+  {
+    "name": "Chinese",
+    "id": "R3"
+  },
+  {
+    "name": "Fiji",
+    "id": "R4"
+  },
+  {
+    "name": "Hawaiian",
+    "id": "R5"
+  },
+  {
+    "name": "Indonesian",
+    "id": "R6"
+  },
+  {
+    "name": "Japanese",
+    "id": "R7"
+  },
+  {
+    "name": "Khmer",
+    "id": "R8"
+  },
+  {
+    "name": "Korean",
+    "id": "R9"
+  },
+  {
+    "name": "Laotian",
+    "id": "RA"
+  },
+  {
+    "name": "Malay",
+    "id": "RB"
+  },
+  {
+    "name": "Mongolian",
+    "id": "RC"
+  },
+  {
+    "name": "Other Asian",
+    "id": "RD"
+  },
+  {
+    "name": "Filipino",
+    "id": "RE"
+  },
+  {
+    "name": "Thai",
+    "id": "RF"
+  },
+  {
+    "name": "Tibetan",
+    "id": "RG"
+  },
+  {
+    "name": "Vietnamese",
+    "id": "RH"
+  },
+  {
+    "name": "Maldivian",
+    "id": "RJ"
+  },
+  {
+    "name": "Nauruan",
+    "id": "RK"
+  },
+  {
+    "name": "New Zealand",
+    "id": "RM"
+  },
+  {
+    "name": "Australian",
+    "id": "RP"
+  },
+  {
+    "name": "Vanuatuan",
+    "id": "RQ"
+  },
+  {
+    "name": "Pili",
+    "id": "RS"
+  },
+  {
+    "name": "Belgian",
+    "id": "T1"
+  },
+  {
+    "name": "Basque",
+    "id": "T2"
+  },
+  {
+    "name": "English",
+    "id": "T3"
+  },
+  {
+    "name": "French",
+    "id": "T4"
+  },
+  {
+    "name": "German",
+    "id": "T5"
+  },
+  {
+    "name": "Irish",
+    "id": "T6"
+  },
+  {
+    "name": "Italian",
+    "id": "T7"
+  },
+  {
+    "name": "Portuguese",
+    "id": "T8"
+  },
+  {
+    "name": "Hispanic",
+    "id": "T9"
+  },
+  {
+    "name": "Liechtenstein",
+    "id": "TE"
+  },
+  {
+    "name": "Luxembourgian",
+    "id": "TF"
+  },
+  {
+    "name": "Swiss",
+    "id": "TH"
+  },
+  {
+    "name": "Manx",
+    "id": "TJ"
+  },
+  {
+    "name": "Albanian",
+    "id": "U0"
+  },
+  {
+    "name": "Armenian",
+    "id": "U1"
+  },
+  {
+    "name": "Austrian",
+    "id": "U2"
+  },
+  {
+    "name": "Azerb",
+    "id": "U3"
+  },
+  {
+    "name": "Bosnian",
+    "id": "U4"
+  },
+  {
+    "name": "Bulgarian",
+    "id": "U5"
+  },
+  {
+    "name": "Byelorussian",
+    "id": "U6"
+  },
+  {
+    "name": "Chechnian",
+    "id": "U7"
+  },
+  {
+    "name": "Croatian",
+    "id": "U8"
+  },
+  {
+    "name": "Czech",
+    "id": "U9"
+  },
+  {
+    "name": "Estonian",
+    "id": "UA"
+  },
+  {
+    "name": "Georgian",
+    "id": "UB"
+  },
+  {
+    "name": "Hungarian",
+    "id": "UC"
+  },
+  {
+    "name": "Kazakh",
+    "id": "UD"
+  },
+  {
+    "name": "Kirghiz",
+    "id": "UE"
+  },
+  {
+    "name": "Kyrgyzstani",
+    "id": "UF"
+  },
+  {
+    "name": "Latvian",
+    "id": "UG"
+  },
+  {
+    "name": "Lithuanian",
+    "id": "UH"
+  },
+  {
+    "name": "Moldavian",
+    "id": "UI"
+  },
+  {
+    "name": "Polish",
+    "id": "UJ"
+  },
+  {
+    "name": "Romanian",
+    "id": "UK"
+  },
+  {
+    "name": "Russian",
+    "id": "UL"
+  },
+  {
+    "name": "Serbian",
+    "id": "UM"
+  },
+  {
+    "name": "Slovakian",
+    "id": "UN"
+  },
+  {
+    "name": "Slovenian",
+    "id": "UP"
+  },
+  {
+    "name": "Tajikistan",
+    "id": "UQ"
+  },
+  {
+    "name": "Tajik",
+    "id": "UR"
+  },
+  {
+    "name": "Turkmenistan",
+    "id": "UT"
+  },
+  {
+    "name": "Ukrainian",
+    "id": "UV"
+  },
+  {
+    "name": "Uzbekistani",
+    "id": "UW"
+  },
+  {
+    "name": "South African",
+    "id": "W0"
+  },
+  {
+    "name": "Surinam",
+    "id": "W1"
+  },
+  {
+    "name": "Sudanese",
+    "id": "W2"
+  },
+  {
+    "name": "Swaziland",
+    "id": "W3"
+  },
+  {
+    "name": "Tanzanian",
+    "id": "W4"
+  },
+  {
+    "name": "Togo",
+    "id": "W5"
+  },
+  {
+    "name": "Tonga",
+    "id": "W6"
+  },
+  {
+    "name": "Ugandan",
+    "id": "W7"
+  },
+  {
+    "name": "Xhosa",
+    "id": "W8"
+  },
+  {
+    "name": "Zaire",
+    "id": "W9"
+  },
+  {
+    "name": "Zambian",
+    "id": "WA"
+  },
+  {
+    "name": "Zimbabwe",
+    "id": "WB"
+  },
+  {
+    "name": "Zulu",
+    "id": "WC"
+  },
+  {
+    "name": "Djibouti",
+    "id": "WE"
+  },
+  {
+    "name": "Guinean",
+    "id": "WF"
+  },
+  {
+    "name": "Mauritania",
+    "id": "WG"
+  },
+  {
+    "name": "Niger",
+    "id": "WH"
+  },
+  {
+    "name": "Seychelles",
+    "id": "WJ"
+  },
+  {
+    "name": "Western Samoa",
+    "id": "WK"
+  },
+  {
+    "name": "African American 2",
+    "id": "WL"
+  },
+  {
+    "name": "Botswanian",
+    "id": "WM"
+  },
+  {
+    "name": "Hausa",
+    "id": "WN"
+  },
+  {
+    "name": "Caribbean African American",
+    "id": "WP"
+  },
+  {
+    "name": "Swahili",
+    "id": "WS"
+  },
+  {
+    "name": "Multi-Ethnic",
+    "id": "XX"
+  }
+]

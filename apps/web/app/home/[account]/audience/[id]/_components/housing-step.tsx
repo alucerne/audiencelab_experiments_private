@@ -10,11 +10,6 @@ export const housingFields = [
   'filters.attributes.home_year_built',
   'filters.attributes.home_purchase_price',
   'filters.attributes.home_purchase_year',
-  'filters.attributes.home_heat',
-  'filters.attributes.home_swimming_pool',
-  'filters.attributes.home_aircon',
-  'filters.attributes.home_sewer',
-  'filters.attributes.home_water',
   'filters.attributes.estimated_home_value',
   'filters.attributes.sales_transaction_type',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
@@ -35,7 +30,7 @@ const fieldTypeOptions: Array<{
 }> = [
   {
     value: 'filters.profile.homeowner',
-    label: 'Homeowner Status BACKEND',
+    label: 'Homeowner Status',
   },
   {
     value: 'filters.attributes.dwelling_type',
@@ -54,28 +49,8 @@ const fieldTypeOptions: Array<{
     label: 'Purchase Year',
   },
   {
-    value: 'filters.attributes.home_heat',
-    label: 'Heating Type BACKEND',
-  },
-  {
-    value: 'filters.attributes.home_swimming_pool',
-    label: 'Swimming Pool BACKEND',
-  },
-  {
-    value: 'filters.attributes.home_aircon',
-    label: 'Air Conditioning BACKEND',
-  },
-  {
-    value: 'filters.attributes.home_sewer',
-    label: 'Sewer Type BACKEND',
-  },
-  {
-    value: 'filters.attributes.home_water',
-    label: 'Water Type',
-  },
-  {
     value: 'filters.attributes.estimated_home_value',
-    label: 'Estimated Home Value BACKEND',
+    label: 'Estimated Home Value',
   },
   {
     value: 'filters.attributes.sales_transaction_type',

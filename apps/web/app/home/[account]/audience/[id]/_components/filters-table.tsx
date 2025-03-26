@@ -310,18 +310,28 @@ function AddFieldValueDialog<
 
     const values = form.getValues(selectedField.value);
 
-    toast.success(
-      `Added ${selectedField.label}: ${
-        Array.isArray(values)
-          ? values
-              .map((value) => {
-                const valueStr = String(value);
-                return valueStr.charAt(0).toUpperCase() + valueStr.slice(1);
-              })
-              .join(', ')
-          : formatNumberRange(values as NumberRange)
-      }`,
-    );
+    const isEmptyNumberRange =
+      values &&
+      typeof values === 'object' &&
+      'min' in values &&
+      'max' in values &&
+      values.min === null &&
+      values.max === null;
+
+    if (!isEmptyNumberRange) {
+      toast.success(
+        `Added ${selectedField.label}: ${
+          Array.isArray(values)
+            ? values
+                .map((value) => {
+                  const valueStr = String(value);
+                  return valueStr.charAt(0).toUpperCase() + valueStr.slice(1);
+                })
+                .join(', ')
+            : formatNumberRange(values as NumberRange)
+        }`,
+      );
+    }
 
     setDialogOpen(false);
     setSelectedField(null);

@@ -9,12 +9,17 @@ import {
   FormMessage,
 } from '@kit/ui/form';
 
-import CreatableInput from '~/components/ui/creatable-input';
+import AsyncMultiSelect from '~/components/ui/async-multi-select';
 import MultiSelect from '~/components/ui/multi-select';
 import {
   AudienceFiltersFormValues,
   audienceFiltersFormSchema,
 } from '~/lib/audience/schema/audience-filters-form.schema';
+import {
+  searchBatchZipsAction,
+  searchCitiesAction,
+  searchZipsAction,
+} from '~/lib/audience/server-actions';
 
 export const locationFields = [
   'filters.city',
@@ -33,11 +38,13 @@ export default function LocationStep() {
         name="filters.city"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Cities BACKEND</FormLabel>
+            <FormLabel>Cities</FormLabel>
             <FormControl>
-              <CreatableInput
+              <AsyncMultiSelect
                 value={field.value}
-                onChange={(newValue) => field.onChange(newValue)}
+                onChange={(selected) => field.onChange(selected)}
+                searchAction={(search) => searchCitiesAction({ search })}
+                debounceTime={500}
               />
             </FormControl>
             <FormMessage />
@@ -49,7 +56,7 @@ export default function LocationStep() {
         name="filters.state"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>States BACKEND</FormLabel>
+            <FormLabel>States</FormLabel>
             <FormControl>
               <MultiSelect
                 options={states}
@@ -66,16 +73,17 @@ export default function LocationStep() {
         name="filters.zip"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Zip Codes BACKEND</FormLabel>
+            <FormLabel>Zip Codes</FormLabel>
             <FormControl>
-              <CreatableInput
-                value={field.value.map(String)}
-                onChange={(newValue) => {
-                  const numeric = newValue
-                    .map((v) => Number(v.trim()))
-                    .filter((n) => !Number.isNaN(n));
-                  field.onChange(numeric);
-                }}
+              <AsyncMultiSelect
+                value={field.value}
+                onChange={(selected) => field.onChange(selected)}
+                searchAction={(search) => searchZipsAction({ search })}
+                batchSearchAction={(searchTerms) =>
+                  searchBatchZipsAction({ search: searchTerms })
+                }
+                debounceTime={500}
+                placeholder="Type to search, or enter multiple zip codes separated by commas..."
               />
             </FormControl>
             <FormMessage />

@@ -68,6 +68,7 @@ export default function AudienceStep({
   const b2b = watch('audience.b2b');
 
   const previousAudienceTypeRef = useRef(audienceType);
+  const previousB2BRef = useRef(b2b);
 
   useEffect(() => {
     if (previousAudienceTypeRef.current !== audienceType) {
@@ -77,6 +78,13 @@ export default function AudienceStep({
       previousAudienceTypeRef.current = audienceType;
     }
   }, [audienceType, resetField]);
+
+  useEffect(() => {
+    if (previousB2BRef.current !== b2b) {
+      resetField('segment');
+      previousB2BRef.current = b2b;
+    }
+  }, [b2b, resetField]);
 
   const searchWithBusinessType = useCallback(
     (search: string) =>

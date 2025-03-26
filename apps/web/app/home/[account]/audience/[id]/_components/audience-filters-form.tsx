@@ -14,7 +14,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
 import { format, subDays } from 'date-fns';
 import {
-  Activity,
   AlertCircle,
   Building2,
   CalendarDays,
@@ -71,7 +70,6 @@ import DateStep, { dateFields } from './date-step';
 import FamilyStep, { familyFields } from './family-step';
 import FinancialStep, { financialFields } from './financial-step';
 import HousingStep, { housingFields } from './housing-step';
-import LifestyleStep, { lifestyleFields } from './lifestyle-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PreviewAudienceTable from './preview-audience-table';
@@ -157,14 +155,6 @@ export default function AudienceFiltersForm({
       icon: <User />,
       component: <PersonalStep />,
       fields: personalFields,
-    },
-    {
-      label: 'Lifestyle',
-      description:
-        'What lifestyle characteristics define your target audience?',
-      icon: <Activity />,
-      component: <LifestyleStep />,
-      fields: lifestyleFields,
     },
     {
       label: 'Family',
@@ -253,7 +243,6 @@ export default function AudienceFiltersForm({
     isIdle,
     isPending,
     isError,
-    error,
   } = useMutation({
     mutationFn: async () => {
       return await getPreviewAudienceAction({ id, filters: form.getValues() });
@@ -483,9 +472,8 @@ export default function AudienceFiltersForm({
               Preview Generation Failed
             </h3>
             <p className="text-destructive mb-6 max-w-md">
-              {error instanceof Error
-                ? error.message
-                : 'We encountered an issue while generating your audience preview. Please try adjusting your filters or try again later.'}
+              An error occurred while generating the audience preview. Please
+              try again.
             </p>
             <Button
               type="button"
