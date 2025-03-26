@@ -53,7 +53,7 @@ async function mapFiltersAttributes(
     if (v === '650 - 699') return 'D';
     if (v === '600 - 649') return 'E';
     if (v === '550 - 599') return 'F';
-    if (v === '500-549') return 'G';
+    if (v === '500 - 549') return 'G';
     if (v === 'under 499') return 'H';
     return v;
   });
