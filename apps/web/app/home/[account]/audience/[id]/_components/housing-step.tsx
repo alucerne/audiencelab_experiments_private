@@ -11,7 +11,6 @@ export const housingFields = [
   'filters.attributes.home_purchase_price',
   'filters.attributes.home_purchase_year',
   'filters.attributes.estimated_home_value',
-  'filters.attributes.sales_transaction_type',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 export default function HousingStep() {
@@ -51,10 +50,6 @@ const fieldTypeOptions: Array<{
   {
     value: 'filters.attributes.estimated_home_value',
     label: 'Estimated Home Value',
-  },
-  {
-    value: 'filters.attributes.sales_transaction_type',
-    label: 'Sales Transaction Type',
   },
 ];
 
