@@ -386,7 +386,7 @@ function AddFieldValueDialog<
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-w-md"
+        className="max-h-[85vh] max-w-md overflow-y-auto"
       >
         <DialogHeader>
           <DialogTitle>Add Filter</DialogTitle>
