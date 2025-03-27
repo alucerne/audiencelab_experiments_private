@@ -180,7 +180,7 @@ export default function PreviewAudienceTable({
           </TableBody>
         </table>
       </div>
-      <div className="bg-muted border-muted-foreground/20 flex items-center justify-between border-t px-4 py-3">
+      <div className="bg-muted border-muted-foreground/20 flex items-center justify-between border-t px-4 py-2.5">
         <div className="text-sm font-medium whitespace-nowrap">
           <span className="font-semibold">
             {previewDataCount.toLocaleString()}
