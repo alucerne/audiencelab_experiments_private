@@ -173,6 +173,7 @@ class AudienceService {
           jobId: job.data.id,
           audienceId,
           accountId,
+          webhook_url: audience.data.webhook_url,
         }),
       },
     );
