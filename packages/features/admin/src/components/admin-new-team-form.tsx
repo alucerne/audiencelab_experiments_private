@@ -2,6 +2,8 @@
 
 import { useTransition } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -31,6 +33,7 @@ export default function AdminNewTeamForm({
 }: {
   redirectTo: string;
 }) {
+  const router = useRouter();
   const [pending, startTransition] = useTransition();
 
   const form = useForm<z.infer<typeof AdminNewTeamFormSchema>>({
@@ -44,21 +47,30 @@ export default function AdminNewTeamForm({
       max_custom_interests: 1,
       monthly_enrichment_limit: 1,
       user_email: '',
-      user_name: '',
       user_team_name: '',
       redirect_to: redirectTo,
     },
   });
 
   function onSubmit(values: z.infer<typeof AdminNewTeamFormSchema>) {
+    if (!values.user_team_name) {
+      values.user_team_name = `${values.user_email.split('@')[0]}'s Team`;
+    }
     startTransition(() => {
       toast.promise(createNewTeamAction(values), {
         loading: 'Creating team and sending invite to user...',
-        success: 'Team created and invite sent',
+        success: () => {
+          router.push('/admin');
+          return 'Team created and invite sent';
+        },
         error: 'Failed to create team',
       });
     });
   }
+
+  const emailValue = form.watch('user_email');
+  const emailPrefix = emailValue?.split('@')[0] || '';
+  const teamPlaceholder = emailPrefix ? `${emailPrefix}'s Team` : '';
 
   return (
     <Form {...form}>
@@ -92,25 +104,12 @@ export default function AdminNewTeamForm({
             />
             <FormField
               control={form.control}
-              name="user_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
               name="user_team_name"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Team Name</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} placeholder={teamPlaceholder} />
                   </FormControl>
                   <FormDescription>
                     This will be the user&apos;s initial team name
