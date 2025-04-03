@@ -194,10 +194,12 @@ export function AccountSelector({
               <If condition={accounts.length > 0}>
                 <CommandGroup
                   heading={
-                    <Trans
-                      i18nKey={'teams:yourTeams'}
-                      values={{ teamsCount: accounts.length }}
-                    />
+                    <div className="pb-1">
+                      <Trans
+                        i18nKey={'teams:yourTeams'}
+                        values={{ teamsCount: accounts.length }}
+                      />
+                    </div>
                   }
                 >
                   {(accounts ?? []).map((account) => (
@@ -206,7 +208,7 @@ export function AccountSelector({
                       data-name={account.label}
                       data-slug={account.value}
                       className={cn(
-                        'group my-1 flex justify-between transition-colors',
+                        'group flex justify-between transition-colors',
                         {
                           ['bg-muted']: value === account.value,
                         },
@@ -249,9 +251,8 @@ export function AccountSelector({
             </CommandList>
           </Command>
 
-          <Separator />
-
           <If condition={features.enableTeamCreation}>
+            <Separator />
             <div className={'p-1'}>
               <Button
                 data-test={'create-team-account-trigger'}
