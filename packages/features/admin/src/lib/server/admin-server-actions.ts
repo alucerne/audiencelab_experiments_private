@@ -16,6 +16,7 @@ import {
   ReactivateUserSchema,
 } from './schema/admin-actions.schema';
 import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
+import { AdminNewTeamFormSchema } from './schema/admin-new-team-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { adminAction } from './utils/admin-action';
@@ -114,7 +115,7 @@ export const deleteUserAction = adminAction(
 
       revalidateAdmin();
 
-      return redirect('/admin/accounts');
+      return redirect('/admin/users');
     },
     {
       schema: DeleteUserSchema,
@@ -143,7 +144,7 @@ export const deleteAccountAction = adminAction(
 
       revalidateAdmin();
 
-      return redirect('/admin/accounts');
+      return redirect('/admin/users');
     },
     {
       schema: DeleteAccountSchema,
@@ -186,5 +187,132 @@ export const updateTeamPermissionsAction = enhanceAction(
   },
   {
     schema: AdminCreditsFormSchema,
+  },
+);
+
+export const createNewTeamAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const logger = await getLogger();
+
+    logger.info(
+      {
+        name: 'signup',
+        email: data.user_email,
+      },
+      'Inviting user from signup ...',
+    );
+
+    const { data: userData, error } =
+      await adminClient.auth.admin.inviteUserByEmail(data.user_email, {
+        redirectTo: data.redirect_to,
+      });
+
+    if (error) {
+      logger.error(
+        {
+          name: 'signup',
+          error,
+          email: data.user_email,
+        },
+        `Failed to invite user from signup`,
+      );
+
+      throw new Error('Failed to invite user');
+    }
+
+    logger.info(
+      {
+        email: data.user_email,
+      },
+      `Invited user from signup. Creating team with permissions...`,
+    );
+
+    const { error: teamError, data: teamData } = await adminClient
+      .from('accounts')
+      .insert({
+        name: data.user_team_name,
+        is_personal_account: false,
+        primary_owner_user_id: userData.user.id,
+      })
+      .select()
+      .single();
+
+    if (teamError) {
+      logger.error(
+        {
+          error: teamError,
+          name: 'signup',
+          email: data.user_email,
+          account_name: data.user_team_name,
+        },
+        `Error creating team account`,
+      );
+
+      throw new Error('Error creating team account');
+    } else {
+      console.log('teamData', teamData);
+
+      logger.info(
+        {
+          name: 'signup',
+          email: data.user_email,
+          account_name: data.user_team_name,
+        },
+        `Team account created successfully`,
+      );
+    }
+
+    const { data: role, error: roleError } = await adminClient.rpc(
+      'get_upper_system_role',
+    );
+
+    if (roleError) {
+      logger.error(
+        {
+          error: roleError,
+          name: 'signup',
+          email: data.user_email,
+          account_name: data.user_team_name,
+        },
+        `Error getting role for user`,
+      );
+      throw new Error('Error getting role for user');
+    }
+
+    await adminClient.from('accounts_memberships').insert({
+      account_id: teamData.id,
+      user_id: userData.user.id,
+      account_role: role,
+    });
+
+    logger.info(
+      {
+        name: 'signup',
+        email: data.user_email,
+        account_name: data.user_team_name,
+      },
+      `User invited and team created successfully`,
+    );
+
+    await adminClient
+      .from('credits')
+      .update({
+        max_audience_lists: data.max_audience_lists,
+        max_custom_interests: data.max_custom_interests,
+        audience_size_limit: data.audience_size_limit,
+        enrichment_size_limit: data.enrichment_size_limit,
+        monthly_enrichment_limit: data.monthly_enrichment_limit,
+        b2b_access: data.b2b_access,
+        intent_access: data.intent_access,
+      })
+      .eq('account_id', teamData.id);
+
+    revalidatePath('/admin', 'page');
+    revalidatePath('/admin/users', 'page');
+  },
+  {
+    schema: AdminNewTeamFormSchema,
   },
 );

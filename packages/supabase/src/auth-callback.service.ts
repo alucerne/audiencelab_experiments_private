@@ -75,6 +75,7 @@ class AuthCallbackService {
     searchParams.delete('token_hash');
     searchParams.delete('type');
     searchParams.delete('next');
+    searchParams.delete('callback');
 
     // if we have a next path, we redirect to that path
     if (nextPath) {

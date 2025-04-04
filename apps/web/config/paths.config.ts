@@ -7,6 +7,7 @@ const PathsSchema = z.object({
     verifyMfa: z.string().min(1),
     callback: z.string().min(1),
     passwordReset: z.string().min(1),
+    setPassword: z.string().min(1),
     passwordUpdate: z.string().min(1),
   }),
   app: z.object({
@@ -33,6 +34,7 @@ const pathsConfig = PathsSchema.parse({
     verifyMfa: '/auth/verify',
     callback: '/auth/callback',
     passwordReset: '/auth/password-reset',
+    setPassword: '/set-password',
     passwordUpdate: '/update-password',
   },
   app: {
