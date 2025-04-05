@@ -2,8 +2,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
 import { Tables } from '@kit/supabase/database';
+import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
 
-import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
 import StatusBadge from '~/components/ui/status-badge';
 
 import EnrichmentTableActions from './actions';

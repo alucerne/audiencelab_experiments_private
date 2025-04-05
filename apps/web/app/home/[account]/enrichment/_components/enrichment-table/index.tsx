@@ -20,6 +20,10 @@ import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
+  DataTablePagination,
+  DataTableToolbar,
+} from '@kit/ui/data-table-utils';
+import {
   Table,
   TableBody,
   TableCell,
@@ -29,8 +33,6 @@ import {
 } from '@kit/ui/table';
 import { cn } from '@kit/ui/utils';
 
-import { DataTablePagination } from '~/components/ui/data-table/data-table-pagination';
-import { DataTableToolbar } from '~/components/ui/data-table/data-table-toolbar';
 import pathsConfig from '~/config/paths.config';
 import { Tables } from '~/lib/database.types';
 

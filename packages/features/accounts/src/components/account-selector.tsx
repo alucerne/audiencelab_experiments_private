@@ -206,7 +206,7 @@ export function AccountSelector({
                       data-name={account.label}
                       data-slug={account.value}
                       className={cn(
-                        'group my-1 flex justify-between transition-colors',
+                        'group my-0.5 flex justify-between transition-colors',
                         {
                           ['bg-muted']: value === account.value,
                         },
@@ -249,9 +249,8 @@ export function AccountSelector({
             </CommandList>
           </Command>
 
-          <Separator />
-
           <If condition={features.enableTeamCreation}>
+            <Separator />
             <div className={'p-1'}>
               <Button
                 data-test={'create-team-account-trigger'}

@@ -1,7 +1,8 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
-import { DataTableColumnHeader } from '~/components/ui/data-table/data-table-column-header';
+import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
+
 import StatusBadge from '~/components/ui/status-badge';
 import { AudienceList } from '~/lib/audience/audience.service';
 

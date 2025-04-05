@@ -1,7 +1,5 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
 import {
   FilterFn,
   flexRender,
@@ -14,8 +12,6 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-import { useSupabase } from '@kit/supabase/hooks/use-supabase';
-import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import {
   DataTablePagination,
   DataTableToolbar,
@@ -29,92 +25,33 @@ import {
   TableRow,
 } from '@kit/ui/table';
 
-import { AudienceList } from '~/lib/audience/audience.service';
-import { getAudienceByIdAction } from '~/lib/audience/server-actions';
-import { Database } from '~/lib/database.types';
+import { SignupLinkData } from '../../lib/server/services/admin-signup-links.service';
+import CreateCodeDialog from './create-code-dialog';
+import { getColumns } from './table-columns';
 
-import AddAudienceDialog from '../add-audience-dialog';
-import { columns } from './columns';
-
-const nameIdFilterFn: FilterFn<AudienceList> = (
+const nameIdFilterFn: FilterFn<SignupLinkData> = (
   row,
   _,
   filterValue: string,
 ) => {
-  const fullName = row.original.name.toLowerCase();
+  const code = row.original.code.toLowerCase();
   const searchText = filterValue.toLowerCase();
 
-  return fullName.includes(searchText);
+  return code.includes(searchText);
 };
 
-export default function AudienceTable({
-  audience: initialAudience,
-  canCreate,
+export default function SignupLinksTable({
+  signupLinks,
+  signupUrl,
 }: {
-  audience: AudienceList[];
-  canCreate: boolean;
+  signupLinks: SignupLinkData[];
+  signupUrl: string;
 }) {
-  const [audience, setAudience] = useState(initialAudience || []);
-  const {
-    account: { id: accountId },
-  } = useTeamAccountWorkspace();
-  const client = useSupabase();
+  const columns = getColumns(signupUrl);
 
-  useEffect(() => {
-    if (initialAudience) {
-      setAudience(initialAudience);
-    }
-
-    const subscription = client
-      .channel(`enqueue-job-channel-${accountId}`)
-      .on<Database['public']['Tables']['enqueue_job']['Row']>(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'enqueue_job',
-          filter: `account_id=eq.${accountId}`,
-        },
-        async (payload) => {
-          if (
-            payload.eventType === 'INSERT' ||
-            payload.eventType === 'UPDATE'
-          ) {
-            try {
-              const updatedAudience = await getAudienceByIdAction({
-                id: payload.new.audience_id,
-              });
-
-              if (updatedAudience && updatedAudience.latest_job) {
-                setAudience((current) =>
-                  current.map((item) => {
-                    if (item.id === payload.new.audience_id) {
-                      return {
-                        ...updatedAudience,
-                        latest_job:
-                          updatedAudience.latest_job || item.latest_job,
-                      };
-                    }
-                    return item;
-                  }),
-                );
-              }
-            } catch (error) {
-              console.error('Error updating audience:', error);
-            }
-          }
-        },
-      )
-      .subscribe();
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [initialAudience, client, accountId]);
-
-  const table = useReactTable<AudienceList>({
-    data: audience,
-    columns: columns,
+  const table = useReactTable<SignupLinkData>({
+    data: signupLinks,
+    columns,
     initialState: {
       sorting: [{ id: 'created_at', desc: true }],
       globalFilter: '',
@@ -133,9 +70,9 @@ export default function AudienceTable({
     <div className="flex flex-col space-y-4">
       <DataTableToolbar
         table={table}
-        dataName="Audience List"
-        searchPlaceholder="Search by name..."
-        actions={<AddAudienceDialog disabled={!canCreate} />}
+        dataName="Signup Link"
+        searchPlaceholder="Search by code..."
+        actions={<CreateCodeDialog signupUrl={signupUrl} />}
       />
       <div className="w-full overflow-hidden rounded-md border">
         <Table>

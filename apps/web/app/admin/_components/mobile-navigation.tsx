@@ -22,7 +22,7 @@ export function AdminMobileNavigation() {
         </DropdownMenuItem>
 
         <DropdownMenuItem>
-          <Link href={'/admin/accounts'}>Accounts</Link>
+          <Link href={'/admin/users'}>Accounts</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

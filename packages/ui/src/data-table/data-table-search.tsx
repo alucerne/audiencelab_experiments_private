@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { Input } from '@kit/ui/input';
 
-function DataTableSearch({
+export function DataTableSearch({
   query,
   itemName,
 }: React.PropsWithChildren<{
@@ -51,4 +51,3 @@ function DataTableSearch({
   );
 }
 
-export default DataTableSearch;
