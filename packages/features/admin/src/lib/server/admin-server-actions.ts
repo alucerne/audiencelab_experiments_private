@@ -16,7 +16,6 @@ import {
   ReactivateUserSchema,
 } from './schema/admin-actions.schema';
 import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
-import { AdminNewTeamFormSchema } from './schema/admin-new-team-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { adminAction } from './utils/admin-action';
@@ -187,53 +186,5 @@ export const updateTeamPermissionsAction = enhanceAction(
   },
   {
     schema: AdminCreditsFormSchema,
-  },
-);
-
-export const createNewTeamAction = enhanceAction(
-  async (data) => {
-    const adminClient = getSupabaseServerAdminClient();
-
-    const logger = await getLogger();
-
-    logger.info(
-      {
-        name: 'signup',
-        email: data.user_email,
-      },
-      'Inviting user from signup ...',
-    );
-
-    const { error } = await adminClient.auth.admin.inviteUserByEmail(
-      data.user_email,
-      {
-        redirectTo: data.redirect_to,
-      },
-    );
-
-    if (error) {
-      logger.error(
-        {
-          name: 'signup',
-          error,
-          email: data.user_email,
-        },
-        `Failed to invite user from signup`,
-      );
-
-      throw new Error('Failed to invite user');
-    }
-
-    logger.info(
-      {
-        email: data.user_email,
-      },
-      `Invited user from signup. Creating team with permissions...`,
-    );
-
-    //!crreate team here
-  },
-  {
-    schema: AdminNewTeamFormSchema,
   },
 );
