@@ -853,6 +853,95 @@ export type Database = {
         };
         Relationships: [];
       };
+      signup_code_usages: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          id: string;
+          signup_code_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          id?: string;
+          signup_code_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          id?: string;
+          signup_code_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'signup_code_usages_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_code_usages_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_code_usages_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_code_usages_signup_code_id_fkey';
+            columns: ['signup_code_id'];
+            isOneToOne: false;
+            referencedRelation: 'signup_codes';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      signup_codes: {
+        Row: {
+          code: string;
+          created_at: string;
+          enabled: boolean;
+          expires_at: string | null;
+          id: string;
+          max_usage: number | null;
+          name: string;
+          permissions: Json;
+          updated_at: string;
+        };
+        Insert: {
+          code: string;
+          created_at?: string;
+          enabled?: boolean;
+          expires_at?: string | null;
+          id?: string;
+          max_usage?: number | null;
+          name: string;
+          permissions?: Json;
+          updated_at?: string;
+        };
+        Update: {
+          code?: string;
+          created_at?: string;
+          enabled?: boolean;
+          expires_at?: string | null;
+          id?: string;
+          max_usage?: number | null;
+          name?: string;
+          permissions?: Json;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       subscription_items: {
         Row: {
           created_at: string;

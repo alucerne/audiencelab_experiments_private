@@ -16,7 +16,7 @@ create table if not exists public.credits (
 revoke all on public.credits from public, service_role;
 
 -- grant required permissions on public.credits
-grant select, insert, delete on public.credits to authenticated;
+grant select on public.credits to authenticated;
 grant select, insert, update, delete on public.credits to service_role;
 
 -- Indexes
@@ -24,7 +24,6 @@ create index ix_credits_account_id on public.credits(account_id);
 
 -- RLS
 alter table public.credits enable row level security;
-
 
 -- SELECT(public.credits)
 create policy select_credits
@@ -36,7 +35,10 @@ create policy select_credits
   );
 
 CREATE OR REPLACE FUNCTION public.create_team_credits()
-RETURNS trigger AS $$
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
 BEGIN
   IF NEW.is_personal_account = false THEN
     INSERT INTO public.credits(account_id)
@@ -44,7 +46,9 @@ BEGIN
   END IF;
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$;
+
+REVOKE ALL ON FUNCTION public.create_team_credits() FROM public;
 
 CREATE TRIGGER after_team_account_insert
 AFTER INSERT ON public.accounts
