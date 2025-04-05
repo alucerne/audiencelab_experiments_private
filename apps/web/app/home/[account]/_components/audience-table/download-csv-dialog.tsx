@@ -1,6 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+
 import { format, parseISO } from 'date-fns';
+import { Check, Copy } from 'lucide-react';
 
 import { Button } from '@kit/ui/button';
 import {
@@ -43,6 +46,10 @@ export function DownloadCsvDialog({
       <DialogContent className="max-h-[90vh] max-w-md gap-0 px-0">
         <DialogHeader className="px-6 pb-4">
           <DialogTitle>Download {audience.name} Audience Lists</DialogTitle>
+          <div className="flex flex-wrap gap-1">
+            <CopyButton value={audience.id} label="Audience ID" />
+            <CopyButton value={audience.account_id} label="Account ID" />
+          </div>
         </DialogHeader>
         <div className="max-h-[60vh] space-y-4 overflow-y-auto px-6">
           {audience.enqueue_jobs
@@ -106,5 +113,27 @@ export function DownloadCsvDialog({
         </div>
       </DialogContent>
     </Dialog>
+  );
+}
+
+function CopyButton({ value, label }: { value: string; label: string }) {
+  const [copied, setCopied] = useState(false);
+
+  function handleCopy() {
+    navigator.clipboard.writeText(value);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }
+
+  return (
+    <Button
+      onClick={handleCopy}
+      variant="ghost"
+      className="h-fit gap-2 px-2 py-1"
+      size="sm"
+    >
+      <span>{label}</span>
+      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
+    </Button>
   );
 }
