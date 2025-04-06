@@ -18,6 +18,9 @@ interface EmailPasswordSignUpContainerProps {
   };
   onSignUp?: (userId?: string) => unknown;
   emailRedirectTo: string;
+  code?: string;
+  inviteToken?: string;
+  joinTeamPath: string;
 }
 
 export function EmailPasswordSignUpContainer({
@@ -25,6 +28,9 @@ export function EmailPasswordSignUpContainer({
   onSignUp,
   emailRedirectTo,
   displayTermsCheckbox,
+  code,
+  inviteToken,
+  joinTeamPath,
 }: EmailPasswordSignUpContainerProps) {
   const { captchaToken, resetCaptchaToken } = useCaptchaToken();
 
@@ -38,6 +44,9 @@ export function EmailPasswordSignUpContainer({
     onSignUp,
     captchaToken,
     resetCaptchaToken,
+    code,
+    inviteToken,
+    joinTeamPath,
   });
 
   return (

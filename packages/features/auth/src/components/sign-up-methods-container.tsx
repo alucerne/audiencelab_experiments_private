@@ -16,6 +16,7 @@ export function SignUpMethodsContainer(props: {
   paths: {
     callback: string;
     appHome: string;
+    joinTeam: string;
   };
 
   providers: {
@@ -26,6 +27,7 @@ export function SignUpMethodsContainer(props: {
 
   displayTermsCheckbox?: boolean;
   inviteToken?: string;
+  code?: string;
 }) {
   const redirectUrl = getCallbackUrl(props);
   const defaultValues = getDefaultValues();
@@ -41,6 +43,9 @@ export function SignUpMethodsContainer(props: {
           emailRedirectTo={redirectUrl}
           defaultValues={defaultValues}
           displayTermsCheckbox={props.displayTermsCheckbox}
+          code={props.code}
+          inviteToken={props.inviteToken}
+          joinTeamPath={props.paths.joinTeam}
         />
       </If>
 
