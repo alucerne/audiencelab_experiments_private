@@ -7,7 +7,7 @@ import { Button } from '@kit/ui/button';
 import { Trans } from '@kit/ui/trans';
 
 export function HomeAddAccountButton(props: { className?: string }) {
-  const [isAddingAccount, setIsAddingAccount] = useState(false);
+  const [isAddingAccount, setIsAddingAccount] = useState(true);
 
   return (
     <>

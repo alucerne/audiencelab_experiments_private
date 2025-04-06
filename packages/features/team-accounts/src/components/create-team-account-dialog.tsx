@@ -40,7 +40,7 @@ export function CreateTeamAccountDialog(
   }>,
 ) {
   return (
-    <Dialog open={props.isOpen} onOpenChange={props.setIsOpen}>
+    <Dialog open={props.isOpen}>
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -83,6 +83,8 @@ function CreateOrganizationAccountForm(props: { onClose: () => void }) {
 
               if (error) {
                 setError(true);
+              } else {
+                props.onClose();
               }
             } catch (error) {
               if (!isRedirectError(error)) {
@@ -128,14 +130,14 @@ function CreateOrganizationAccountForm(props: { onClose: () => void }) {
           />
 
           <div className={'flex justify-end space-x-2'}>
-            <Button
+            {/* <Button
               variant={'outline'}
               type={'button'}
               disabled={pending}
               onClick={props.onClose}
             >
               <Trans i18nKey={'common:cancel'} />
-            </Button>
+            </Button> */}
 
             <Button data-test={'confirm-create-team-button'} disabled={pending}>
               {pending ? (
