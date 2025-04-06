@@ -16,8 +16,10 @@ import {
   ReactivateUserSchema,
 } from './schema/admin-actions.schema';
 import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
+import { AdminSignupLinkFormSchema } from './schema/admin-signup-link-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
+import { createAdminSignupLinksService } from './services/admin-signup-links.service';
 import { adminAction } from './utils/admin-action';
 
 /**
@@ -114,7 +116,7 @@ export const deleteUserAction = adminAction(
 
       revalidateAdmin();
 
-      return redirect('/admin/accounts');
+      return redirect('/admin/users');
     },
     {
       schema: DeleteUserSchema,
@@ -143,7 +145,7 @@ export const deleteAccountAction = adminAction(
 
       revalidateAdmin();
 
-      return redirect('/admin/accounts');
+      return redirect('/admin/users');
     },
     {
       schema: DeleteAccountSchema,
@@ -186,5 +188,21 @@ export const updateTeamPermissionsAction = enhanceAction(
   },
   {
     schema: AdminCreditsFormSchema,
+  },
+);
+
+export const createSignupLinkAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminSignupLinksService(adminClient);
+
+    const signupLink = await service.createSignupLink(data);
+
+    revalidatePath('/admin/signup-links', 'page');
+
+    return signupLink;
+  },
+  {
+    schema: AdminSignupLinkFormSchema,
   },
 );

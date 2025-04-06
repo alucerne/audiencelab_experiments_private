@@ -45,4 +45,27 @@ class AdminSignupLinksService {
 
     return data;
   }
+
+  async createSignupLink({
+    signup,
+    permissions,
+  }: z.infer<typeof AdminSignupLinkFormSchema>) {
+    const { data, error } = await this.client
+      .from('signup_codes')
+      .insert({
+        name: signup.name,
+        code: signup.code,
+        max_usage: signup.max_usage,
+        expires_at: signup.expires_at?.toISOString(),
+        permissions,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw new Error(`Failed to create signup link: ${error.message}`);
+    }
+
+    return data;
+  }
 }
