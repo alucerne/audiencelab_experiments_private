@@ -17,6 +17,9 @@ type UseSignUpFlowProps = {
   onSignUp?: (userId?: string) => unknown;
   captchaToken?: string;
   resetCaptchaToken?: () => void;
+  code?: string;
+  inviteToken?: string;
+  joinTeamPath: string;
 };
 
 /**
@@ -25,10 +28,13 @@ type UseSignUpFlowProps = {
  * This hook is used to handle the sign up flow using the email and password method.
  */
 export function usePasswordSignUpFlow({
-  emailRedirectTo,
+  emailRedirectTo: _emailRedirectTo,
   onSignUp,
-  captchaToken,
+  captchaToken: _captchaToken,
   resetCaptchaToken,
+  code,
+  inviteToken,
+  joinTeamPath,
 }: UseSignUpFlowProps) {
   const router = useRouter();
   const signUpMutation = useSignUpWithEmailAndPassword();
@@ -43,8 +49,9 @@ export function usePasswordSignUpFlow({
       try {
         const data = await signUpMutation.mutateAsync({
           ...credentials,
-          emailRedirectTo,
-          captchaToken,
+          code,
+          inviteToken,
+          joinTeamPath,
         });
 
         // emit event to track sign up
@@ -73,8 +80,9 @@ export function usePasswordSignUpFlow({
     },
     [
       signUpMutation,
-      emailRedirectTo,
-      captchaToken,
+      code,
+      inviteToken,
+      joinTeamPath,
       appEvents,
       router,
       onSignUp,
@@ -86,6 +94,6 @@ export function usePasswordSignUpFlow({
     signUp,
     loading: signUpMutation.isPending,
     error: signUpMutation.error,
-    showVerifyEmailAlert: signUpMutation.isSuccess,
+    showVerifyEmailAlert: false,
   };
 }

@@ -52,13 +52,16 @@ export function AdminSidebar() {
                 </Link>
               </SidebarMenuButton>
 
-              <SidebarMenuButton isActive={path === '/admin/new'} asChild>
+              <SidebarMenuButton
+                isActive={path === '/admin/signup-links'}
+                asChild
+              >
                 <Link
                   className={'flex size-full gap-2.5'}
-                  href={'/admin/new'}
+                  href={'/admin/signup-links'}
                 >
                   <UserPlus className={'h-4'} />
-                  <span>New</span>
+                  <span>Signup Links</span>
                 </Link>
               </SidebarMenuButton>
             </SidebarMenu>

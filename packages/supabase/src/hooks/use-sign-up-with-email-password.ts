@@ -1,32 +1,20 @@
 import { useMutation } from '@tanstack/react-query';
 
-import { useSupabase } from './use-supabase';
+import { signupAction } from '../server/server-actions';
 
 interface Credentials {
   email: string;
   password: string;
-  emailRedirectTo: string;
-  captchaToken?: string;
+  code?: string;
+  inviteToken?: string;
+  joinTeamPath: string;
 }
 
 export function useSignUpWithEmailAndPassword() {
-  const client = useSupabase();
   const mutationKey = ['auth', 'sign-up-with-email-password'];
 
   const mutationFn = async (params: Credentials) => {
-    const { emailRedirectTo, captchaToken, ...credentials } = params;
-
-    const response = await client.auth.signUp({
-      ...credentials,
-      options: {
-        emailRedirectTo,
-        captchaToken,
-      },
-    });
-
-    if (response.error) {
-      throw response.error.message;
-    }
+    const response = await signupAction(params);
 
     const user = response.data?.user;
     const identities = user?.identities ?? [];

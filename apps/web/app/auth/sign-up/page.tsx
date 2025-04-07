@@ -21,16 +21,19 @@ export const generateMetadata = async () => {
 interface Props {
   searchParams: Promise<{
     invite_token?: string;
+    code?: string;
   }>;
 }
 
 const paths = {
   callback: pathsConfig.auth.callback,
   appHome: pathsConfig.app.home,
+  joinTeam: pathsConfig.app.joinTeam,
 };
 
 async function SignUpPage({ searchParams }: Props) {
   const inviteToken = (await searchParams).invite_token;
+  const code = (await searchParams).code;
 
   const signInPath =
     pathsConfig.auth.signIn +
@@ -52,6 +55,7 @@ async function SignUpPage({ searchParams }: Props) {
         providers={authConfig.providers}
         displayTermsCheckbox={authConfig.displayTermsCheckbox}
         inviteToken={inviteToken}
+        code={code}
         paths={paths}
       />
 

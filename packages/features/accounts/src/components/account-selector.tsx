@@ -194,12 +194,10 @@ export function AccountSelector({
               <If condition={accounts.length > 0}>
                 <CommandGroup
                   heading={
-                    <div className="pb-1">
-                      <Trans
-                        i18nKey={'teams:yourTeams'}
-                        values={{ teamsCount: accounts.length }}
-                      />
-                    </div>
+                    <Trans
+                      i18nKey={'teams:yourTeams'}
+                      values={{ teamsCount: accounts.length }}
+                    />
                   }
                 >
                   {(accounts ?? []).map((account) => (
@@ -208,7 +206,7 @@ export function AccountSelector({
                       data-name={account.label}
                       data-slug={account.value}
                       className={cn(
-                        'group flex justify-between transition-colors',
+                        'group my-0.5 flex justify-between transition-colors',
                         {
                           ['bg-muted']: value === account.value,
                         },
