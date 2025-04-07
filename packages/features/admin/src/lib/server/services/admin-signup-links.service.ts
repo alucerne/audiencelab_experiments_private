@@ -68,4 +68,17 @@ class AdminSignupLinksService {
 
     return data;
   }
+
+  async disableSignupLink(id: string) {
+    const { error } = await this.client
+      .from('signup_codes')
+      .update({
+        enabled: false,
+      })
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(`Failed to disable signup link: ${error.message}`);
+    }
+  }
 }

@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { z } from 'zod';
+
 import { enhanceAction } from '@kit/next/actions';
 import { getLogger } from '@kit/shared/logger';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
@@ -204,5 +206,21 @@ export const createSignupLinkAction = enhanceAction(
   },
   {
     schema: AdminSignupLinkFormSchema,
+  },
+);
+
+export const disableSignupLinkAction = enhanceAction(
+  async ({ id }) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminSignupLinksService(adminClient);
+
+    await service.disableSignupLink(id);
+
+    revalidatePath('/admin/signup-links', 'page');
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+    }),
   },
 );
