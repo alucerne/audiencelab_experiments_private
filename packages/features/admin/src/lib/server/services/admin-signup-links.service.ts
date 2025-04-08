@@ -4,6 +4,7 @@ import { z } from 'zod';
 
 import { Database } from '@kit/supabase/database';
 
+import { AdminCreditsFormSchema } from '../schema/admin-credits-form.schema';
 import { AdminSignupLinkFormSchema } from '../schema/admin-signup-link-form.schema';
 
 export function createAdminSignupLinksService(
@@ -79,6 +80,22 @@ class AdminSignupLinksService {
 
     if (error) {
       throw new Error(`Failed to disable signup link: ${error.message}`);
+    }
+  }
+
+  async updatePermissions({
+    id,
+    ...data
+  }: z.infer<typeof AdminCreditsFormSchema>) {
+    const { error } = await this.client
+      .from('signup_codes')
+      .update({
+        permissions: data,
+      })
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(`Failed to update permissions: ${error.message}`);
     }
   }
 }

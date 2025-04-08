@@ -2,13 +2,20 @@ import { useState } from 'react';
 
 import { ColumnDef } from '@tanstack/react-table';
 import { format, isBefore, parseISO } from 'date-fns';
-import { Check, Copy } from 'lucide-react';
+import { Check, Copy, Eye } from 'lucide-react';
 
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@kit/ui/tooltip';
 
 import { SignupLinkData } from '../../lib/server/services/admin-signup-links.service';
+import { CodeUsersDialog } from './code-users-dialog';
 import SignupLinksTableActions from './table-actions';
 
 export const getColumns = (signupUrl: string): ColumnDef<SignupLinkData>[] => [
@@ -72,8 +79,36 @@ export const getColumns = (signupUrl: string): ColumnDef<SignupLinkData>[] => [
     accessorKey: 'usages',
     accessorFn: (row) => row.signup_code_usages.length,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Usages" />
+      <DataTableColumnHeader column={column} title="Usage" />
     ),
+    cell({ row: { original } }) {
+      const usageCount = original.signup_code_usages.length;
+
+      return (
+        <div className="flex items-center gap-1">
+          <p>{usageCount}</p>
+          <TooltipProvider delayDuration={300}>
+            <Tooltip>
+              <CodeUsersDialog signupLink={original}>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="size-7"
+                    disabled={usageCount === 0}
+                  >
+                    <Eye size={14} />
+                  </Button>
+                </TooltipTrigger>
+              </CodeUsersDialog>
+              <TooltipContent>
+                <p>View Users</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
+      );
+    },
   },
   {
     accessorKey: 'created_at',
@@ -107,8 +142,22 @@ function CopyButton({ value }: { value: string }) {
   }
 
   return (
-    <Button onClick={handleCopy} variant="ghost" size="icon">
-      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-    </Button>
+    <TooltipProvider delayDuration={300}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            className="size-7"
+            onClick={handleCopy}
+          >
+            {copied ? <Check size={14} /> : <Copy size={14} />}
+          </Button>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>Copy Link</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 }
