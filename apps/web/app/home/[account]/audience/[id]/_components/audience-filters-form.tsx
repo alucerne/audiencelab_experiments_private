@@ -12,7 +12,6 @@ import { useParams, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useMutation } from '@tanstack/react-query';
-import { format, subDays } from 'date-fns';
 import {
   AlertCircle,
   Building2,
@@ -72,11 +71,6 @@ import HousingStep, { housingFields } from './housing-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PreviewAudienceTable from './preview-audience-table';
-
-const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-const formatDate = (date: Date) => format(date, 'yyyy-MM-dd');
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -185,16 +179,6 @@ export default function AudienceFiltersForm({
     },
   ] as const;
 
-  const dateRangeValue = form.watch('dateRange');
-
-  useEffect(() => {
-    if (!dateRangeValue.startDate && !dateRangeValue.endDate) {
-      const endDate = formatDate(today);
-      const startDate = formatDate(subDays(today, 6));
-      form.setValue('dateRange', { startDate, endDate });
-    }
-  }, []);
-
   const watchedValues = form.watch();
   const hasChanged = useMemo(
     () =>
@@ -266,6 +250,18 @@ export default function AudienceFiltersForm({
     }
   }
 
+  const segmentList = form.watch('segment');
+
+  useEffect(() => {
+    const currentValue = form.getValues('audience.dateRange');
+
+    if (segmentList.length === 0 && currentValue !== null) {
+      form.setValue('audience.dateRange', null);
+    } else if (segmentList.length > 0 && currentValue !== 7) {
+      form.setValue('audience.dateRange', 7);
+    }
+  }, [segmentList]);
+
   return (
     <>
       <div className="flex-none">
@@ -335,7 +331,9 @@ export default function AudienceFiltersForm({
                     type="button"
                     variant="ghost"
                     disabled={
-                      !limits.intentAccess && step.label === 'Audience Lists'
+                      (!limits.intentAccess &&
+                        step.label === 'Audience Lists') ||
+                      (step.label === 'Date' && segmentList.length === 0)
                     }
                     className={cn(
                       'flex items-center gap-1.5 px-3 py-1.5',

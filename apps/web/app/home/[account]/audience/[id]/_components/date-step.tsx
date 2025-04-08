@@ -29,14 +29,14 @@ export default function DateStep() {
       name="audience.dateRange"
       render={({ field }) => (
         <FormItem>
-          <FormLabel>Current Date Range: {field.value}</FormLabel>
+          <FormLabel>Current Date Range: {field.value ?? '—'}</FormLabel>
           <FormControl>
             <div className="space-y-2">
               <Slider
                 min={2}
                 max={10}
                 step={1}
-                value={[field.value]}
+                value={[field.value ?? 7]}
                 onValueChange={(vals) => {
                   field.onChange(vals[0]);
                 }}

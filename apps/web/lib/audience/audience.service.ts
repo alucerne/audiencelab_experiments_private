@@ -432,7 +432,12 @@ class AudienceService {
     intentIds: string[];
   }) {
     filters.segment = intentIds;
-    filters.dateRange = getDateRange(filters.audience.dateRange);
+    if (
+      filters.segment.length > 0 &&
+      typeof filters.audience.dateRange === 'number'
+    ) {
+      filters.dateRange = getDateRange(filters.audience.dateRange);
+    }
 
     const { audience: _audience, ...audienceFilters } = filters;
 
