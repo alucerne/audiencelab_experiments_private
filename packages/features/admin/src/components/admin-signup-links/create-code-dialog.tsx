@@ -214,7 +214,7 @@ function generateRandomCode(length = 10) {
     .toUpperCase();
 }
 
-export function Step1() {
+function Step1() {
   const { control, setValue } =
     useFormContext<z.infer<typeof AdminSignupLinkFormSchema>>();
 
@@ -255,9 +255,6 @@ export function Step1() {
                 Generate
               </Button>
             </div>
-            <FormDescription>
-              This will be the code used to signup
-            </FormDescription>
             <FormMessage />
           </FormItem>
         )}
