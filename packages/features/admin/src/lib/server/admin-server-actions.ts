@@ -224,3 +224,17 @@ export const disableSignupLinkAction = enhanceAction(
     }),
   },
 );
+
+export const updateSignupLinkPermissionsAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminSignupLinksService(adminClient);
+
+    await service.updatePermissions(data);
+
+    revalidatePath('/admin/signup-links', 'page');
+  },
+  {
+    schema: AdminCreditsFormSchema,
+  },
+);
