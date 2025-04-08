@@ -1,4 +1,3 @@
-import { format } from 'date-fns';
 import { z } from 'zod';
 
 const numberRangeSchema = z
@@ -26,14 +25,14 @@ export const audienceFiltersFormSchema = z.object({
     b2b: z.boolean(),
     customTopic: z.string(),
     customDescription: z.string(),
-    dateRange: z.number(),
+    dateRange: z.number().nullable(),
   }), //webapp only
   jobId: z.string(),
   segment: z.array(z.string()),
   score: z.array(z.string()),
   dateRange: z.object({
-    startDate: z.string().date(),
-    endDate: z.string().date(),
+    startDate: z.string().date().nullable(),
+    endDate: z.string().date().nullable(),
   }),
   filters: z.object({
     age: z.object({
@@ -108,8 +107,8 @@ export const audienceFiltersFormDefaultValues = {
   jobId: '',
   segment: [],
   dateRange: {
-    startDate: format(new Date(), 'yyyy-MM-dd'),
-    endDate: format(new Date(), 'yyyy-MM-dd'),
+    startDate: null,
+    endDate: null,
   },
   score: [],
   filters: {

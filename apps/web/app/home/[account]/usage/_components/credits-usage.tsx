@@ -27,9 +27,13 @@ export default function CreditsUsage({
   audienceFilters,
 }: CreditMetrics) {
   const enrichmentPercentage =
-    (enrichment.currentCount / enrichment.monthlyMax) * 100;
+    enrichment.monthlyMax > 0
+      ? (enrichment.currentCount / enrichment.monthlyMax) * 100
+      : 0;
   const audienceListsPercentage =
-    (audience.currentCount / audience.maxLists) * 100;
+    audience.maxLists > 0
+      ? (audience.currentCount / audience.maxLists) * 100
+      : 0;
 
   return (
     <div className="container m-0 p-0">
