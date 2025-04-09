@@ -93,6 +93,7 @@ class CreditsService {
         (credits.data.max_custom_interests ?? 0) > (customInterests.count ?? 0),
       b2bAccess: credits.data.b2b_access,
       intentAccess: credits.data.intent_access,
+      audienceSizeLimit: credits.data.audience_size_limit,
     };
   }
 

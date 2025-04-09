@@ -44,13 +44,13 @@ export function CodeUsersDialog({
                 <Link
                   key={usage.id}
                   href={`/admin/users/${usage.account.id}`}
-                  className="bg-card hover:bg-accent flex items-center justify-between gap-4 rounded-lg border p-4 transition"
+                  className="bg-card hover:bg-accent flex w-full items-start justify-between gap-4 rounded-lg border p-4 transition"
                 >
-                  <div className="space-y-0.5">
-                    <p className="text-sm font-semibold leading-none">
+                  <div className="min-w-0 flex-1 space-y-0.5 overflow-hidden">
+                    <p className="truncate text-sm font-semibold leading-none">
                       {usage.account.name}
                     </p>
-                    <p className="text-muted-foreground text-sm">
+                    <p className="text-muted-foreground truncate text-sm">
                       {usage.account.email ?? 'No email'}
                     </p>
                   </div>

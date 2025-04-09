@@ -7,6 +7,7 @@ import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client'
 
 import { createAudienceService } from '~/lib/audience/audience.service';
 import { audienceFiltersFormSchema } from '~/lib/audience/schema/audience-filters-form.schema';
+import { createCreditsService } from '~/lib/credits/credits.service';
 
 export const POST = enhanceRouteHandler(
   async ({ request, body }) => {
@@ -23,8 +24,12 @@ export const POST = enhanceRouteHandler(
 
       const client = getSupabaseServerAdminClient();
       const service = createAudienceService(client);
+      const credits = createCreditsService(client);
 
-      const audience = await service.getAudienceById(body.audience_id);
+      const [audience, limits] = await Promise.all([
+        service.getAudienceById(body.audience_id),
+        credits.getAudienceLimits({ accountId: body.account_id }),
+      ]);
 
       const parsedFilters = audienceFiltersFormSchema.parse(audience.filters);
 
@@ -32,6 +37,7 @@ export const POST = enhanceRouteHandler(
         accountId: body.account_id,
         audienceId: body.audience_id,
         filters: parsedFilters,
+        limit: limits.audienceSizeLimit,
       });
 
       if (!audience.refresh_interval) {
