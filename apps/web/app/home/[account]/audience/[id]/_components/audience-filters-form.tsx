@@ -228,7 +228,11 @@ export default function AudienceFiltersForm({
     isError,
   } = useMutation({
     mutationFn: async () => {
-      return await getPreviewAudienceAction({ id, filters: form.getValues() });
+      return await getPreviewAudienceAction({
+        accountId,
+        id,
+        filters: form.getValues(),
+      });
     },
   });
 

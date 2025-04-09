@@ -128,10 +128,12 @@ class AudienceService {
     accountId,
     audienceId,
     filters,
+    limit,
   }: {
     accountId: string;
     audienceId: string;
     filters: z.infer<typeof audienceFiltersFormSchema>;
+    limit: number;
   }) {
     const [intentIds, audience, job] = await Promise.all([
       get4EyesIntentIds({
@@ -174,6 +176,7 @@ class AudienceService {
           audienceId,
           accountId,
           webhook_url: audience.data.webhook_url,
+          limit,
         }),
       },
     );

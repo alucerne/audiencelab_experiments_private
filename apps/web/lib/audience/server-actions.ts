@@ -67,6 +67,7 @@ export const addAudienceFiltersAction = enhanceAction(
       accountId: data.accountId,
       audienceId: data.audienceId,
       filters: data.filters,
+      limit: limits.audienceSizeLimit,
     });
 
     revalidatePath('/home/[account]/audience/[id]', 'page');
@@ -138,7 +139,7 @@ export const getAudienceByIdAction = enhanceAction(
 );
 
 export const getPreviewAudienceAction = enhanceAction(
-  async ({ id, filters }) => {
+  async ({ accountId, id, filters }) => {
     const intentIds = await get4EyesIntentIds({
       keywords: filters.segment,
       audienceType: filters.audience.type,
@@ -146,11 +147,15 @@ export const getPreviewAudienceAction = enhanceAction(
 
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
+    const credits = createCreditsService(client);
 
-    const audienceFilters = await service.getAudienceFiltersApiBody({
-      filters,
-      intentIds,
-    });
+    const [audienceFilters, limits] = await Promise.all([
+      service.getAudienceFiltersApiBody({
+        filters,
+        intentIds,
+      }),
+      credits.getAudienceLimits({ accountId }),
+    ]);
 
     const fullTimestamp = Number(
       `${format(new Date(), 'T')}${Math.floor(Math.random() * 1000)
@@ -169,6 +174,7 @@ export const getPreviewAudienceAction = enhanceAction(
           ...audienceFilters,
           jobId: `${id}_${fullTimestamp}`,
           startTime: fullTimestamp,
+          limit: limits.audienceSizeLimit,
         }),
       },
     );
@@ -182,6 +188,7 @@ export const getPreviewAudienceAction = enhanceAction(
   },
   {
     schema: z.object({
+      accountId: z.string(),
       id: z.string(),
       filters: audienceFiltersFormSchema,
     }),
