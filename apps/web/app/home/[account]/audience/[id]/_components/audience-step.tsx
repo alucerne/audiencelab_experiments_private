@@ -396,7 +396,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-w-xl"
+        className="flex max-h-[90vh] max-w-xl flex-col overflow-y-auto"
       >
         <DialogHeader>
           <DialogTitle>Create Custom Audience</DialogTitle>

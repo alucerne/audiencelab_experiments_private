@@ -15,6 +15,7 @@ import { CardTitle } from '@kit/ui/card';
 import {
   Dialog,
   DialogContent,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -386,13 +387,12 @@ function AddFieldValueDialog<
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-h-[85vh] max-w-md overflow-y-auto"
+        className="flex max-h-[90vh] max-w-md flex-col gap-0 px-0 pb-0"
       >
-        <DialogHeader>
+        <DialogHeader className="px-6 pb-4">
           <DialogTitle>Add Filter</DialogTitle>
         </DialogHeader>
-
-        <div className="flex flex-col space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto px-6 pb-4">
           <div className="space-y-1">
             <Label>Field</Label>
             <SingleSelect
@@ -407,20 +407,20 @@ function AddFieldValueDialog<
               options={fieldOptions[selectedField.value]}
             />
           )}
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              type="button"
-              onClick={() => handleOpenChange(false)}
-            >
-              Cancel
-            </Button>
-            <Button size="sm" onClick={onSubmit}>
-              Add
-            </Button>
-          </div>
         </div>
+        <DialogFooter className="border-t px-6 py-4">
+          <Button
+            variant="outline"
+            size="sm"
+            type="button"
+            onClick={() => handleOpenChange(false)}
+          >
+            Cancel
+          </Button>
+          <Button size="sm" onClick={onSubmit}>
+            Add
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
