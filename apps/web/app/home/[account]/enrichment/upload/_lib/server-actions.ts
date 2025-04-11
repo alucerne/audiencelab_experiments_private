@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 
 import { Storage } from '@google-cloud/storage';
+import { getUnixTime } from 'date-fns';
 import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
@@ -23,7 +24,22 @@ const storage = new Storage({
 });
 
 export const getUploadUrlAction = enhanceAction(
-  async ({ fileName, fileType }) => {
+  async ({ fileName, fileType, accountId, name }) => {
+    const client = getSupabaseServerClient();
+    const credits = createCreditsService(client);
+
+    const { enabled } = await credits.canCreateEnrichment({
+      accountId,
+    });
+
+    if (!enabled) {
+      throw new Error('Enrichment limit exceeded');
+    }
+
+    const service = createEnrichmentService(client);
+
+    const job = await service.createEnrichment({ accountId, name });
+
     const bucket = storage.bucket(bucketName);
 
     await bucket.setCorsConfiguration([
@@ -40,9 +56,8 @@ export const getUploadUrlAction = enhanceAction(
       },
     ]);
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const uniqueFilename = `${timestamp}-${fileName}`;
-    const file = bucket.file(uniqueFilename);
+    const uniqueFileName = `csv/${accountId}/${getUnixTime(new Date())}_${job.id}.csv`;
+    const file = bucket.file(uniqueFileName);
 
     const expires = Date.now() + 15 * 60 * 1000;
 
@@ -60,39 +75,31 @@ export const getUploadUrlAction = enhanceAction(
 
     return {
       signedUrl,
-      uniqueFilename,
+      uniqueFileName,
+      jobId: job.id,
     };
   },
   {
     schema: z.object({
       fileName: z.string(),
       fileType: z.string(),
+      accountId: z.string(),
+      name: z.string(),
     }),
   },
 );
 
 export const processEnrichmentAction = enhanceAction(
   async ({
-    name,
     accountId,
+    jobId,
     columnMapping,
-    uniqueFilename,
+    uniqueFileName,
     originalFileName,
     operator,
   }) => {
-    const client = getSupabaseServerClient();
-    const credits = createCreditsService(client);
-
-    const { enabled } = await credits.canCreateEnrichment({
-      accountId,
-    });
-
-    if (!enabled) {
-      throw new Error('Enrichment limit exceeded');
-    }
-
     const bucket = storage.bucket(bucketName);
-    const file = bucket.file(uniqueFilename);
+    const file = bucket.file(uniqueFileName);
 
     await file.setMetadata({
       metadata: {
@@ -107,18 +114,15 @@ export const processEnrichmentAction = enhanceAction(
       )
       .map(([field]) => field);
 
-    const service = createEnrichmentService(client);
-    const job = await service.createEnrichment({ accountId, name });
-
     const response = await fetch(
       `${miscConfig.enrichmentApiUrl}/enrich/enqueue`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gcsPath: `gs://${bucketName}/${uniqueFilename}`,
+          gcsPath: `gs://${bucketName}/${uniqueFileName}`,
           columns: mappedColumns,
-          jobId: job.id,
+          jobId: jobId,
           accountId,
           operator,
         }),
@@ -135,9 +139,9 @@ export const processEnrichmentAction = enhanceAction(
   },
   {
     schema: z.object({
-      uniqueFilename: z.string(),
-      name: z.string(),
+      uniqueFileName: z.string(),
       accountId: z.string(),
+      jobId: z.string(),
       columnMapping: z.record(z.array(z.string())),
       originalFileName: z.string(),
       operator: z.enum(['OR', 'AND']),

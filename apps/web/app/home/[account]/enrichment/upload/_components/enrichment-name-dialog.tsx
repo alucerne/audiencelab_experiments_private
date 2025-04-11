@@ -94,8 +94,8 @@ export default function EnrichmentNameDialog({
                 <FormItem>
                   <FormLabel>Operator</FormLabel>
                   <FormDescription>
-                    Choose whether uploaded contact details must match all
-                    mapped fields (AND) or any single field (OR).
+                    Choose whether uploaded contact details must match any
+                    single field (OR) or all mapped fields (AND).
                   </FormDescription>
                   <FormControl>
                     <ToggleGroup
