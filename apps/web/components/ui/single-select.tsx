@@ -89,9 +89,23 @@ export default function SingleSelect({
             boxShadow: 'none',
           },
         }),
+        menu: (provided) => ({
+          ...provided,
+          position: 'static',
+        }),
+        menuPortal: (base) => ({
+          ...base,
+          zIndex: 9999,
+          pointerEvents: 'auto',
+        }),
+        multiValueLabel: (base) => ({
+          ...base,
+          whiteSpace: 'normal',
+          overflow: 'visible',
+        }),
         control: (base) => ({
           ...base,
-          transition: 'none',
+          transition: 'colors 0.2s',
         }),
       }}
       components={{
