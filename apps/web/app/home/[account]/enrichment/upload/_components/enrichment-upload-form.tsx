@@ -197,9 +197,11 @@ export default function EnrichmentUploadForm({
           lastModified: new Date().getTime(),
         });
 
-        const { signedUrl, uniqueFilename } = await getUploadUrlAction({
+        const { signedUrl, uniqueFileName, jobId } = await getUploadUrlAction({
           fileName: transformedFile.name,
           fileType: transformedFile.type,
+          accountId,
+          name: enrichmentName,
         });
 
         const uploadResponse = await fetch(signedUrl, {
@@ -218,9 +220,9 @@ export default function EnrichmentUploadForm({
         }
 
         await processEnrichmentAction({
-          uniqueFilename,
-          name: enrichmentName,
+          uniqueFileName,
           accountId,
+          jobId,
           columnMapping,
           originalFileName: currentFile.name,
           operator,
