@@ -23,6 +23,18 @@ const MiscConfigSchema = z.object({
     clientEmail: z.string(),
     privateKey: z.string(),
   }),
+  interestsApi: z.object({
+    url: z.string({
+      description: `Interests API URL.`,
+      required_error:
+        'Interests API URL is required. Please set the `INTERESTS_API_URL` environment variable.',
+    }),
+    key: z.string({
+      description: `Interests API key.`,
+      required_error:
+        'Interests API key is required. Please set the `INTERESTS_API_KEY` environment variable.',
+    }),
+  }),
 });
 
 const miscConfig = MiscConfigSchema.parse({
@@ -33,6 +45,10 @@ const miscConfig = MiscConfigSchema.parse({
     projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
     clientEmail: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
     privateKey: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+  },
+  interestsApi: {
+    url: process.env.INTERESTS_API_URL,
+    key: process.env.INTERESTS_API_KEY,
   },
 });
 
