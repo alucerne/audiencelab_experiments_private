@@ -186,7 +186,7 @@ export function NotificationsPopover(params: {
               <div
                 key={notification.id.toString()}
                 className={cn(
-                  'min-h-18 flex flex-col items-start justify-center gap-y-1 px-3 py-2',
+                  'flex flex-col items-start justify-center gap-y-1 p-2',
                 )}
                 onClick={() => {
                   if (params.onClick) {
@@ -194,9 +194,9 @@ export function NotificationsPopover(params: {
                   }
                 }}
               >
-                <div className={'flex w-full items-start justify-between'}>
+                <div className={'flex w-full items-start justify-between gap-1.5'}>
                   <div
-                    className={'flex items-start justify-start gap-x-3 py-2'}
+                    className={'flex items-start justify-start gap-x-2.5 py-1'}
                   >
                     <div className={'py-0.5'}>
                       <Icon />
@@ -219,7 +219,7 @@ export function NotificationsPopover(params: {
                     </div>
                   </div>
 
-                  <div className={'py-2'}>
+                  <div className={'py-1'}>
                     <Button
                       className={'max-h-6 max-w-6'}
                       size={'icon'}

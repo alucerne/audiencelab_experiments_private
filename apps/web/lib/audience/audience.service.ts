@@ -448,4 +448,54 @@ class AudienceService {
 
     return audienceFilters;
   }
+
+  async updateAvailableInterests() {
+    const response = await fetch(miscConfig.interestsApi.url, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-API-Key': miscConfig.interestsApi.key,
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(
+        `API request failed ${response.status}: ${
+          errorData.message || errorData.error || JSON.stringify(errorData)
+        }`,
+      );
+    }
+
+    const availableInterests = z
+      .object({
+        result: z.array(
+          z.object({
+            segment: z.string(),
+            total: z.number(),
+          }),
+        ),
+      })
+      .parse(await response.json());
+
+    const validSegments = availableInterests.result
+      .map((item) => item.segment)
+      .filter((s) => s.includes('c_'))
+      .map((s) => s.replace('4eyes_', ''));
+
+    if (validSegments.length === 0) return [];
+
+    const { data, error } = await this.client
+      .from('interests_custom')
+      .update({ available: true })
+      .in('topic_id', validSegments)
+      .eq('available', false)
+      .select('account_id, topic');
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

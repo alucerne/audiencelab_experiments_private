@@ -60,3 +60,18 @@ create policy insert_interests_custom
   with check (
     public.has_role_on_account(account_id) 
   );
+
+select cron.schedule(
+  'update-interests-daily',
+  '0 2 * * *',              -- every day at 2:00 AM UTC
+  $$
+    SELECT net.http_post(
+      url := 'http://host.docker.internal:3000/api/db/interest',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'X-Supabase-Event-Signature', 'WEBHOOKSECRET'
+      ),
+      timeout_milliseconds := 20000
+    );
+  $$
+);

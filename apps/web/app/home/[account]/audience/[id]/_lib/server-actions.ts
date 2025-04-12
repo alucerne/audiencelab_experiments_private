@@ -11,7 +11,7 @@ import { getIntentNames } from '~/lib/typesense/intents/queries';
 
 export const searchPremadeListsAction = enhanceAction(
   async (data) => {
-    return getIntentNames({ ...data, typos: 0 });
+    return getIntentNames({ ...data, typos: 2 });
   },
   {
     schema: z.object({
