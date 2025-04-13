@@ -1,6 +1,7 @@
 'use client';
 
-//import Link from 'next/link';
+import Link from 'next/link';
+
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ArrowRight } from 'lucide-react';
 import { useForm } from 'react-hook-form';
@@ -90,7 +91,7 @@ export function PasswordSignInForm({
 
               <FormMessage />
 
-              {/* <div>
+              <div>
                 <Button
                   asChild
                   type={'button'}
@@ -102,7 +103,7 @@ export function PasswordSignInForm({
                     <Trans i18nKey={'auth:passwordForgottenQuestion'} />
                   </Link>
                 </Button>
-              </div> */}
+              </div>
             </FormItem>
           )}
         />

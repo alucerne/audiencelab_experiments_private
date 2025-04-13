@@ -135,7 +135,7 @@ INSERT INTO "auth"."identities" ("provider_id", "user_id", "identity_data", "pro
 --
 
 INSERT INTO "public"."accounts" ("id", "primary_owner_user_id", "name", "slug", "email", "is_personal_account", "updated_at", "created_at", "created_by", "updated_by", "picture_url", "public_data") VALUES
-        ('5deaa894-2094-4da3-b4fd-1fada0809d1c', '31a03e74-1639-45b6-bfa7-77447f1a4762', 'Audience Lab', 'audiencelab', NULL, false, NULL, NULL, NULL, NULL, NULL, '{}');
+        ('5deaa894-2094-4da3-b4fd-1fada0809d1c', '31a03e74-1639-45b6-bfa7-77447f1a4762', 'Audience Lab', 'audience-lab', NULL, false, NULL, NULL, NULL, NULL, NULL, '{}');
 
 --
 -- Data for Name: roles; Type: TABLE DATA; Schema: public; Owner: postgres
