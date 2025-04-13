@@ -164,7 +164,9 @@ export function PersonalAccountDropdown({
         <DropdownMenuItem asChild>
           <Link
             className={'s-full flex cursor-pointer items-center space-x-2'}
-            href={'/docs'}
+            href="https://docs.audiencelab.io/audiencelab-v3/4z72nzTBAcQ8nqMRzSvb33/welcome-to-v3-getting-started/4z72nzTBAewfeeA3XzU45g"
+            target="_blank"
+            rel="noreferrer"
           >
             <MessageCircleQuestion className={'h-5'} />
 

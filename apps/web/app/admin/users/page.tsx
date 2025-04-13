@@ -64,7 +64,7 @@ function getFilters(params: SearchParams) {
   > = {};
 
   if (params.query) {
-    filters.name = {
+    filters.email = {
       like: `%${params.query}%`,
     };
   }
