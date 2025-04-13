@@ -271,14 +271,41 @@ export default function EnrichmentUploadForm({
         if (tempRowCount === 0 && results.meta.fields) {
           headers = results.meta.fields;
           setCsvHeaders(headers);
+
           headers.forEach((header) => {
             completenessTracker[header] = { filled: 0, total: 0 };
           });
+
+          const autoMapping: Record<string, string[]> = {};
+
+          headers.forEach((header) => {
+            const normalizedHeader = header
+              .toLowerCase()
+              .replace(/[_\s]+/g, '');
+
+            const matchedOption = fieldOptions.find((option) => {
+              const normalizedOption = option.label
+                .toLowerCase()
+                .replace(/[_\s]+/g, '');
+              return normalizedHeader === normalizedOption;
+            });
+
+            if (matchedOption) {
+              autoMapping[matchedOption.value] = [header];
+            }
+          });
+
+          setColumnMapping(autoMapping);
         }
 
         if (headers.length === 0) return;
 
         chunkData.forEach((row) => {
+          const isEmptyRow = headers.every(
+            (header) => !row[header] || row[header].trim() === '',
+          );
+          if (isEmptyRow) return;
+
           tempRowCount++;
 
           if (sampleRows.length < 4) {
