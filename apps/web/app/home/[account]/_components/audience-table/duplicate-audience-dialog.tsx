@@ -30,16 +30,9 @@ import {
 import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
+import { audienceNameFormSchema } from '~/lib/audience/schema/audience-name-form.schema';
 import { duplicateAudienceAction } from '~/lib/audience/server-actions';
 import { Tables } from '~/lib/database.types';
-
-const duplicateAudienceSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(2, 'Name must be at least 2 characters')
-    .max(50, 'Name cannot exceed 50 characters'),
-});
 
 export default function DuplicateAudienceDialog({
   audience,
@@ -72,14 +65,14 @@ function DuplicateAudienceForm({ audience }: { audience: Tables<'audience'> }) {
     account: { slug },
   } = useTeamAccountWorkspace();
 
-  const form = useForm<z.infer<typeof duplicateAudienceSchema>>({
+  const form = useForm<z.infer<typeof audienceNameFormSchema>>({
     defaultValues: {
       name: '',
     },
-    resolver: zodResolver(duplicateAudienceSchema),
+    resolver: zodResolver(audienceNameFormSchema),
   });
 
-  function onSubmit(values: z.infer<typeof duplicateAudienceSchema>) {
+  function onSubmit(values: z.infer<typeof audienceNameFormSchema>) {
     startTransition(() => {
       toast.promise(
         duplicateAudienceAction({

@@ -1,15 +1,13 @@
 'use client';
 
-import { useTransition } from 'react';
-
-import { useRouter } from 'next/navigation';
+import { useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
+import { Pencil } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
-import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Button } from '@kit/ui/button';
 import {
   Dialog,
@@ -32,18 +30,26 @@ import { Spinner } from '@kit/ui/spinner';
 import { Trans } from '@kit/ui/trans';
 
 import { audienceNameFormSchema } from '~/lib/audience/schema/audience-name-form.schema';
-import { createAudienceAction } from '~/lib/audience/server-actions';
+import { updateAudienceNameAction } from '~/lib/audience/server-actions';
 
-export default function AddAudienceDialog({
-  disabled,
+export default function UpdateAudienceNameDialog({
+  audienceName,
+  audienceId,
 }: {
-  disabled?: boolean;
+  audienceName: string;
+  audienceId: string;
 }) {
+  const [open, setOpen] = useState(false);
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled} className="w-fit">
-          Create
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-muted-foreground size-7"
+        >
+          <Pencil className="size-3.5" />
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -52,25 +58,29 @@ export default function AddAudienceDialog({
         className="max-w-md"
       >
         <DialogHeader>
-          <DialogTitle>Create Audience</DialogTitle>
+          <DialogTitle>Update Audience Name</DialogTitle>
         </DialogHeader>
 
-        <AddAudienceForm />
+        <UpdateAudienceNameForm
+          audienceId={audienceId}
+          audienceName={audienceName}
+          onSuccess={() => setOpen(false)}
+        />
       </DialogContent>
     </Dialog>
   );
 }
 
-function AddAudienceForm(props: { onClose?: () => void }) {
-  const router = useRouter();
+function UpdateAudienceNameForm(props: {
+  audienceId: string;
+  audienceName: string;
+  onSuccess?: () => void;
+}) {
   const [pending, startTransition] = useTransition();
-  const {
-    account: { slug, id },
-  } = useTeamAccountWorkspace();
 
   const form = useForm<z.infer<typeof audienceNameFormSchema>>({
     defaultValues: {
-      name: '',
+      name: props.audienceName,
     },
     resolver: zodResolver(audienceNameFormSchema),
   });
@@ -78,20 +88,18 @@ function AddAudienceForm(props: { onClose?: () => void }) {
   function onSubmit(values: z.infer<typeof audienceNameFormSchema>) {
     startTransition(async () => {
       try {
-        const { id: audienceId } = await createAudienceAction({
-          accountId: id,
+        await updateAudienceNameAction({
+          audienceId: props.audienceId,
           name: values.name,
         });
 
-        router.push(`/home/${slug}/audience/${audienceId}`);
+        props.onSuccess?.();
       } catch {
         toast.error(
           'Failed to create audience. Please try again or reach out to support.',
         );
       }
     });
-
-    props.onClose?.();
   }
 
   return (
@@ -129,7 +137,7 @@ function AddAudienceForm(props: { onClose?: () => void }) {
               </Button>
             </DialogClose>
             <Button size="sm" disabled={pending}>
-              {!pending ? 'Create' : <Spinner className="mx-2.5 h-4 w-4" />}
+              {!pending ? 'Update' : <Spinner className="mx-2.5 size-4" />}
             </Button>
           </div>
         </div>
