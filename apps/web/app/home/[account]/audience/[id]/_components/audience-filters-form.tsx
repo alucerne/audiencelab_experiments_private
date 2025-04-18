@@ -90,6 +90,7 @@ export default function AudienceFiltersForm({
   const { account, id } = useParams<{ account: string; id: string }>();
   const [pending, startTransition] = useTransition();
   const [currentDialog, setCurrentDialog] = useState<number | null>(null);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const {
     account: { id: accountId },
@@ -111,6 +112,14 @@ export default function AudienceFiltersForm({
         });
       }
     }
+  }, [defaultValues]);
+
+  const isUpdate = useMemo(() => {
+    if (!defaultValues) return false;
+
+    const parsed = audienceFiltersFormSchema.safeParse(defaultValues);
+
+    return parsed.success;
   }, [defaultValues]);
 
   const steps = [
@@ -192,7 +201,7 @@ export default function AudienceFiltersForm({
     setCurrentDialog(stepIndex);
   }
 
-  async function handleDialogClose(_stepIndex: number) {
+  function handleDialogClose(_stepIndex: number) {
     setCurrentDialog(null);
   }
 
@@ -209,13 +218,14 @@ export default function AudienceFiltersForm({
           filters: values,
         }),
         {
-          loading: 'Generating audience...',
+          loading: isUpdate ? 'Updating audience...' : 'Generating audience...',
           success: () => {
             router.push(`/home/${account}`);
-
-            return 'Audience generation in queue...';
+            return isUpdate
+              ? 'Audience update in queue...'
+              : 'Audience generation in queue...';
           },
-          error: 'Failed to generate audience',
+          error: `Failed to ${isUpdate ? 'update' : 'generate'} audience`,
         },
       );
     });
@@ -228,13 +238,8 @@ export default function AudienceFiltersForm({
     isPending,
     isError,
   } = useMutation({
-    mutationFn: async () => {
-      return await getPreviewAudienceAction({
-        accountId,
-        id,
-        filters: form.getValues(),
-      });
-    },
+    mutationFn: () =>
+      getPreviewAudienceAction({ accountId, id, filters: form.getValues() }),
   });
 
   function onError(errors: unknown) {
@@ -305,13 +310,13 @@ export default function AudienceFiltersForm({
                 Preview
               </Button>
               <Button
-                type="submit"
+                type="button"
                 disabled={pending || !form.formState.isValid}
                 className="px-3 py-1.5"
-                onClick={() => form.handleSubmit(onSubmit, onError)()}
+                onClick={() => setShowConfirm(true)}
               >
                 <Database className="mr-2 size-4" />
-                Generate Audience
+                {isUpdate ? 'Update Audience' : 'Generate Audience'}
               </Button>
             </div>
           </div>
@@ -404,6 +409,40 @@ export default function AudienceFiltersForm({
                 </DialogContent>
               </Dialog>
             ))}
+            <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
+              <DialogContent className="max-w-md">
+                <DialogHeader>
+                  <DialogTitle>
+                    {isUpdate
+                      ? 'Confirm Audience Update'
+                      : 'Confirm Audience Generation'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {isUpdate
+                      ? 'This will queue your audience to be updated.'
+                      : 'This will queue your audience for generation.'}
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowConfirm(false)}
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    size="sm"
+                    onClick={() => {
+                      setShowConfirm(false);
+                      form.handleSubmit(onSubmit, onError)();
+                    }}
+                  >
+                    {isUpdate ? 'Update' : 'Generate'}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </form>
         </Form>
       </div>
@@ -463,8 +502,7 @@ export default function AudienceFiltersForm({
             Preview Generation Failed
           </h3>
           <p className="text-destructive mb-6 max-w-md text-center">
-            An error occurred while generating the audience preview. Please try
-            again.
+            An error occurred while generating the audience preview.
           </p>
           <Button
             type="button"
