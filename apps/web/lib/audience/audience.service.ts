@@ -498,4 +498,23 @@ class AudienceService {
 
     return data;
   }
+
+  async updateAudienceName({
+    audienceId,
+    name,
+  }: {
+    audienceId: string;
+    name: string;
+  }) {
+    const { error } = await this.client
+      .from('audience')
+      .update({
+        name,
+      })
+      .eq('id', audienceId);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

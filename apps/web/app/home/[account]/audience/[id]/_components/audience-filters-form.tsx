@@ -71,6 +71,7 @@ import HousingStep, { housingFields } from './housing-step';
 import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PreviewAudienceTable from './preview-audience-table';
+import UpdateAudienceNameDialog from './update-audience-name-dialog';
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -272,7 +273,15 @@ export default function AudienceFiltersForm({
         <div className="flex flex-col justify-between pb-6 min-[896px]:flex-row lg:pr-4 lg:pb-0">
           <TeamAccountLayoutPageHeader
             account={account}
-            title={`${audienceName} Audience Filters`}
+            title={
+              <div className="flex items-center gap-1.5">
+                {`${audienceName} Audience Filters`}
+                <UpdateAudienceNameDialog
+                  audienceId={id}
+                  audienceName={audienceName}
+                />
+              </div>
+            }
             description={<AppBreadcrumbs uuidLabel="Filters" />}
           />
           <div className="flex flex-col-reverse items-center gap-4 md:flex-row">

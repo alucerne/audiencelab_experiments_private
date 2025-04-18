@@ -300,3 +300,24 @@ export const searchBatchZipsAction = enhanceAction(
     }),
   },
 );
+
+export const updateAudienceNameAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    await service.updateAudienceName({
+      audienceId: data.audienceId,
+      name: data.name,
+    });
+
+    revalidatePath('/home/[account]/audience/[id]', 'page');
+    revalidatePath('/home/[account]', 'page');
+  },
+  {
+    schema: z.object({
+      audienceId: z.string(),
+      name: z.string(),
+    }),
+  },
+);
