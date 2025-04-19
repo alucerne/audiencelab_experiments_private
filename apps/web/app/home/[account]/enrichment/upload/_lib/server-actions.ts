@@ -13,8 +13,6 @@ import miscConfig from '~/config/misc.config';
 import { createCreditsService } from '~/lib/credits/credits.service';
 import { createEnrichmentService } from '~/lib/enrichment/enrichment.service';
 
-const bucketName = 'v3-audiencelab-enrichment-upload';
-
 const storage = new Storage({
   projectId: miscConfig.googleCloud.projectId,
   credentials: {
@@ -40,7 +38,7 @@ export const getUploadUrlAction = enhanceAction(
 
     const job = await service.createEnrichment({ accountId, name });
 
-    const bucket = storage.bucket(bucketName);
+    const bucket = storage.bucket(miscConfig.googleCloud.enrichmentBucket);
 
     await bucket.setCorsConfiguration([
       {
@@ -98,7 +96,7 @@ export const processEnrichmentAction = enhanceAction(
     originalFileName,
     operator,
   }) => {
-    const bucket = storage.bucket(bucketName);
+    const bucket = storage.bucket(miscConfig.googleCloud.enrichmentBucket);
     const file = bucket.file(uniqueFileName);
 
     await file.setMetadata({
@@ -120,7 +118,7 @@ export const processEnrichmentAction = enhanceAction(
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          gcsPath: `gs://${bucketName}/${uniqueFileName}`,
+          gcsPath: `gs://${miscConfig.googleCloud.enrichmentBucket}/${uniqueFileName}`,
           columns: mappedColumns,
           jobId: jobId,
           accountId,
