@@ -7,7 +7,12 @@ create table if not exists public.enqueue_job (
   current integer null,
   total integer null,
   created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
+  updated_at timestamptz not null default now(),
+  payload_enqueue text null,
+  payload_process text null,
+  payload_hydrate text null,
+  resolution_time double precision null,
+  update_count integer null
 );
 
 -- revoke permissions on public.enqueue_job
@@ -64,3 +69,32 @@ create policy insert_enqueue_job
   with check (
     public.has_role_on_account(account_id) 
   );
+
+
+create function public.updated_at_column() returns trigger
+  language plpgsql
+as
+$$
+BEGIN
+    NEW.updated_at = now();
+
+    NEW.resolution_time = extract(epoch from (NEW.updated_at - NEW.created_at));
+
+    IF NEW.update_count IS NULL THEN
+        NEW.update_count = 1;
+    ELSE
+        NEW.update_count = NEW.update_count + 1;
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+alter function public.updated_at_column() owner to postgres;
+grant execute on function public.updated_at_column() to service_role;
+
+create trigger set_updated_at
+  before update
+  on public.enqueue_job
+  for each row
+  execute procedure public.updated_at_column();

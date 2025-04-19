@@ -1,22 +1,15 @@
-CREATE SEQUENCE departments_id_seq;
-create table ref_departments
-(
-    id         integer                  default nextval('departments_id_seq'::regclass) not null
-        constraint departments_pkey
-            primary key,
-    nome       text                                                                     not null,
+create sequence departments_id_seq;
+create table if not exists public.ref_departments (
+    id integer default nextval('departments_id_seq'::regclass) not null constraint departments_pkey primary key,
+    nome text not null,
     created_at timestamp with time zone default CURRENT_TIMESTAMP
 );
 
 comment on table ref_departments is 'Table storing department categories';
 
-alter table ref_departments
-    owner to postgres;
+alter table ref_departments owner to postgres;
 
-create unique index idx_departments_nome
-    on ref_departments (nome);
-
-grant delete, insert, references, select, trigger, truncate, update on ref_departments to anon;
+create unique index idx_departments_nome on ref_departments (nome);
 
 grant delete, insert, references, select, trigger, truncate, update on ref_departments to authenticated;
 
@@ -42,26 +35,19 @@ values  (1, 'Administrative', '2025-03-12 20:27:50.427230 +00:00'),
         (17, 'Real Estate', '2025-03-12 20:27:52.825604 +00:00'),
         (18, 'Sales', '2025-03-12 20:27:53.020584 +00:00');
 
-CREATE SEQUENCE industries_id_seq;
+create sequence industries_id_seq;
 
-create table ref_industries
-(
-    id         integer                  default nextval('industries_id_seq'::regclass) not null
-        constraint industries_pkey
-            primary key,
-    nome       text                                                                    not null,
+create table if not exists public.ref_industries (
+    id integer default nextval('industries_id_seq'::regclass) not null constraint industries_pkey primary key,
+    nome text not null,
     created_at timestamp with time zone default CURRENT_TIMESTAMP
 );
 
 comment on table ref_industries is 'Table storing industry categories';
 
-alter table ref_industries
-    owner to postgres;
+alter table ref_industries owner to postgres;
 
-create unique index idx_industries_nome
-    on ref_industries (nome);
-
-grant delete, insert, references, select, trigger, truncate, update on ref_industries to anon;
+create unique index idx_industries_nome on ref_industries(nome);
 
 grant delete, insert, references, select, trigger, truncate, update on ref_industries to authenticated;
 
@@ -234,25 +220,18 @@ values  (1, 'Accounting', '2025-03-12 20:26:17.445928 +00:00'),
         (164, 'Wireless Services', '2025-03-12 20:26:34.232800 +00:00'),
         (165, 'Writing And Editing', '2025-03-12 20:26:34.330906 +00:00');
     
-CREATE SEQUENCE seniority_levels_id_seq;
-create table ref_seniority_levels
-(
-    id         integer                  default nextval('seniority_levels_id_seq'::regclass) not null
-        constraint seniority_levels_pkey
-            primary key,
-    level      text                                                                          not null,
+create sequence seniority_levels_id_seq;
+create table if not exists public.ref_seniority_levels (
+    id integer default nextval('seniority_levels_id_seq'::regclass) not null constraint seniority_levels_pkey primary key,
+    level text not null,
     created_at timestamp with time zone default CURRENT_TIMESTAMP
 );
 
 comment on table ref_seniority_levels is 'Table storing seniority level categories';
 
-alter table ref_seniority_levels
-    owner to postgres;
+alter table ref_seniority_levels owner to postgres;
 
-create unique index idx_seniority_levels_level
-    on ref_seniority_levels (level);
-
-grant delete, insert, references, select, trigger, truncate, update on ref_seniority_levels to anon;
+create unique index idx_seniority_levels_level on ref_seniority_levels(level);
 
 grant delete, insert, references, select, trigger, truncate, update on ref_seniority_levels to authenticated;
 
@@ -265,26 +244,18 @@ values  (1, 'Cxo', '2025-03-12 20:33:42.728932 +00:00'),
         (4, 'Staff', '2025-03-12 20:33:43.257750 +00:00'),
         (5, 'Vp', '2025-03-12 20:33:43.455845 +00:00');
 
-CREATE SEQUENCE sic_codes_id_seq;
-
-create table ref_sic_codes
-(
-    id         integer                  default nextval('sic_codes_id_seq'::regclass) not null
-        constraint sic_codes_pkey
-            primary key,
-    code       text                                                                   not null,
+create sequence sic_codes_id_seq;
+create table ref_sic_codes (
+    id integer default nextval('sic_codes_id_seq'::regclass) not null constraint sic_codes_pkey primary key,
+    code text not null,
     created_at timestamp with time zone default CURRENT_TIMESTAMP
 );
 
 comment on table ref_sic_codes is 'Table storing Standard Industrial Classification (SIC) codes';
 
-alter table ref_sic_codes
-    owner to postgres;
+alter table ref_sic_codes owner to postgres;
 
-create unique index idx_sic_codes_code
-    on ref_sic_codes (code);
-
-grant delete, insert, references, select, trigger, truncate, update on ref_sic_codes to anon;
+create unique index idx_sic_codes_code on ref_sic_codes(code);
 
 grant delete, insert, references, select, trigger, truncate, update on ref_sic_codes to authenticated;
 

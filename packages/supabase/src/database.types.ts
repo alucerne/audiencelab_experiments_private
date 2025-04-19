@@ -338,8 +338,13 @@ export type Database = {
           csv_url: string | null;
           current: number | null;
           id: string;
+          payload_enqueue: string | null;
+          payload_hydrate: string | null;
+          payload_process: string | null;
+          resolution_time: number | null;
           status: string;
           total: number | null;
+          update_count: number | null;
           updated_at: string;
         };
         Insert: {
@@ -349,8 +354,13 @@ export type Database = {
           csv_url?: string | null;
           current?: number | null;
           id?: string;
+          payload_enqueue?: string | null;
+          payload_hydrate?: string | null;
+          payload_process?: string | null;
+          resolution_time?: number | null;
           status?: string;
           total?: number | null;
+          update_count?: number | null;
           updated_at?: string;
         };
         Update: {
@@ -360,8 +370,13 @@ export type Database = {
           csv_url?: string | null;
           current?: number | null;
           id?: string;
+          payload_enqueue?: string | null;
+          payload_hydrate?: string | null;
+          payload_process?: string | null;
+          resolution_time?: number | null;
           status?: string;
           total?: number | null;
+          update_count?: number | null;
           updated_at?: string;
         };
         Relationships: [
@@ -811,6 +826,78 @@ export type Database = {
             referencedColumns: ['id'];
           },
         ];
+      };
+      ref_departments: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          nome: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          nome: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          nome?: string;
+        };
+        Relationships: [];
+      };
+      ref_industries: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          nome: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          nome: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          nome?: string;
+        };
+        Relationships: [];
+      };
+      ref_seniority_levels: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          level: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          level: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          level?: string;
+        };
+        Relationships: [];
+      };
+      ref_sic_codes: {
+        Row: {
+          code: string;
+          created_at: string | null;
+          id: number;
+        };
+        Insert: {
+          code: string;
+          created_at?: string | null;
+          id?: number;
+        };
+        Update: {
+          code?: string;
+          created_at?: string | null;
+          id?: number;
+        };
+        Relationships: [];
       };
       role_permissions: {
         Row: {

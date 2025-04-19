@@ -22,6 +22,11 @@ const MiscConfigSchema = z.object({
     projectId: z.string(),
     clientEmail: z.string(),
     privateKey: z.string(),
+    enrichmentBucket: z.string({
+      description: `Google Cloud Storage bucket name for enrichment.`,
+      required_error:
+        'Google Cloud Storage bucket name is required. Please set the `GOOGLE_CLOUD_ENRICHMENT_BUCKET` environment variable.',
+    }),
   }),
   interestsApi: z.object({
     url: z.string({
@@ -45,6 +50,7 @@ const miscConfig = MiscConfigSchema.parse({
     projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
     clientEmail: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
     privateKey: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
+    enrichmentBucket: process.env.GOOGLE_CLOUD_ENRICHMENT_BUCKET,
   },
   interestsApi: {
     url: process.env.INTERESTS_API_URL,
