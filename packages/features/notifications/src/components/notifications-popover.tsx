@@ -194,7 +194,9 @@ export function NotificationsPopover(params: {
                   }
                 }}
               >
-                <div className={'flex w-full items-start justify-between gap-1.5'}>
+                <div
+                  className={'flex w-full items-start justify-between gap-1.5'}
+                >
                   <div
                     className={'flex items-start justify-start gap-x-2.5 py-1'}
                   >
