@@ -8,6 +8,8 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
+import miscConfig from '~/config/misc.config';
+
 import { createCreditsService } from '../credits/credits.service';
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
@@ -164,7 +166,7 @@ export const getPreviewAudienceAction = enhanceAction(
     );
 
     const response = await fetch(
-      'https://v3-audience-job-72802495918.us-east1.run.app/audience/search',
+      `${miscConfig.enrichmentApiUrl}/audience/search`,
       {
         method: 'POST',
         headers: {
