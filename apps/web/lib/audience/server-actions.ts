@@ -166,7 +166,7 @@ export const getPreviewAudienceAction = enhanceAction(
     );
 
     const response = await fetch(
-      `${miscConfig.enrichmentApiUrl}/audience/search`,
+      `${miscConfig.audienceApiUrl}/audience/search`,
       {
         method: 'POST',
         headers: {
