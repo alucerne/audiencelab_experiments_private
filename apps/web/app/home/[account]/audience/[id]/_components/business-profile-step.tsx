@@ -210,6 +210,9 @@ const departmentOptions = [
   'military and protective services',
   'marketing',
   'operations',
+  'product management',
+  'real estate',
+  'sales',
 ];
 
 const employeeCountOptions = [

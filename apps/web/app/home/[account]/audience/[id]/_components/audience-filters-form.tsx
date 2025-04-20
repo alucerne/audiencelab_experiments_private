@@ -30,7 +30,7 @@ import {
   Users,
   Wallet,
 } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Path, PathValue, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -190,6 +190,31 @@ export default function AudienceFiltersForm({
   ] as const;
 
   const watchedValues = form.watch();
+
+  function getDefault<
+    K extends Path<z.infer<typeof audienceFiltersFormSchema>>,
+  >(path: K) {
+    const keys = path.split('.');
+    let result: unknown = audienceFiltersFormDefaultValues;
+
+    for (const key of keys) {
+      if (result == null || typeof result !== 'object') break;
+      result = (result as Record<string, unknown>)[key];
+    }
+
+    return result as PathValue<z.infer<typeof audienceFiltersFormSchema>, K>;
+  }
+
+  function isStepAtDefault(
+    fields: readonly Path<z.infer<typeof audienceFiltersFormSchema>>[],
+  ) {
+    return fields.every((path) => {
+      const current = form.getValues(path);
+      const def = getDefault(path);
+      return JSON.stringify(current) === JSON.stringify(def);
+    });
+  }
+
   const hasChanged = useMemo(
     () =>
       JSON.stringify(watchedValues) !==
@@ -396,6 +421,7 @@ export default function AudienceFiltersForm({
                       type="button"
                       variant="outline"
                       onClick={() => handleStepReset(index)}
+                      disabled={isStepAtDefault(step.fields)}
                     >
                       Reset
                     </Button>
