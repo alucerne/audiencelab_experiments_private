@@ -16,7 +16,7 @@ const MiscConfigSchema = z.object({
   enrichmentApiUrl: z.string({
     description: `Enrichment API URL.`,
     required_error:
-      'Enrichment API URL is required. Please set the `ENRICHMENT_API_URL` environment variable.',
+      'Enrichment API URL is required. Please set the `ENRICH_API_URL` environment variable.',
   }),
   googleCloud: z.object({
     projectId: z.string(),

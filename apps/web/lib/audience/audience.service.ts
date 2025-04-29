@@ -267,7 +267,7 @@ class AudienceService {
   async getCustomInterests({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('interests_custom')
-      .select('topic_id, topic, created_at, available')
+      .select('topic_id, topic, description, created_at, available')
       .eq('account_id', accountId);
 
     if (error) {
