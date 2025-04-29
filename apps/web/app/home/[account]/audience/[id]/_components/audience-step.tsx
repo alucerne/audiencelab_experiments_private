@@ -280,18 +280,29 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                       <SelectItem
                         key={index}
                         value={interest.topic_id}
-                        className="py-2"
+                        disabled={!interest.available}
+                        className="py-2 [&>span:nth-child(2)]:flex [&>span:nth-child(2)]:w-full [&>span:nth-child(2)]:min-w-0 [&>span:nth-child(2)]:flex-1 [&>span:nth-child(2)]:flex-col"
                       >
                         <div className="flex items-center gap-6">
-                          {interest.topic}
-                          <Badge variant="info">
+                          <div
+                            className="truncate"
+                            style={{
+                              wordWrap: 'break-word',
+                              overflowWrap: 'break-word',
+                              wordBreak: 'break-word',
+                              hyphens: 'auto',
+                            }}
+                          >
+                            {interest.topic || interest.description}
+                          </div>
+                          <Badge variant="info" className="whitespace-nowrap">
                             {interest.available
                               ? `Created on ${format(new Date(interest.created_at), 'MMM dd, yyyy')}`
                               : 'Processing'}
                           </Badge>
                         </div>
                         <p
-                          className="text-muted-foreground mt-1 line-clamp-4 text-xs"
+                          className="text-muted-foreground mt-1 line-clamp-3 text-xs"
                           style={{
                             wordWrap: 'break-word',
                             overflowWrap: 'break-word',

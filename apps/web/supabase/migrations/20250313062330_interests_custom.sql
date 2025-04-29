@@ -2,7 +2,7 @@ create table if not exists public.interests_custom (
   id uuid primary key default uuid_generate_v4(),
   account_id uuid not null references public.accounts(id) on delete cascade,
   topic_id text not null,
-  topic text not null,
+  topic text null,
   description text not null,
   available boolean not null default false,
   created_at timestamptz not null default now(),
