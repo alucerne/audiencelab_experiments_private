@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { Path, useFormContext } from 'react-hook-form';
+import { Path, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -111,7 +111,11 @@ export default function AudienceStep({
                 type="single"
                 variant="outline"
                 value={field.value}
-                onValueChange={(value) => field.onChange(value)}
+                onValueChange={(value) => {
+                  if (value !== undefined && value !== '') {
+                    field.onChange(value);
+                  }
+                }}
                 className="mt-1.5 justify-start"
               >
                 <ToggleGroupItem value="premade" className="px-3 py-1">
@@ -233,6 +237,10 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
     enabled: Boolean(accountId),
   });
 
+  const segment = useWatch({ control, name: 'segment' });
+
+  const selectedInterest = data?.find((i) => i.topic_id === segment?.[0]);
+
   return (
     <>
       <FormField
@@ -249,11 +257,11 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
               defaultValue={field.value?.[0] || ''}
             >
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className="[&_p]:hidden">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
               </FormControl>
-              <SelectContent>
+              <SelectContent className="w-[var(--radix-select-trigger-width)]">
                 {isLoading ? (
                   <SelectItem value="loading" disabled>
                     Loading...
@@ -272,14 +280,27 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                       <SelectItem
                         key={index}
                         value={interest.topic_id}
-                        disabled={!interest.available}
+                        className="py-2"
                       >
-                        {interest.topic}
-                        <Badge className="ml-6" variant="info">
-                          {interest.available
-                            ? `Created on ${format(new Date(interest.created_at), 'MMM dd, yyyy')}`
-                            : 'Processing'}
-                        </Badge>
+                        <div className="flex items-center gap-6">
+                          {interest.topic}
+                          <Badge variant="info">
+                            {interest.available
+                              ? `Created on ${format(new Date(interest.created_at), 'MMM dd, yyyy')}`
+                              : 'Processing'}
+                          </Badge>
+                        </div>
+                        <p
+                          className="text-muted-foreground mt-1 line-clamp-4 text-xs"
+                          style={{
+                            wordWrap: 'break-word',
+                            overflowWrap: 'break-word',
+                            wordBreak: 'break-word',
+                            hyphens: 'auto',
+                          }}
+                        >
+                          {interest.description}
+                        </p>
                       </SelectItem>
                     ))
                 ) : (
@@ -293,6 +314,21 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
           </FormItem>
         )}
       />
+      {selectedInterest && (
+        <div className="bg-muted rounded-md px-4 py-2">
+          <p
+            className="text-muted-foreground text-xs"
+            style={{
+              wordWrap: 'break-word',
+              overflowWrap: 'break-word',
+              wordBreak: 'break-word',
+              hyphens: 'auto',
+            }}
+          >
+            {selectedInterest.description}
+          </p>
+        </div>
+      )}
       <CreateCustomAudienceDialog disabled={!canCreate} />
     </>
   );
