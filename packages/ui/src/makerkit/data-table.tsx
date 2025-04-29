@@ -225,6 +225,7 @@ function Pagination<T>({
           variant={'ghost'}
           onClick={() => table.setPageIndex(0)}
           disabled={!table.getCanPreviousPage()}
+          className="size-7"
         >
           <ChevronsLeft className={'h-4'} />
         </Button>
@@ -234,6 +235,7 @@ function Pagination<T>({
           variant={'ghost'}
           onClick={() => table.previousPage()}
           disabled={!table.getCanPreviousPage()}
+          className="size-7"
         >
           <ChevronLeft className={'h-4'} />
         </Button>
@@ -243,6 +245,7 @@ function Pagination<T>({
           variant={'ghost'}
           onClick={() => table.nextPage()}
           disabled={!table.getCanNextPage()}
+          className="size-7"
         >
           <ChevronRight className={'h-4'} />
         </Button>
@@ -252,6 +255,7 @@ function Pagination<T>({
           variant={'ghost'}
           onClick={() => table.setPageIndex(table.getPageCount() - 1)}
           disabled={!table.getCanNextPage()}
+          className="size-7"
         >
           <ChevronsRight className={'h-4'} />
         </Button>

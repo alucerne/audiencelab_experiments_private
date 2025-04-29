@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ColumnDef } from '@tanstack/react-table';
+import { format, parseISO } from 'date-fns';
 import { EllipsisVertical } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
@@ -17,6 +18,7 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@kit/ui/dropdown-menu';
 import { DataTable } from '@kit/ui/enhanced-data-table';
@@ -142,11 +144,21 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
       id: 'created_at',
       header: 'Created At',
       accessorKey: 'created_at',
+      cell: ({ row: { original } }) => {
+        return original.created_at
+          ? format(parseISO(original.created_at), 'MMM d yyyy, h:mm a')
+          : null;
+      },
     },
     {
       id: 'updated_at',
       header: 'Updated At',
       accessorKey: 'updated_at',
+      cell: ({ row: { original } }) => {
+        return original.updated_at
+          ? format(parseISO(original.updated_at), 'MMM d yyyy, h:mm a')
+          : null;
+      },
     },
     {
       id: 'actions',
@@ -159,7 +171,7 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
           <div className="flex justify-end">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant={'ghost'}>
+                <Button variant={'ghost'} size={'icon'} className="size-7">
                   <EllipsisVertical className={'h-4'} />
                 </Button>
               </DropdownMenuTrigger>
@@ -167,7 +179,7 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
               <DropdownMenuContent align={'end'}>
                 <DropdownMenuGroup>
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem>
                     <Link
                       className={'h-full w-full'}
@@ -176,7 +188,6 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
                       View
                     </Link>
                   </DropdownMenuItem>
-
                   <If condition={isPersonalAccount}>
                     <AdminImpersonateUserDialog userId={userId}>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
@@ -190,7 +201,6 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
                       </DropdownMenuItem>
                     </AdminDeleteUserDialog>
                   </If>
-
                   <If condition={!isPersonalAccount}>
                     <AdminDeleteAccountDialog accountId={row.original.id}>
                       <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
