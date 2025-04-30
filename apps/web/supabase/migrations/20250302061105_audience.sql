@@ -7,6 +7,7 @@ create table if not exists public.audience (
   scheduled_refresh boolean not null default false,
   refresh_interval integer null,
   next_scheduled_refresh timestamptz null,
+  deleted boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

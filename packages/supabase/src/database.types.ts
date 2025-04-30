@@ -142,6 +142,7 @@ export type Database = {
         Row: {
           account_id: string;
           created_at: string;
+          deleted: boolean;
           filters: Json;
           id: string;
           name: string;
@@ -154,6 +155,7 @@ export type Database = {
         Insert: {
           account_id: string;
           created_at?: string;
+          deleted?: boolean;
           filters?: Json;
           id?: string;
           name: string;
@@ -166,6 +168,7 @@ export type Database = {
         Update: {
           account_id?: string;
           created_at?: string;
+          deleted?: boolean;
           filters?: Json;
           id?: string;
           name?: string;
