@@ -77,22 +77,6 @@ export default function AdminCreditsForm({
           />
           <FormField
             control={form.control}
-            name="enrichment_size_limit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Enrichment Size Limit</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Maximum records per enrichment batch
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="monthly_audience_limit"
             render={({ field }) => (
               <FormItem>
@@ -118,6 +102,22 @@ export default function AdminCreditsForm({
                 </FormControl>
                 <FormDescription>
                   Maximum number of custom interests allowed
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="enrichment_size_limit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Enrichment Size Limit</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Maximum records per enrichment batch
                 </FormDescription>
                 <FormMessage />
               </FormItem>

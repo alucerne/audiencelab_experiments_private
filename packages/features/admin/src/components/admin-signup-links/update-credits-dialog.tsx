@@ -117,22 +117,6 @@ function UpdateCreditsForm({ signupLink }: { signupLink: SignupLinkData }) {
           />
           <FormField
             control={form.control}
-            name="enrichment_size_limit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Enrichment Size Limit</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Maximum records per enrichment batch
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="monthly_audience_limit"
             render={({ field }) => (
               <FormItem>
@@ -158,6 +142,22 @@ function UpdateCreditsForm({ signupLink }: { signupLink: SignupLinkData }) {
                 </FormControl>
                 <FormDescription>
                   Maximum number of custom interests allowed
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="enrichment_size_limit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Enrichment Size Limit</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Maximum records per enrichment batch
                 </FormDescription>
                 <FormMessage />
               </FormItem>

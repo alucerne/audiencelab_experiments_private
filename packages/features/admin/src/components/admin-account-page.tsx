@@ -25,6 +25,7 @@ import {
   TableRow,
 } from '@kit/ui/table';
 
+import AdminAddCreditsDialog from './admin-add-credits-dialog';
 import { AdminBanUserDialog } from './admin-ban-user-dialog';
 import AdminCreditsForm from './admin-credits-form';
 import { AdminDeleteAccountDialog } from './admin-delete-account-dialog';
@@ -196,7 +197,13 @@ async function TeamAccountPage(props: {
         <div>
           <div className={'flex flex-col gap-y-8'}>
             <div className={'flex flex-col gap-y-2.5'}>
-              <Heading level={6}>Permissions</Heading>
+              <Heading
+                level={6}
+                className="flex w-full items-center justify-between"
+              >
+                Permissions
+                <AdminAddCreditsDialog credits={permissions} />
+              </Heading>
 
               <AdminCreditsForm credits={permissions} />
             </div>
