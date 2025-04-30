@@ -56,7 +56,7 @@ export default function CreditsUsage({
               </Badge>
             </div>
             <CardDescription>
-              Your current amount of audience lists
+              Monthly audience lists used this calendar month
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

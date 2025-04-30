@@ -88,7 +88,7 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
         b2b_access: false,
         enrichment_size_limit: 500000,
         intent_access: false,
-        max_audience_lists: 20,
+        monthly_audience_limit: 20,
         max_custom_interests: 1,
         monthly_enrichment_limit: 1,
       },
@@ -358,15 +358,15 @@ function Step2() {
         />
         <FormField
           control={control}
-          name="permissions.max_audience_lists"
+          name="permissions.monthly_audience_limit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Max Audience Lists</FormLabel>
+              <FormLabel>Monthly Audience Limit</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
               <FormDescription>
-                Maximum number of audience lists allowed
+                Maximum audience lists allowed per month
               </FormDescription>
               <FormMessage />
             </FormItem>

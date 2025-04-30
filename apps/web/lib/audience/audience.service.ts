@@ -31,6 +31,7 @@ class AudienceService {
       `,
       )
       .eq('account_id', accountId)
+      .eq('deleted', false)
       .order('created_at', { ascending: false });
 
     if (error) {
@@ -210,7 +211,7 @@ class AudienceService {
   async deleteAudience(params: { audienceId: string }) {
     const { error } = await this.client
       .from('audience')
-      .delete()
+      .update({ deleted: true })
       .eq('id', params.audienceId);
 
     if (error) {

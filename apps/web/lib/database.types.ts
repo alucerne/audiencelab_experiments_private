@@ -142,6 +142,7 @@ export type Database = {
         Row: {
           account_id: string;
           created_at: string;
+          deleted: boolean;
           filters: Json;
           id: string;
           name: string;
@@ -154,6 +155,7 @@ export type Database = {
         Insert: {
           account_id: string;
           created_at?: string;
+          deleted?: boolean;
           filters?: Json;
           id?: string;
           name: string;
@@ -166,6 +168,7 @@ export type Database = {
         Update: {
           account_id?: string;
           created_at?: string;
+          deleted?: boolean;
           filters?: Json;
           id?: string;
           name?: string;
@@ -272,11 +275,14 @@ export type Database = {
           audience_size_limit: number;
           b2b_access: boolean;
           created_at: string;
+          current_audience: number;
+          current_custom: number;
+          current_enrichment: number;
           enrichment_size_limit: number;
           id: string;
           intent_access: boolean;
-          max_audience_lists: number;
           max_custom_interests: number;
+          monthly_audience_limit: number;
           monthly_enrichment_limit: number;
           updated_at: string;
         };
@@ -285,11 +291,14 @@ export type Database = {
           audience_size_limit?: number;
           b2b_access?: boolean;
           created_at?: string;
+          current_audience?: number;
+          current_custom?: number;
+          current_enrichment?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
-          max_audience_lists?: number;
           max_custom_interests?: number;
+          monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
           updated_at?: string;
         };
@@ -298,11 +307,14 @@ export type Database = {
           audience_size_limit?: number;
           b2b_access?: boolean;
           created_at?: string;
+          current_audience?: number;
+          current_custom?: number;
+          current_enrichment?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
-          max_audience_lists?: number;
           max_custom_interests?: number;
+          monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
           updated_at?: string;
         };

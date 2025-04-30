@@ -19,6 +19,7 @@ import {
 } from './schema/admin-actions.schema';
 import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
 import { AdminSignupLinkFormSchema } from './schema/admin-signup-link-form.schema';
+import { AdminUsageFormSchema } from './schema/admin-usage-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { createAdminSignupLinksService } from './services/admin-signup-links.service';
@@ -190,6 +191,27 @@ export const updateTeamPermissionsAction = enhanceAction(
   },
   {
     schema: AdminCreditsFormSchema,
+  },
+);
+
+export const updateTeamUsageAction = enhanceAction(
+  async ({ id, ...data }) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const { error } = await adminClient
+      .from('credits')
+      .update(data)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath('/home/[account]/usage', 'page');
+    revalidatePath('/admin/users/[id]', 'page');
+  },
+  {
+    schema: AdminUsageFormSchema,
   },
 );
 
