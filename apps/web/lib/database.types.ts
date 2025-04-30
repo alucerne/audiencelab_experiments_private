@@ -275,6 +275,9 @@ export type Database = {
           audience_size_limit: number;
           b2b_access: boolean;
           created_at: string;
+          current_audience: number;
+          current_custom: number;
+          current_enrichment: number;
           enrichment_size_limit: number;
           id: string;
           intent_access: boolean;
@@ -288,6 +291,9 @@ export type Database = {
           audience_size_limit?: number;
           b2b_access?: boolean;
           created_at?: string;
+          current_audience?: number;
+          current_custom?: number;
+          current_enrichment?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
@@ -301,6 +307,9 @@ export type Database = {
           audience_size_limit?: number;
           b2b_access?: boolean;
           created_at?: string;
+          current_audience?: number;
+          current_custom?: number;
+          current_enrichment?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
