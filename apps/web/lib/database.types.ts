@@ -278,8 +278,8 @@ export type Database = {
           enrichment_size_limit: number;
           id: string;
           intent_access: boolean;
-          max_audience_lists: number;
           max_custom_interests: number;
+          monthly_audience_limit: number;
           monthly_enrichment_limit: number;
           updated_at: string;
         };
@@ -291,8 +291,8 @@ export type Database = {
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
-          max_audience_lists?: number;
           max_custom_interests?: number;
+          monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
           updated_at?: string;
         };
@@ -304,8 +304,8 @@ export type Database = {
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
-          max_audience_lists?: number;
           max_custom_interests?: number;
+          monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
           updated_at?: string;
         };

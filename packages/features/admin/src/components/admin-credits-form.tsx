@@ -39,7 +39,7 @@ export default function AdminCreditsForm({
       b2b_access: credits.b2b_access,
       enrichment_size_limit: credits.enrichment_size_limit,
       intent_access: credits.intent_access,
-      max_audience_lists: credits.max_audience_lists,
+      monthly_audience_limit: credits.monthly_audience_limit,
       max_custom_interests: credits.max_custom_interests,
       monthly_enrichment_limit: credits.monthly_enrichment_limit,
     },
@@ -93,15 +93,15 @@ export default function AdminCreditsForm({
           />
           <FormField
             control={form.control}
-            name="max_audience_lists"
+            name="monthly_audience_limit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max Audience Lists</FormLabel>
+                <FormLabel>Monthly Audience Limit</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Maximum number of audience lists allowed
+                  Maximum audience lists allowed per month
                 </FormDescription>
                 <FormMessage />
               </FormItem>

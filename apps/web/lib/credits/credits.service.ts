@@ -35,7 +35,9 @@ class CreditsService {
       this.client
         .from('audience')
         .select('id, enqueue_job!inner(id)', { count: 'exact', head: true })
-        .eq('account_id', accountId),
+        .eq('account_id', accountId)
+        .gte('created_at', startDate)
+        .lte('created_at', endDate),
       this.client
         .from('interests_custom')
         .select('id', { count: 'exact', head: true })
@@ -53,7 +55,7 @@ class CreditsService {
         sizeLimit: credits.data.enrichment_size_limit,
       },
       audience: {
-        maxLists: credits.data.max_audience_lists,
+        maxLists: credits.data.monthly_audience_limit,
         currentCount: audience.count ?? 0,
         sizeLimit: credits.data.audience_size_limit,
       },
@@ -67,6 +69,10 @@ class CreditsService {
   }
 
   async getAudienceLimits({ accountId }: { accountId: string }) {
+    const now = new Date();
+    const startDate = startOfMonth(now).toISOString();
+    const endDate = endOfMonth(now).toISOString();
+
     const [credits, audience, customInterests] = await Promise.all([
       this.client
         .from('credits')
@@ -76,7 +82,9 @@ class CreditsService {
       this.client
         .from('audience')
         .select('id, enqueue_job!inner(id)', { count: 'exact', head: true })
-        .eq('account_id', accountId),
+        .eq('account_id', accountId)
+        .gte('created_at', startDate)
+        .lte('created_at', endDate),
       this.client
         .from('interests_custom')
         .select('id', { count: 'exact', head: true })
@@ -88,7 +96,8 @@ class CreditsService {
     }
 
     return {
-      canCreate: (credits.data.max_audience_lists ?? 0) > (audience.count ?? 0),
+      canCreate:
+        (credits.data.monthly_audience_limit ?? 0) > (audience.count ?? 0),
       canCreateCustomInterests:
         (credits.data.max_custom_interests ?? 0) > (customInterests.count ?? 0),
       b2bAccess: credits.data.b2b_access,
