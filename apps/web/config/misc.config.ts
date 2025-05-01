@@ -40,6 +40,33 @@ const MiscConfigSchema = z.object({
         'Interests API key is required. Please set the `INTERESTS_API_KEY` environment variable.',
     }),
   }),
+  delivrPixel: z.object({
+    apiUrl: z.string({
+      description: `Delivr Pixel API URL.`,
+      required_error:
+        'Delivr Pixel API URL is required. Please set the `DELIVR_PIXEL_API_URL` environment variable.',
+    }),
+    jwt: z.string({
+      description: `Delivr Pixel JWT.`,
+      required_error:
+        'Delivr Pixel JWT is required. Please set the `DELIVR_PIXEL_JWT` environment variable.',
+    }),
+    appClientId: z.string({
+      description: `Delivr Pixel App Client ID.`,
+      required_error:
+        'Delivr Pixel App Client ID is required. Please set the `DELIVR_PIXEL_APP_CLIENT_ID` environment variable.',
+    }),
+    appClientSecret: z.string({
+      description: `Delivr Pixel App Client Secret.`,
+      required_error:
+        'Delivr Pixel App Client Secret is required. Please set the `DELIVR_PIXEL_APP_CLIENT_SECRET` environment variable.',
+    }),
+    enterpriseId: z.string({
+      description: `Delivr Pixel Enterprise ID.`,
+      required_error:
+        'Delivr Pixel Enterprise ID is required. Please set the `DELIVR_PIXEL_ENTERPRISE_ID` environment variable.',
+    }),
+  }),
 });
 
 const miscConfig = MiscConfigSchema.parse({
@@ -55,6 +82,13 @@ const miscConfig = MiscConfigSchema.parse({
   interestsApi: {
     url: process.env.INTERESTS_API_URL,
     key: process.env.INTERESTS_API_KEY,
+  },
+  delivrPixel: {
+    apiUrl: process.env.DELIVR_PIXEL_API_URL,
+    jwt: process.env.DELIVR_PIXEL_JWT,
+    appClientId: process.env.DELIVR_PIXEL_APP_CLIENT_ID,
+    appClientSecret: process.env.DELIVR_PIXEL_APP_CLIENT_SECRET,
+    enterpriseId: process.env.DELIVR_PIXEL_ENTERPRISE_ID,
   },
 });
 
