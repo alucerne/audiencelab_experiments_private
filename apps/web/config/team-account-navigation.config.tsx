@@ -1,6 +1,7 @@
 import {
   Activity,
   BookUser,
+  CodeXml,
   CreditCard,
   Settings,
   UserSearch,
@@ -28,6 +29,16 @@ const getRoutes = (account: string) => [
         label: 'Enrichment',
         path: pathsConfig.app.accountEnrichment.replace('[account]', account),
         Icon: <UserSearch className={iconClasses} />,
+      },
+    ],
+  },
+  {
+    label: 'Integrations',
+    children: [
+      {
+        label: 'Pixel',
+        path: pathsConfig.app.accountPixel.replace('[account]', account),
+        Icon: <CodeXml className={iconClasses} />,
       },
     ],
   },
