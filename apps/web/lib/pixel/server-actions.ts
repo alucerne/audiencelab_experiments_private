@@ -32,3 +32,25 @@ export const createPixelAction = enhanceAction(
     }),
   },
 );
+
+export const deletePixelAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createPixelService(client);
+
+    await service.deletePixel({
+      id: data.id,
+      delivrPixelId: data.pixelId,
+      accountId: data.accountId,
+    });
+
+    revalidatePath('/home/[account]/pixel', 'page');
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+      pixelId: z.string(),
+      accountId: z.string(),
+    }),
+  },
+);

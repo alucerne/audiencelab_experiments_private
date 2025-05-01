@@ -155,4 +155,45 @@ class PixelService {
 
     return data;
   }
+
+  async deletePixel(params: {
+    id: string;
+    delivrPixelId: string;
+    accountId: string;
+  }) {
+    const { delivrOrgId, delivrProjectId } =
+      await this.getDelivrDetails(params);
+
+    const response = await fetch(
+      `${miscConfig.delivrPixel.apiUrl}/public/core/api/pixel/delete`,
+      {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${miscConfig.delivrPixel.jwt}`,
+          'X-Delivr-Client-ID': miscConfig.delivrPixel.appClientId,
+          'X-Delivr-Client-Secret': miscConfig.delivrPixel.appClientSecret,
+          enterprise_id: miscConfig.delivrPixel.enterpriseId,
+          organization_id: delivrOrgId,
+          project_id: delivrProjectId,
+        },
+        body: JSON.stringify({
+          pixel_id: params.delivrPixelId,
+        }),
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error('Failed to delete pixel');
+    }
+
+    const { error } = await this.client
+      .from('pixel')
+      .update({ deleted: true })
+      .eq('id', params.id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }
