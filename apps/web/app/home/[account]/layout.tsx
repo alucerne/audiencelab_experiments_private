@@ -15,6 +15,7 @@ import { AppLogo } from '~/components/app-logo';
 import { getTeamAccountSidebarConfig } from '~/config/team-account-navigation.config';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
+import RestrictedDialog from './_components/restricted-dialog';
 // local imports
 import { TeamAccountLayoutMobileNavigation } from './_components/team-account-layout-mobile-navigation';
 import { TeamAccountLayoutSidebar } from './_components/team-account-layout-sidebar';
@@ -76,7 +77,10 @@ function SidebarLayout({
             </div>
           </PageMobileNavigation>
 
-          {children}
+          <>
+            {children}
+            <RestrictedDialog restricted={data.account.restricted} />
+          </>
         </Page>
       </SidebarProvider>
     </TeamAccountWorkspaceContextProvider>

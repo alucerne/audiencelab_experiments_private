@@ -310,6 +310,7 @@ create table if not exists
     updated_by uuid references auth.users,
     picture_url varchar(1000),
     public_data jsonb default '{}'::jsonb not null,
+    restricted boolean default false not null,
     primary key (id)
   );
 
@@ -2507,7 +2508,8 @@ returns table (
   role_hierarchy_level int,
   primary_owner_user_id uuid,
   subscription_status public.subscription_status,
-  permissions public.app_permissions[]
+  permissions public.app_permissions[],
+  restricted boolean
 )
 set search_path to ''
 as $$
@@ -2522,7 +2524,8 @@ begin
         roles.hierarchy_level,
         accounts.primary_owner_user_id,
         subscriptions.status,
-        array_agg(role_permissions.permission)
+        array_agg(role_permissions.permission),
+        accounts.restricted
     from
         public.accounts
         join public.accounts_memberships on accounts.id = accounts_memberships.account_id
@@ -2536,7 +2539,8 @@ begin
         accounts.id,
         accounts_memberships.account_role,
         subscriptions.status,
-        roles.hierarchy_level;
+        roles.hierarchy_level,
+        accounts.restricted;
 end;
 $$ language plpgsql;
 

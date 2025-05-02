@@ -2,6 +2,8 @@ import {
   BadgeX,
   Ban,
   CreditCardIcon,
+  Lock,
+  LockOpen,
   ShieldPlus,
   VenetianMask,
 } from 'lucide-react';
@@ -34,6 +36,7 @@ import { AdminImpersonateUserDialog } from './admin-impersonate-user-dialog';
 import { AdminMembersTable } from './admin-members-table';
 import { AdminMembershipsTable } from './admin-memberships-table';
 import { AdminReactivateUserDialog } from './admin-reactivate-user-dialog';
+import AdminRestrictAccountDialog from './admin-restrict-account-dialog';
 
 type Account = Tables<'accounts'>;
 type Membership = Tables<'accounts_memberships'>;
@@ -154,7 +157,6 @@ async function TeamAccountPage(props: {
 }) {
   const members = await getMembers(props.account.slug ?? '');
   const permissions = await getPermissions(props.account.id);
-
   return (
     <>
       <PageHeader
@@ -168,12 +170,36 @@ async function TeamAccountPage(props: {
           />
         }
       >
-        <AdminDeleteAccountDialog accountId={props.account.id}>
-          <Button size={'sm'} variant={'destructive'}>
-            <BadgeX className={'mr-1 h-4'} />
-            Delete
-          </Button>
-        </AdminDeleteAccountDialog>
+        <div className="flex items-center gap-3">
+          <AdminRestrictAccountDialog
+            accountId={props.account.id}
+            currentlyRestricted={props.account.restricted}
+          >
+            <Button
+              size={'sm'}
+              variant={'outline'}
+              className="border-destructive text-destructive hover:text-destructive hover:bg-destructive/5"
+            >
+              {props.account.restricted ? (
+                <>
+                  <LockOpen className={'mr-1 h-4'} />
+                  Unrestrict
+                </>
+              ) : (
+                <>
+                  <Lock className={'mr-1 h-4'} />
+                  Restrict
+                </>
+              )}
+            </Button>
+          </AdminRestrictAccountDialog>
+          <AdminDeleteAccountDialog accountId={props.account.id}>
+            <Button size={'sm'} variant={'destructive'}>
+              <BadgeX className={'mr-1 h-4'} />
+              Delete
+            </Button>
+          </AdminDeleteAccountDialog>
+        </div>
       </PageHeader>
 
       <PageBody className={'space-y-6 py-4'}>
