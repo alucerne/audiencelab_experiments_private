@@ -21,4 +21,15 @@ class AdminAccountsService {
       throw error;
     }
   }
+
+  async restrictAccount(accountId: string, currentlyRestricted: boolean) {
+    const { error } = await this.adminClient
+      .from('accounts')
+      .update({ restricted: !currentlyRestricted })
+      .eq('id', accountId);
+
+    if (error) {
+      throw error;
+    }
+  }
 }
