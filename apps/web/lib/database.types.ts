@@ -45,6 +45,7 @@ export type Database = {
           picture_url: string | null;
           primary_owner_user_id: string;
           public_data: Json;
+          restricted: boolean;
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
@@ -59,6 +60,7 @@ export type Database = {
           picture_url?: string | null;
           primary_owner_user_id?: string;
           public_data?: Json;
+          restricted?: boolean;
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
@@ -73,6 +75,7 @@ export type Database = {
           picture_url?: string | null;
           primary_owner_user_id?: string;
           public_data?: Json;
+          restricted?: boolean;
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
@@ -1278,6 +1281,7 @@ export type Database = {
           picture_url: string | null;
           primary_owner_user_id: string;
           public_data: Json;
+          restricted: boolean;
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
@@ -1422,6 +1426,7 @@ export type Database = {
           primary_owner_user_id: string;
           subscription_status: Database['public']['Enums']['subscription_status'];
           permissions: Database['public']['Enums']['app_permissions'][];
+          restricted: boolean;
         }[];
       };
       transfer_team_account_ownership: {
