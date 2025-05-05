@@ -2,11 +2,13 @@ import { useCallback, useEffect, useRef, useState, useTransition } from 'react';
 
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
+import { CircleAlert } from 'lucide-react';
 import { Path, useFormContext, useWatch } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
+import { Alert, AlertDescription, AlertTitle } from '@kit/ui/alert';
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
 import {
@@ -340,10 +342,35 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
           </p>
         </div>
       )}
-      <CreateCustomAudienceDialog disabled={!canCreate} />
+      <Alert variant={'info'}>
+        <CircleAlert className={'h-4'} />
+        <AlertTitle>Custom Models Are Upgrading to V3!</AlertTitle>
+        <AlertDescription className="space-y-1.5">
+          <p>We&apos;re rolling out the new V3 custom models interface.</p>
+          <p>
+            To ensure your model is fully optimized, our team will manually
+            review and deploy it.
+          </p>
+          <p>
+            <a
+              href="https://docs.google.com/forms/d/e/1FAIpQLSdZFvqts-YUeIIqfoR5uglv0_p64hLWAhkDnM2oL8k5neJzwQ/viewform"
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Submit using this form
+            </a>{' '}
+            — your model will be available to{' '}
+            <strong>download in your account</strong> and can be used and
+            refreshed exactly as before. It&apos;ll be ready within 8-24 hours
+            after review.
+          </p>
+        </AlertDescription>
+      </Alert>
     </>
   );
 }
+
 function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
   const { control, getValues, setError, clearErrors, reset } =
     useFormContext<AudienceFiltersFormValues>();
