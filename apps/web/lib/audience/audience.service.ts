@@ -3,6 +3,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 
+import { getLogger } from '@kit/shared/logger';
+
 import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
@@ -136,6 +138,14 @@ class AudienceService {
     filters: z.infer<typeof audienceFiltersFormSchema>;
     limit: number;
   }) {
+    const logger = await getLogger();
+    const ctx = {
+      name: 'audience.generate',
+      accountId,
+      audienceId,
+    };
+    logger.info(ctx, 'Starting audience generation');
+
     const [intentIds, audience, job] = await Promise.all([
       get4EyesIntentIds({
         keywords: filters.segment,
@@ -161,24 +171,37 @@ class AudienceService {
       throw audience.error || job.error;
     }
 
+    logger.info({ ...ctx, intentIds }, 'Got audience segments/intents');
+
     const audienceFilters = await this.getAudienceFiltersApiBody({
       filters,
       intentIds,
     });
+
+    const apiBody = {
+      ...audienceFilters,
+      jobId: job.data.id,
+      audienceId,
+      accountId,
+      webhook_url: audience.data.webhook_url,
+      limit,
+    };
+
+    logger.info(
+      {
+        ...ctx,
+        apiUrl: `${miscConfig.audienceApiUrl}/audience/enqueue`,
+        apiBody,
+      },
+      'Calling audience generate API',
+    );
 
     const response = await fetch(
       `${miscConfig.audienceApiUrl}/audience/enqueue`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...audienceFilters,
-          jobId: job.data.id,
-          audienceId,
-          accountId,
-          webhook_url: audience.data.webhook_url,
-          limit,
-        }),
+        body: JSON.stringify(apiBody),
       },
     );
 
@@ -204,6 +227,11 @@ class AudienceService {
       .from('enqueue_job')
       .update({ status: enqueue.status })
       .eq('id', job.data.id);
+
+    logger.info(
+      { ...ctx, jobId: enqueue.jobId, status: enqueue.status },
+      'Audience generation started successfully.',
+    );
 
     return enqueue;
   }
