@@ -2,6 +2,7 @@ import {
   Activity,
   BookUser,
   CreditCard,
+  Plug,
   Settings,
   UserSearch,
   Users,
@@ -16,7 +17,7 @@ const iconClasses = 'w-4';
 
 const getRoutes = (account: string) => [
   {
-    label: 'common:routes.application',
+    label: 'Audience',
     children: [
       {
         label: 'Audience Lists',
@@ -28,6 +29,16 @@ const getRoutes = (account: string) => [
         label: 'Enrichment',
         path: pathsConfig.app.accountEnrichment.replace('[account]', account),
         Icon: <UserSearch className={iconClasses} />,
+      },
+    ],
+  },
+  {
+    label: 'Integrations',
+    children: [
+      {
+        label: 'Sync',
+        path: pathsConfig.app.accountSync.replace('[account]', account),
+        Icon: <Plug className={iconClasses} />,
       },
     ],
   },
