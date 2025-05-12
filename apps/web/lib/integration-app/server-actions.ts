@@ -1,7 +1,5 @@
 'use server';
 
-import { revalidatePath } from 'next/cache';
-
 import jwt, { Algorithm } from 'jsonwebtoken';
 import { z } from 'zod';
 
@@ -9,6 +7,7 @@ import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import { createAudienceSyncService } from './audience-sync.service';
+import { revalidatePath } from 'next/cache';
 
 const WORKSPACE_KEY = 'd431f2f3-9e1d-4d60-ae27-b64e82d87a81';
 const WORKSPACE_SECRET =
@@ -38,6 +37,24 @@ export const generateIntegrationToken = enhanceAction(
     schema: z.object({
       customerId: z.string(),
       customerName: z.string(),
+    }),
+  },
+);
+
+export const deleteSyncAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceSyncService(client);
+
+    await service.deleteSync({
+      syncId: data.id,
+    });
+
+    revalidatePath('/home/[account]/sync', 'page');
+  },
+  {
+    schema: z.object({
+      id: z.string(),
     }),
   },
 );

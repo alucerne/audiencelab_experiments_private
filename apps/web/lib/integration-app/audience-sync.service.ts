@@ -25,4 +25,15 @@ class AudienceSyncService {
 
     return data;
   }
+
+  async deleteSync({ syncId }: { syncId: string }) {
+    const { error } = await this.client
+      .from('audience_sync')
+      .delete()
+      .eq('id', syncId);
+
+    if (error) {
+      throw error;
+    }
+  }
 }
