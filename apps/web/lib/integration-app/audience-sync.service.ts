@@ -26,6 +26,39 @@ class AudienceSyncService {
     return data;
   }
 
+  async createAudienceSync({
+    integrationKey,
+    fbAdAccountId,
+    fbAudienceId,
+    accountId,
+    audienceId,
+  }: {
+    integrationKey: string;
+    fbAdAccountId: string;
+    fbAudienceId: string;
+    accountId: string;
+    audienceId: string;
+  }) {
+    const { data, error } = await this.client
+      .from('audience_sync')
+      .insert({
+        account_id: accountId,
+        audience_id: audienceId,
+        integration_key: integrationKey,
+        integration_details: {
+          fb_ad_account_id: fbAdAccountId,
+          fb_audience_id: fbAudienceId,
+        },
+      })
+      .select();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
   async deleteSync({ syncId }: { syncId: string }) {
     const { error } = await this.client
       .from('audience_sync')
