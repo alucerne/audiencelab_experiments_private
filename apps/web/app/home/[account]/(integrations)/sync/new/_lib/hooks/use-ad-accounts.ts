@@ -19,7 +19,7 @@ export function useAdAccounts({ enabled = true }: UseAdAccountsOptions = {}) {
     queryFn: async () => {
       const res = await integrationApp
         .connection('facebook-ads')
-        .action('list-ad-accounts')
+        .action('list-ad-accounts-2')
         .run();
 
       return res.output.records as AdAccountRecord[];
@@ -33,6 +33,6 @@ export function useAdAccounts({ enabled = true }: UseAdAccountsOptions = {}) {
     adAccounts: query.data,
     isLoading: query.isLoading,
     error: query.error,
-    refetch: query.refetch, // similar to SWR's mutate
+    refetch: query.refetch,
   };
 }

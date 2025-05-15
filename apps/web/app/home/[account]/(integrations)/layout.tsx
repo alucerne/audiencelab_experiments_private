@@ -4,7 +4,7 @@ import { IntegrationAppProvider } from '@integration-app/react';
 
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 
-import { generateIntegrationToken } from '~/lib/integration-app/server-actions';
+import { generateIntegrationTokenAction } from '~/lib/integration-app/server-actions';
 
 export default function IntegrationsLayout({
   children,
@@ -16,7 +16,7 @@ export default function IntegrationsLayout({
   return (
     <IntegrationAppProvider
       fetchToken={() =>
-        generateIntegrationToken({
+        generateIntegrationTokenAction({
           customerId: id,
           customerName: name,
         })

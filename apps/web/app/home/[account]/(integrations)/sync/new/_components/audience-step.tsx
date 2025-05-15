@@ -148,8 +148,9 @@ export default function AudienceStep() {
           <FormItem>
             <FormLabel>Refresh Interval</FormLabel>
             <FormDescription>
-              Choose how often you want the audience to be refreshed and synced
-              to this destination.
+              Choose how often you want the audience to be refreshed. This
+              destination will be synced with the latest data after every
+              refresh.
             </FormDescription>
             <Select
               key={field.value}

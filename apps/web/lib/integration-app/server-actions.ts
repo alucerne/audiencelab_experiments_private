@@ -1,37 +1,18 @@
 'use server';
 
-import jwt, { Algorithm } from 'jsonwebtoken';
+import { revalidatePath } from 'next/cache';
+
 import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import { createAudienceSyncService } from './audience-sync.service';
-import { revalidatePath } from 'next/cache';
+import { generateIntegrationToken } from './utils';
 
-const WORKSPACE_KEY = 'd431f2f3-9e1d-4d60-ae27-b64e82d87a81';
-const WORKSPACE_SECRET =
-  '964638ae0cb0501e0022b914cd7315f78ad8b51de8bebf942ce15f3b2c79bbb6';
-
-interface TokenData {
-  id: string;
-  name: string;
-}
-
-export const generateIntegrationToken = enhanceAction(
+export const generateIntegrationTokenAction = enhanceAction(
   async (auth) => {
-    const tokenData: TokenData = {
-      id: auth.customerId,
-      name: auth.customerName,
-    };
-
-    const options = {
-      issuer: WORKSPACE_KEY,
-      expiresIn: 7200,
-      algorithm: 'HS512' as Algorithm,
-    };
-
-    return jwt.sign(tokenData, WORKSPACE_SECRET!, options);
+    return generateIntegrationToken(auth);
   },
   {
     schema: z.object({

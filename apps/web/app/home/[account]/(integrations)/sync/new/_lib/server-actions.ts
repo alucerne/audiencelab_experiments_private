@@ -60,6 +60,8 @@ export const createSyncAction = enhanceAction(
       }),
     ]);
 
+    //!call api to start sync and create sync job
+
     revalidatePath('/home/[account]', 'page');
     revalidatePath('/home/[account]/sync');
   },

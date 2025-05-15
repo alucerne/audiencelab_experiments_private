@@ -523,7 +523,8 @@ class AudienceService {
     const { data, error } = await this.client
       .from('audience')
       .select('id, name, enqueue_job!inner(id)')
-      .eq('account_id', accountId);
+      .eq('account_id', accountId)
+      .eq('deleted', false);
 
     if (error) {
       throw error;

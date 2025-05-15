@@ -39,7 +39,8 @@ import { useAudiences } from '../_lib/hooks/use-audiences';
 export default function FacebookStep() {
   const [pending, setPending] = useState(false);
 
-  const { control } = useFormContext<z.infer<typeof NewSyncFormSchema>>();
+  const { control, setValue } =
+    useFormContext<z.infer<typeof NewSyncFormSchema>>();
   const fbAdAccountId = useWatch({
     control,
     name: 'integration.fbAdAccountId',
@@ -68,7 +69,7 @@ export default function FacebookStep() {
       async () => {
         if (!fbAdAccountId || !newName) return;
 
-        await integrationApp
+        const res = await integrationApp
           .connection('facebook-ads')
           .action('create-custom-audience')
           .run({
@@ -76,7 +77,7 @@ export default function FacebookStep() {
             description: newDesc,
             fbAdAccountId,
           });
-        // const newId = res.output.id as string;
+        const newId = res.output.id as string;
 
         // refresh audiences list
         await queryClient.invalidateQueries({
@@ -84,10 +85,10 @@ export default function FacebookStep() {
         });
 
         // select the new audience in the form
-        //   setValue('integration.fbAudienceId', newId, {
-        //     shouldDirty: true,
-        //     shouldValidate: true,
-        //   });
+        setValue('integration.fbAudienceId', newId, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
 
         // reset dialog
         setOpen(false);
@@ -157,6 +158,7 @@ export default function FacebookStep() {
             <FormLabel>Select Facebook Audience</FormLabel>
             <FormControl>
               <Select
+                key={`${field.value}_${audiences?.length}`}
                 onValueChange={field.onChange}
                 value={field.value}
                 disabled={!fbAdAccountId || loadingAudiences}
@@ -183,7 +185,6 @@ export default function FacebookStep() {
                       No audiences found
                     </SelectItem>
                   )}
-                  <SelectItem value="TEST">TEST</SelectItem>
                 </SelectContent>
               </Select>
             </FormControl>
