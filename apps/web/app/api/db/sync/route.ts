@@ -6,9 +6,6 @@ import { enhanceRouteHandler } from '@kit/next/routes';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
 import { createAudienceSyncService } from '~/lib/integration-app/audience-sync.service';
-import { generateIntegrationToken } from '~/lib/integration-app/utils';
-
-export const maxDuration = 300;
 
 export const POST = enhanceRouteHandler(
   async ({ request, body }) => {
@@ -19,6 +16,8 @@ export const POST = enhanceRouteHandler(
         return new Response('Missing signature', { status: 400 });
       }
 
+      console.log('Received webhook:', body);
+
       const verifier = await getDatabaseWebhookVerifier();
 
       await verifier.verifySignatureOrThrow(signature);
@@ -26,16 +25,15 @@ export const POST = enhanceRouteHandler(
       const client = getSupabaseServerAdminClient();
       const service = createAudienceSyncService(client);
 
-      const integrationJWT = generateIntegrationToken({
-        customerId: body.account_id,
-        customerName: body.account_id,
-      });
+      console.log('Starting sync for audience:', body.audience_sync_id);
 
-      await service.syncFacebookAudience({
-        integrationJWT,
+      await service.startSync({
+        accountId: body.account_id,
         syncId: body.audience_sync_id,
         csvUrl: body.csv_url,
       });
+
+      console.log('Sync started successfully');
 
       return new Response(null, { status: 200 });
     } catch (error) {
@@ -51,10 +49,8 @@ export const POST = enhanceRouteHandler(
     auth: false,
     schema: z.object({
       account_id: z.string(),
-      audience_id: z.string(),
-      enqueue_job_id: z.string(),
-      csv_url: z.string(),
       audience_sync_id: z.string(),
+      csv_url: z.string(),
     }),
   },
 );

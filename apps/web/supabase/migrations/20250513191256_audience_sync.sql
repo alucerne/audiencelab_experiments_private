@@ -64,3 +64,48 @@ create policy insert_audience_sync
   with check (
     public.has_role_on_account(account_id) 
   );
+
+
+create or replace function public.enqueue_job_call_webhooks()
+returns trigger
+language plpgsql
+as $$
+declare
+  sync_rec record;
+begin
+  if tg_op = 'UPDATE'
+    and old.csv_url is null
+    and new.csv_url is not null
+  then
+    for sync_rec in
+      select id, account_id
+      from public.audience_sync
+      where audience_id = new.audience_id
+    loop
+      perform net.http_post(
+        url := 'http://host.docker.internal:3000/api/db/sync',
+        headers := jsonb_build_object(
+          'Content-Type',                'application/json',
+          'X-Supabase-Event-Signature',  'WEBHOOKSECRET'
+        ),
+        body := jsonb_build_object(
+          'account_id',       sync_rec.account_id,
+          'audience_sync_id', sync_rec.id,
+          'csv_url',          new.csv_url
+        ),
+        timeout_milliseconds := 20000
+      );
+    end loop;
+  end if;
+
+  return new;
+end;
+$$;
+
+drop trigger if exists enqueue_job_csv_url on public.enqueue_job;
+
+create trigger enqueue_job_csv_url
+  after update on public.enqueue_job
+  for each row
+  when (old.csv_url is null and new.csv_url is not null)
+  execute function public.enqueue_job_call_webhooks();
