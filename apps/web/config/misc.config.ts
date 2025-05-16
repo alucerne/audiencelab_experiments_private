@@ -18,6 +18,11 @@ const MiscConfigSchema = z.object({
     required_error:
       'Enrichment API URL is required. Please set the `ENRICH_API_URL` environment variable.',
   }),
+  syncApiUrl: z.string({
+    description: `Sync API URL.`,
+    required_error:
+      'Sync API URL is required. Please set the `SYNC_API_URL` environment variable.',
+  }),
   googleCloud: z.object({
     projectId: z.string(),
     clientEmail: z.string(),
@@ -46,6 +51,7 @@ const miscConfig = MiscConfigSchema.parse({
   typesenseApiKey: process.env.TYPESENSE_API_KEY,
   audienceApiUrl: process.env.AUDIENCE_API_URL,
   enrichmentApiUrl: process.env.ENRICH_API_URL,
+  syncApiUrl: process.env.SYNC_API_URL,
   googleCloud: {
     projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
     clientEmail: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,

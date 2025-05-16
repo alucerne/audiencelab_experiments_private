@@ -45,12 +45,13 @@ export const createSyncAction = enhanceAction(
     const service = createAudienceService(client);
     const syncService = createAudienceSyncService(client);
 
-    await Promise.all([
+    const [_, audience, sync] = await Promise.all([
       service.scheduleRefresh({
         accountId: data.accountId,
         audienceId: data.audienceId,
         interval: Number(data.refreshInterval),
       }),
+      service.getAudienceById(data.audienceId),
       syncService.createAudienceSync({
         accountId: data.accountId,
         audienceId: data.audienceId,
@@ -62,7 +63,20 @@ export const createSyncAction = enhanceAction(
       }),
     ]);
 
-    //!call api to start sync and create sync job
+    const newestCSV = audience.enqueue_jobs
+      .filter((job) => Boolean(job.csv_url))
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )[0];
+
+    if (newestCSV?.csv_url) {
+      await syncService.startSync({
+        accountId: data.accountId,
+        syncId: sync.id,
+        csvUrl: newestCSV.csv_url,
+      });
+    }
 
     revalidatePath('/home/[account]', 'page');
     revalidatePath('/home/[account]/sync');
