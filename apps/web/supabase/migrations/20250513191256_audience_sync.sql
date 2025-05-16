@@ -6,6 +6,7 @@ create table if not exists public.audience_sync (
   integration_details jsonb not null default '{}',
   sync_status text not null default 'scheduled',
   processing boolean not null default false,
+  sync_error text null,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -64,7 +65,6 @@ create policy insert_audience_sync
   with check (
     public.has_role_on_account(account_id) 
   );
-
 
 create or replace function public.enqueue_job_call_webhooks()
 returns trigger

@@ -214,6 +214,7 @@ export type Database = {
           integration_details: Json;
           integration_key: string;
           processing: boolean;
+          sync_error: string | null;
           sync_status: string;
           updated_at: string;
         };
@@ -225,6 +226,7 @@ export type Database = {
           integration_details?: Json;
           integration_key: string;
           processing?: boolean;
+          sync_error?: string | null;
           sync_status?: string;
           updated_at?: string;
         };
@@ -236,6 +238,7 @@ export type Database = {
           integration_details?: Json;
           integration_key?: string;
           processing?: boolean;
+          sync_error?: string | null;
           sync_status?: string;
           updated_at?: string;
         };
