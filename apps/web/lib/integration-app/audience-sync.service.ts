@@ -104,6 +104,10 @@ class AudienceSyncService {
       throw error;
     }
 
+    if (data.processing) {
+      throw new Error('Audience sync is already in progress');
+    }
+
     const integrationDetails = z
       .object({
         fb_ad_account_id: z.string(),
