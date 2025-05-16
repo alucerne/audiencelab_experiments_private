@@ -39,3 +39,19 @@ export const deleteSyncAction = enhanceAction(
     }),
   },
 );
+
+export const getSyncByIdAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceSyncService(client);
+
+    return service.getAudienceSyncById({
+      id: data.id,
+    });
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+    }),
+  },
+);

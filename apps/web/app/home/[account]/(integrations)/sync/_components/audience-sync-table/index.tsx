@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect, useState } from 'react';
+
 import Link from 'next/link';
 
 import {
@@ -14,6 +16,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
+import { Tables } from '@kit/supabase/database';
+import { useSupabase } from '@kit/supabase/hooks/use-supabase';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { buttonVariants } from '@kit/ui/button';
 import {
@@ -32,6 +36,7 @@ import { cn } from '@kit/ui/utils';
 
 import pathsConfig from '~/config/paths.config';
 import { AudienceSyncList } from '~/lib/integration-app/audience-sync.service';
+import { getSyncByIdAction } from '~/lib/integration-app/server-actions';
 
 import { columns } from './columns';
 
@@ -50,13 +55,55 @@ const nameIdFilterFn: FilterFn<AudienceSyncList[number]> = (
 };
 
 export default function AudienceSyncTable({
-  syncs,
+  syncs: initialSyncs,
 }: React.PropsWithChildren<{
   syncs: AudienceSyncList;
 }>) {
+  const [syncs, setSyncs] = useState(initialSyncs);
   const {
-    account: { slug },
+    account: { id: accountId, slug },
   } = useTeamAccountWorkspace();
+  const client = useSupabase();
+
+  useEffect(() => {
+    if (initialSyncs) {
+      setSyncs(initialSyncs);
+    }
+
+    const subscription = client
+      .channel(`sync-channel-${accountId}`)
+      .on<Tables<'audience_sync'>>(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'audience_sync',
+          filter: `account_id=eq.${accountId}`,
+        },
+        async (payload) => {
+          if (payload.eventType === 'UPDATE') {
+            try {
+              const updatedSync = await getSyncByIdAction({
+                id: payload.new.id,
+              });
+
+              setSyncs((current) =>
+                current.map((item) =>
+                  item.id === payload.new.id ? updatedSync : item,
+                ),
+              );
+            } catch (error) {
+              console.error('Error updating sync:', error);
+            }
+          }
+        },
+      )
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [initialSyncs, client, accountId]);
 
   const table = useReactTable<AudienceSyncList[number]>({
     data: syncs,

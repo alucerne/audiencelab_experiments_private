@@ -118,7 +118,14 @@ export default function FacebookStep() {
           <FormItem>
             <FormLabel>Select Ad Account</FormLabel>
             <Select
-              onValueChange={field.onChange}
+              onValueChange={(value) => {
+                field.onChange(value);
+                const found = adAccounts?.find((a) => a.id === value);
+                setValue('integration.fbAdAccountName', found?.name ?? '', {
+                  shouldDirty: true,
+                  shouldValidate: true,
+                });
+              }}
               defaultValue={field.value}
               disabled={loadingAdAccounts}
             >
@@ -159,7 +166,14 @@ export default function FacebookStep() {
             <FormControl>
               <Select
                 key={`${field.value}_${audiences?.length}`}
-                onValueChange={field.onChange}
+                onValueChange={(value) => {
+                  field.onChange(value);
+                  const found = audiences?.find((a) => a.id === value);
+                  setValue('integration.fbAudienceName', found?.name ?? '', {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
                 value={field.value}
                 disabled={!fbAdAccountId || loadingAudiences}
               >

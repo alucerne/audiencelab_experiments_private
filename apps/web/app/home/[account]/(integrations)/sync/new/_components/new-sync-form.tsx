@@ -35,7 +35,9 @@ export default function NewSyncForm() {
       integration: {
         integrationKey: '',
         fbAdAccountId: '',
+        fbAdAccountName: '',
         fbAudienceId: '',
+        fbAudienceName: '',
       },
       audienceId: '',
     },

@@ -56,7 +56,9 @@ export const createSyncAction = enhanceAction(
         audienceId: data.audienceId,
         integrationKey: data.integration.integrationKey,
         fbAdAccountId: data.integration.fbAdAccountId,
+        fbAdAccountName: data.integration.fbAdAccountName,
         fbAudienceId: data.integration.fbAudienceId,
+        fbAudienceName: data.integration.fbAudienceName,
       }),
     ]);
 

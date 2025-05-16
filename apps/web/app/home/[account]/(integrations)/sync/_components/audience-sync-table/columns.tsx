@@ -1,8 +1,15 @@
 import { useIntegration } from '@integration-app/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
+import { z } from 'zod';
 
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@kit/ui/tooltip';
 
 import StatusBadge from '~/components/ui/status-badge';
 import { AudienceSyncList } from '~/lib/integration-app/audience-sync.service';
@@ -26,24 +33,54 @@ export const columns: ColumnDef<AudienceSyncList[number]>[] = [
     cell: ({ row: { original } }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { integration } = useIntegration(original.integration_key);
-      console.log('integration', integration);
+
+      const integrationDetails = z
+        .object({
+          fb_audience_id: z.string(),
+          fb_audience_name: z.string(),
+          fb_ad_account_id: z.string(),
+          fb_ad_account_name: z.string(),
+        })
+        .safeParse(original.integration_details);
 
       return (
-        <div className="flex items-center gap-2">
-          {integration?.logoUri ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={integration.logoUri}
-              alt={`${integration.name} logo`}
-              className="size-5 rounded-lg"
-            />
-          ) : (
-            <div className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-lg text-lg font-medium">
-              {integration?.name[0]}
-            </div>
-          )}
-          <div>{integration?.name}</div>
-        </div>
+        <TooltipProvider delayDuration={0}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="flex items-center gap-2">
+                {integration?.logoUri ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={integration.logoUri}
+                    alt={`${integration.name} logo`}
+                    className="size-5 rounded-lg"
+                  />
+                ) : (
+                  <div className="bg-muted text-muted-foreground flex size-5 items-center justify-center rounded-lg text-lg font-medium">
+                    {integration?.name[0]}
+                  </div>
+                )}
+                <div>{integration?.name}</div>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              {integrationDetails.success ? (
+                <>
+                  <div>
+                    <span className="font-semibold">Ad Account:</span>{' '}
+                    {integrationDetails.data.fb_ad_account_name}
+                  </div>
+                  <div>
+                    <span className="font-semibold">Audience:</span>{' '}
+                    {integrationDetails.data.fb_audience_name}
+                  </div>
+                </>
+              ) : (
+                <div>Failed to get integration details</div>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       );
     },
   },

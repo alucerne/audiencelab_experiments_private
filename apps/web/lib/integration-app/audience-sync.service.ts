@@ -34,13 +34,17 @@ class AudienceSyncService {
   async createAudienceSync({
     integrationKey,
     fbAdAccountId,
+    fbAdAccountName,
     fbAudienceId,
+    fbAudienceName,
     accountId,
     audienceId,
   }: {
     integrationKey: string;
     fbAdAccountId: string;
+    fbAdAccountName: string;
     fbAudienceId: string;
+    fbAudienceName: string;
     accountId: string;
     audienceId: string;
   }) {
@@ -52,7 +56,9 @@ class AudienceSyncService {
         integration_key: integrationKey,
         integration_details: {
           fb_ad_account_id: fbAdAccountId,
+          fb_ad_account_name: fbAdAccountName,
           fb_audience_id: fbAudienceId,
+          fb_audience_name: fbAudienceName,
         },
       })
       .select();
@@ -165,6 +171,20 @@ class AudienceSyncService {
     }
 
     return { success: true };
+  }
+
+  async getAudienceSyncById(params: { id: string }) {
+    const { data, error } = await this.client
+      .from('audience_sync')
+      .select('*, audience(name, next_scheduled_refresh)')
+      .eq('id', params.id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
   }
 }
 
