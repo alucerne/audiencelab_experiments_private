@@ -1,0 +1,89 @@
+'use server';
+
+import { revalidatePath } from 'next/cache';
+
+import { z } from 'zod';
+
+import { enhanceAction } from '@kit/next/actions';
+import { getSupabaseServerClient } from '@kit/supabase/server-client';
+
+import { createAudienceService } from '~/lib/audience/audience.service';
+import { createAudienceSyncService } from '~/lib/integration-app/audience-sync.service';
+import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
+
+export const getAudienceIdsAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    return service.getAudienceIds(data);
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+    }),
+  },
+);
+
+export const getAudienceRefreshDetailsAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+
+    return service.getRefreshDetails(data);
+  },
+  {
+    schema: z.object({
+      audienceId: z.string(),
+    }),
+  },
+);
+
+export const createSyncAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createAudienceService(client);
+    const syncService = createAudienceSyncService(client);
+
+    const [_, audience, sync] = await Promise.all([
+      service.scheduleRefresh({
+        accountId: data.accountId,
+        audienceId: data.audienceId,
+        interval: Number(data.refreshInterval),
+      }),
+      service.getAudienceById(data.audienceId),
+      syncService.createAudienceSync({
+        accountId: data.accountId,
+        audienceId: data.audienceId,
+        integrationKey: data.integration.integrationKey,
+        fbAdAccountId: data.integration.fbAdAccountId,
+        fbAdAccountName: data.integration.fbAdAccountName,
+        fbAudienceId: data.integration.fbAudienceId,
+        fbAudienceName: data.integration.fbAudienceName,
+      }),
+    ]);
+
+    const newestCSV = audience.enqueue_jobs
+      .filter((job) => Boolean(job.csv_url))
+      .sort(
+        (a, b) =>
+          new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      )[0];
+
+    if (newestCSV?.csv_url) {
+      await syncService.startSync({
+        accountId: data.accountId,
+        syncId: sync.id,
+        csvUrl: newestCSV.csv_url,
+      });
+    }
+
+    revalidatePath('/home/[account]', 'page');
+    revalidatePath('/home/[account]/sync');
+  },
+  {
+    schema: NewSyncFormSchema.extend({
+      accountId: z.string(),
+    }),
+  },
+);

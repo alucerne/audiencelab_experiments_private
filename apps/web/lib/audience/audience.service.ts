@@ -546,4 +546,32 @@ class AudienceService {
       throw error;
     }
   }
+
+  async getAudienceIds({ accountId }: { accountId: string }) {
+    const { data, error } = await this.client
+      .from('audience')
+      .select('id, name, enqueue_job!inner(id)')
+      .eq('account_id', accountId)
+      .eq('deleted', false);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async getRefreshDetails({ audienceId }: { audienceId: string }) {
+    const { data, error } = await this.client
+      .from('audience')
+      .select('scheduled_refresh, refresh_interval, next_scheduled_refresh')
+      .eq('id', audienceId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

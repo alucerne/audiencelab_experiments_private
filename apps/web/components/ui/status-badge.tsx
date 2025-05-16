@@ -10,6 +10,8 @@ export default function StatusBadge({ status }: { status: string }) {
       return <Badge variant={'success'}>Completed</Badge>;
     case 'refreshing':
       return <Badge variant={'info'}>Refreshing</Badge>;
+    case 'scheduled':
+      return <Badge variant={'info'}>Scheduled</Badge>;
     case 'refreshed':
       return <Badge variant={'success'}>Refreshed</Badge>;
     case 'failed':

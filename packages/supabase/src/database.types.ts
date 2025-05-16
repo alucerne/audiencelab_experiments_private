@@ -205,6 +205,71 @@ export type Database = {
           },
         ];
       };
+      audience_sync: {
+        Row: {
+          account_id: string;
+          audience_id: string;
+          created_at: string;
+          id: string;
+          integration_details: Json;
+          integration_key: string;
+          processing: boolean;
+          sync_status: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          audience_id: string;
+          created_at?: string;
+          id?: string;
+          integration_details?: Json;
+          integration_key: string;
+          processing?: boolean;
+          sync_status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          audience_id?: string;
+          created_at?: string;
+          id?: string;
+          integration_details?: Json;
+          integration_key?: string;
+          processing?: boolean;
+          sync_status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_audience_id_fkey';
+            columns: ['audience_id'];
+            isOneToOne: false;
+            referencedRelation: 'audience';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       billing_customers: {
         Row: {
           account_id: string;
