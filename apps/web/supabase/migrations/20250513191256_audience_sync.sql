@@ -4,7 +4,8 @@ create table if not exists public.audience_sync (
   audience_id uuid not null references public.audience(id) on delete cascade,
   integration_key text not null,
   integration_details jsonb not null default '{}',
-  last_sync_at timestamptz null,
+  sync_status text not null default 'scheduled',
+  processing boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

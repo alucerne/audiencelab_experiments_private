@@ -4,6 +4,7 @@ import { format, parseISO } from 'date-fns';
 
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
 
+import StatusBadge from '~/components/ui/status-badge';
 import { AudienceSyncList } from '~/lib/integration-app/audience-sync.service';
 
 import SyncTableActions from './actions';
@@ -44,6 +45,13 @@ export const columns: ColumnDef<AudienceSyncList[number]>[] = [
           <div>{integration?.name}</div>
         </div>
       );
+    },
+  },
+  {
+    header: 'Status',
+    accessorFn: (sync) => sync.sync_status,
+    cell: ({ row: { original } }) => {
+      return <StatusBadge status={original.sync_status} />;
     },
   },
   {

@@ -210,7 +210,8 @@ export type Database = {
           id: string;
           integration_details: Json;
           integration_key: string;
-          last_sync_at: string | null;
+          processing: boolean;
+          sync_status: string;
           updated_at: string;
         };
         Insert: {
@@ -220,7 +221,8 @@ export type Database = {
           id?: string;
           integration_details?: Json;
           integration_key: string;
-          last_sync_at?: string | null;
+          processing?: boolean;
+          sync_status?: string;
           updated_at?: string;
         };
         Update: {
@@ -230,7 +232,8 @@ export type Database = {
           id?: string;
           integration_details?: Json;
           integration_key?: string;
-          last_sync_at?: string | null;
+          processing?: boolean;
+          sync_status?: string;
           updated_at?: string;
         };
         Relationships: [
