@@ -89,6 +89,10 @@ export default function FacebookStep() {
           shouldDirty: true,
           shouldValidate: true,
         });
+        setValue('integration.fbAudienceName', newName, {
+          shouldDirty: true,
+          shouldValidate: true,
+        });
 
         // reset dialog
         setOpen(false);
