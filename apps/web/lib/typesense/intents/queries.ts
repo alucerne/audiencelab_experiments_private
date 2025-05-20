@@ -9,7 +9,17 @@ export async function get4EyesIntentIds({
 }) {
   if (audienceType === 'custom') {
     return Array.from(
-      new Set(keywords.map((keyword) => keyword.replace(/^c_/, 'c_4eyes_'))),
+      new Set(
+        keywords.map((kw) => {
+          if (kw.startsWith('c_')) {
+            return kw.replace(/^c_/, 'c_4eyes_');
+          }
+          if (kw.startsWith('4eyes_')) {
+            return kw;
+          }
+          return `4eyes_${kw}`;
+        }),
+      ),
     );
   }
 
