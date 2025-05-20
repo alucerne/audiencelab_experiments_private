@@ -507,25 +507,37 @@ class AudienceService {
       })
       .parse(await response.json());
 
-    const validSegments = availableInterests.result
-      .map((item) => item.segment)
-      .filter((s) => s.includes('c_'))
-      .map((s) => s.replace('4eyes_', ''));
+    const validSegments = availableInterests.result.map((item) =>
+      item.segment.replace('4eyes_', ''),
+    );
 
     if (validSegments.length === 0) return [];
 
-    const { data, error } = await this.client
-      .from('interests_custom')
-      .update({ available: true })
-      .in('topic_id', validSegments)
-      .eq('available', false)
-      .select('account_id, topic');
+    const BATCH_SIZE = 300;
+    const updatedTopics: {
+      account_id: string;
+      topic: string | null;
+      description: string;
+    }[] = [];
 
-    if (error) {
-      throw error;
+    for (let i = 0; i < validSegments.length; i += BATCH_SIZE) {
+      const batch = validSegments.slice(i, i + BATCH_SIZE);
+
+      const { data, error } = await this.client
+        .from('interests_custom')
+        .update({ available: true })
+        .in('topic_id', batch)
+        .eq('available', false)
+        .select('account_id, topic, description');
+
+      if (error) {
+        throw error;
+      }
+
+      updatedTopics.push(...data);
     }
 
-    return data;
+    return updatedTopics;
   }
 
   async updateAudienceName({
