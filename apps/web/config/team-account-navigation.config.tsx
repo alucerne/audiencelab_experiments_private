@@ -1,6 +1,7 @@
 import {
   Activity,
   BookUser,
+  CodeXml,
   CreditCard,
   Plug,
   Settings,
@@ -35,6 +36,11 @@ const getRoutes = (account: string) => [
   {
     label: 'Integrations',
     children: [
+      {
+        label: 'Pixel',
+        path: pathsConfig.app.accountPixel.replace('[account]', account),
+        Icon: <CodeXml className={iconClasses} />,
+      },
       {
         label: 'Sync',
         path: pathsConfig.app.accountSync.replace('[account]', account),

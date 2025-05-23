@@ -38,6 +38,8 @@ export type Database = {
         Row: {
           created_at: string | null;
           created_by: string | null;
+          delivr_org_id: string | null;
+          delivr_project_id: string | null;
           email: string | null;
           id: string;
           is_personal_account: boolean;
@@ -53,6 +55,8 @@ export type Database = {
         Insert: {
           created_at?: string | null;
           created_by?: string | null;
+          delivr_org_id?: string | null;
+          delivr_project_id?: string | null;
           email?: string | null;
           id?: string;
           is_personal_account?: boolean;
@@ -68,6 +72,8 @@ export type Database = {
         Update: {
           created_at?: string | null;
           created_by?: string | null;
+          delivr_org_id?: string | null;
+          delivr_project_id?: string | null;
           email?: string | null;
           id?: string;
           is_personal_account?: boolean;
@@ -910,6 +916,73 @@ export type Database = {
           },
         ];
       };
+      pixel: {
+        Row: {
+          account_id: string;
+          created_at: string;
+          deleted: boolean;
+          delivr_id: string;
+          delivr_install_url: string;
+          id: string;
+          last_sync: string | null;
+          last_webhook_event_time: string | null;
+          updated_at: string;
+          webhook_url: string | null;
+          website_name: string;
+          website_url: string;
+        };
+        Insert: {
+          account_id: string;
+          created_at?: string;
+          deleted?: boolean;
+          delivr_id: string;
+          delivr_install_url: string;
+          id?: string;
+          last_sync?: string | null;
+          last_webhook_event_time?: string | null;
+          updated_at?: string;
+          webhook_url?: string | null;
+          website_name: string;
+          website_url: string;
+        };
+        Update: {
+          account_id?: string;
+          created_at?: string;
+          deleted?: boolean;
+          delivr_id?: string;
+          delivr_install_url?: string;
+          id?: string;
+          last_sync?: string | null;
+          last_webhook_event_time?: string | null;
+          updated_at?: string;
+          webhook_url?: string | null;
+          website_name?: string;
+          website_url?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pixel_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pixel_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pixel_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       ref_departments: {
         Row: {
           created_at: string | null;
@@ -1342,6 +1415,8 @@ export type Database = {
         Returns: {
           created_at: string | null;
           created_by: string | null;
+          delivr_org_id: string | null;
+          delivr_project_id: string | null;
           email: string | null;
           id: string;
           is_personal_account: boolean;

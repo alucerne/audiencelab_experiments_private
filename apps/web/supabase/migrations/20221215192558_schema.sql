@@ -310,6 +310,8 @@ create table if not exists
     updated_by uuid references auth.users,
     picture_url varchar(1000),
     public_data jsonb default '{}'::jsonb not null,
+    delivr_org_id text null,
+    delivr_project_id text null,
     restricted boolean default false not null,
     primary key (id)
   );
