@@ -1,13 +1,14 @@
+import { z } from 'zod';
+
 import { getDatabaseWebhookVerifier } from '@kit/database-webhooks';
 import { getServerMonitoringService } from '@kit/monitoring/server';
 import { enhanceRouteHandler } from '@kit/next/routes';
-import { createNotificationsApi } from '@kit/notifications/api';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
-import { createAudienceService } from '~/lib/audience/audience.service';
+import { createAudienceSyncService } from '~/lib/integration-app/audience-sync.service';
 
 export const POST = enhanceRouteHandler(
-  async ({ request }) => {
+  async ({ request, body }) => {
     try {
       const signature = request.headers.get('X-Supabase-Event-Signature');
 
@@ -15,27 +16,24 @@ export const POST = enhanceRouteHandler(
         return new Response('Missing signature', { status: 400 });
       }
 
+      console.log('Received webhook:', body);
+
       const verifier = await getDatabaseWebhookVerifier();
 
       await verifier.verifySignatureOrThrow(signature);
 
       const client = getSupabaseServerAdminClient();
-      const service = createAudienceService(client);
+      const service = createAudienceSyncService(client);
 
-      const availableInterests = await service.updateAvailableInterests();
+      console.log('Starting sync for audience:', body.audience_sync_id);
 
-      const api = createNotificationsApi(client);
+      await service.startSync({
+        accountId: body.account_id,
+        syncId: body.audience_sync_id,
+        csvUrl: body.csv_url,
+      });
 
-      await Promise.all(
-        availableInterests.map((interest) =>
-          api.createNotification({
-            account_id: interest.account_id,
-            body: `Your custom audience is now ready: ${interest.topic || interest.description.slice(0, 50) + '...'}`,
-            channel: 'in_app',
-            type: 'info',
-          }),
-        ),
-      );
+      console.log('Sync started successfully');
 
       return new Response(null, { status: 200 });
     } catch (error) {
@@ -49,5 +47,10 @@ export const POST = enhanceRouteHandler(
   },
   {
     auth: false,
+    schema: z.object({
+      account_id: z.string(),
+      audience_sync_id: z.string(),
+      csv_url: z.string(),
+    }),
   },
 );

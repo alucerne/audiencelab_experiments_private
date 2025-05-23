@@ -47,6 +47,7 @@ export type Database = {
           picture_url: string | null;
           primary_owner_user_id: string;
           public_data: Json;
+          restricted: boolean;
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
@@ -63,6 +64,7 @@ export type Database = {
           picture_url?: string | null;
           primary_owner_user_id?: string;
           public_data?: Json;
+          restricted?: boolean;
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
@@ -79,6 +81,7 @@ export type Database = {
           picture_url?: string | null;
           primary_owner_user_id?: string;
           public_data?: Json;
+          restricted?: boolean;
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
@@ -204,6 +207,74 @@ export type Database = {
             columns: ['account_id'];
             isOneToOne: false;
             referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      audience_sync: {
+        Row: {
+          account_id: string;
+          audience_id: string;
+          created_at: string;
+          id: string;
+          integration_details: Json;
+          integration_key: string;
+          processing: boolean;
+          sync_error: string | null;
+          sync_status: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          audience_id: string;
+          created_at?: string;
+          id?: string;
+          integration_details?: Json;
+          integration_key: string;
+          processing?: boolean;
+          sync_error?: string | null;
+          sync_status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          audience_id?: string;
+          created_at?: string;
+          id?: string;
+          integration_details?: Json;
+          integration_key?: string;
+          processing?: boolean;
+          sync_error?: string | null;
+          sync_status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'audience_sync_audience_id_fkey';
+            columns: ['audience_id'];
+            isOneToOne: false;
+            referencedRelation: 'audience';
             referencedColumns: ['id'];
           },
         ];
@@ -1353,6 +1424,7 @@ export type Database = {
           picture_url: string | null;
           primary_owner_user_id: string;
           public_data: Json;
+          restricted: boolean;
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
@@ -1497,6 +1569,7 @@ export type Database = {
           primary_owner_user_id: string;
           subscription_status: Database['public']['Enums']['subscription_status'];
           permissions: Database['public']['Enums']['app_permissions'][];
+          restricted: boolean;
         }[];
       };
       transfer_team_account_ownership: {

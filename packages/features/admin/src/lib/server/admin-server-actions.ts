@@ -260,3 +260,20 @@ export const updateSignupLinkPermissionsAction = enhanceAction(
     schema: AdminCreditsFormSchema,
   },
 );
+
+export const restrictAccountAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminAccountsService(adminClient);
+
+    await service.restrictAccount(data.accountId, data.currentlyRestricted);
+
+    revalidatePath('/admin/users/[id]', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      currentlyRestricted: z.boolean(),
+    }),
+  },
+);

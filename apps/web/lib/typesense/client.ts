@@ -11,5 +11,5 @@ export const typesenseClient = new Typesense.Client({
     },
   ],
   apiKey: miscConfig.typesenseApiKey,
-  connectionTimeoutSeconds: 2,
+  connectionTimeoutSeconds: 20,
 });

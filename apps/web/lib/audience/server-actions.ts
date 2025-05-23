@@ -6,6 +6,7 @@ import { format } from 'date-fns';
 import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
+import { getLogger } from '@kit/shared/logger';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import miscConfig from '~/config/misc.config';
@@ -142,20 +143,26 @@ export const getAudienceByIdAction = enhanceAction(
 
 export const getPreviewAudienceAction = enhanceAction(
   async ({ accountId, id, filters }) => {
+    const logger = await getLogger();
+    const ctx = {
+      name: 'audience.preview',
+      accountId,
+      audienceId: id,
+    };
+    logger.info(ctx, 'Starting preview audience generation');
+
     const intentIds = await get4EyesIntentIds({
       keywords: filters.segment,
       audienceType: filters.audience.type,
     });
+    logger.info({ ...ctx, intentIds }, 'Got audience segments/intents');
 
     const client = getSupabaseServerClient();
     const service = createAudienceService(client);
     const credits = createCreditsService(client);
 
     const [audienceFilters, limits] = await Promise.all([
-      service.getAudienceFiltersApiBody({
-        filters,
-        intentIds,
-      }),
+      service.getAudienceFiltersApiBody({ filters, intentIds }),
       credits.getAudienceLimits({ accountId }),
     ]);
 
@@ -164,20 +171,28 @@ export const getPreviewAudienceAction = enhanceAction(
         .toString()
         .padStart(3, '0')}`,
     );
+    const apiBody = {
+      ...audienceFilters,
+      jobId: `${id}_${fullTimestamp}`,
+      startTime: fullTimestamp,
+      limit: limits.audienceSizeLimit,
+    };
+
+    logger.info(
+      {
+        ...ctx,
+        apiUrl: `${miscConfig.audienceApiUrl}/audience/search`,
+        apiBody,
+      },
+      'Calling audience search API',
+    );
 
     const response = await fetch(
       `${miscConfig.audienceApiUrl}/audience/search`,
       {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          ...audienceFilters,
-          jobId: `${id}_${fullTimestamp}`,
-          startTime: fullTimestamp,
-          limit: limits.audienceSizeLimit,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(apiBody),
       },
     );
 

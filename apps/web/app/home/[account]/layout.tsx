@@ -1,6 +1,7 @@
 import { use } from 'react';
 
 import { cookies } from 'next/headers';
+import Script from 'next/script';
 
 import { TeamAccountWorkspaceContextProvider } from '@kit/team-accounts/components';
 import {
@@ -15,6 +16,7 @@ import { AppLogo } from '~/components/app-logo';
 import { getTeamAccountSidebarConfig } from '~/config/team-account-navigation.config';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
+import RestrictedDialog from './_components/restricted-dialog';
 // local imports
 import { TeamAccountLayoutMobileNavigation } from './_components/team-account-layout-mobile-navigation';
 import { TeamAccountLayoutSidebar } from './_components/team-account-layout-sidebar';
@@ -76,7 +78,22 @@ function SidebarLayout({
             </div>
           </PageMobileNavigation>
 
-          {children}
+          <>
+            {children}
+            <RestrictedDialog restricted={data.account.restricted} />
+            <Script id="crisp-chat">
+              {`window.$crisp=[];
+                window.CRISP_WEBSITE_ID="6517cb99-e657-430f-9db0-88e9bb65648f";
+                (function(){
+                  const d = document;
+                  const s = d.createElement("script");
+                  s.src="https://client.crisp.chat/l.js";
+                  s.async=1;
+                  d.getElementsByTagName("head")[0].appendChild(s);
+                })();
+              `}
+            </Script>
+          </>
         </Page>
       </SidebarProvider>
     </TeamAccountWorkspaceContextProvider>

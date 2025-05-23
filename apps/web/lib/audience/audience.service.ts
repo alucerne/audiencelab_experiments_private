@@ -3,6 +3,8 @@ import { SupabaseClient } from '@supabase/supabase-js';
 import { addDays, addMonths } from 'date-fns';
 import { z } from 'zod';
 
+import { getLogger } from '@kit/shared/logger';
+
 import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
@@ -136,6 +138,14 @@ class AudienceService {
     filters: z.infer<typeof audienceFiltersFormSchema>;
     limit: number;
   }) {
+    const logger = await getLogger();
+    const ctx = {
+      name: 'audience.generate',
+      accountId,
+      audienceId,
+    };
+    logger.info(ctx, 'Starting audience generation');
+
     const [intentIds, audience, job] = await Promise.all([
       get4EyesIntentIds({
         keywords: filters.segment,
@@ -161,24 +171,37 @@ class AudienceService {
       throw audience.error || job.error;
     }
 
+    logger.info({ ...ctx, intentIds }, 'Got audience segments/intents');
+
     const audienceFilters = await this.getAudienceFiltersApiBody({
       filters,
       intentIds,
     });
+
+    const apiBody = {
+      ...audienceFilters,
+      jobId: job.data.id,
+      audienceId,
+      accountId,
+      webhook_url: audience.data.webhook_url,
+      limit,
+    };
+
+    logger.info(
+      {
+        ...ctx,
+        apiUrl: `${miscConfig.audienceApiUrl}/audience/enqueue`,
+        apiBody,
+      },
+      'Calling audience generate API',
+    );
 
     const response = await fetch(
       `${miscConfig.audienceApiUrl}/audience/enqueue`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...audienceFilters,
-          jobId: job.data.id,
-          audienceId,
-          accountId,
-          webhook_url: audience.data.webhook_url,
-          limit,
-        }),
+        body: JSON.stringify(apiBody),
       },
     );
 
@@ -204,6 +227,11 @@ class AudienceService {
       .from('enqueue_job')
       .update({ status: enqueue.status })
       .eq('id', job.data.id);
+
+    logger.info(
+      { ...ctx, jobId: enqueue.jobId, status: enqueue.status },
+      'Audience generation started successfully.',
+    );
 
     return enqueue;
   }
@@ -479,25 +507,37 @@ class AudienceService {
       })
       .parse(await response.json());
 
-    const validSegments = availableInterests.result
-      .map((item) => item.segment)
-      .filter((s) => s.includes('c_'))
-      .map((s) => s.replace('4eyes_', ''));
+    const validSegments = availableInterests.result.map((item) =>
+      item.segment.replace('4eyes_', ''),
+    );
 
     if (validSegments.length === 0) return [];
 
-    const { data, error } = await this.client
-      .from('interests_custom')
-      .update({ available: true })
-      .in('topic_id', validSegments)
-      .eq('available', false)
-      .select('account_id, topic');
+    const BATCH_SIZE = 300;
+    const updatedTopics: {
+      account_id: string;
+      topic: string | null;
+      description: string;
+    }[] = [];
 
-    if (error) {
-      throw error;
+    for (let i = 0; i < validSegments.length; i += BATCH_SIZE) {
+      const batch = validSegments.slice(i, i + BATCH_SIZE);
+
+      const { data, error } = await this.client
+        .from('interests_custom')
+        .update({ available: true })
+        .in('topic_id', batch)
+        .eq('available', false)
+        .select('account_id, topic, description');
+
+      if (error) {
+        throw error;
+      }
+
+      updatedTopics.push(...data);
     }
 
-    return data;
+    return updatedTopics;
   }
 
   async updateAudienceName({
@@ -517,5 +557,33 @@ class AudienceService {
     if (error) {
       throw error;
     }
+  }
+
+  async getAudienceIds({ accountId }: { accountId: string }) {
+    const { data, error } = await this.client
+      .from('audience')
+      .select('id, name, enqueue_job!inner(id)')
+      .eq('account_id', accountId)
+      .eq('deleted', false);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async getRefreshDetails({ audienceId }: { audienceId: string }) {
+    const { data, error } = await this.client
+      .from('audience')
+      .select('scheduled_refresh, refresh_interval, next_scheduled_refresh')
+      .eq('id', audienceId)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
   }
 }

@@ -9,6 +9,7 @@ export const familyFields = [
   'filters.attributes.marital_status',
   'filters.attributes.single_parent',
   'filters.attributes.generations_in_household',
+  'filters.profile.children',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 export default function FamilyStep() {
@@ -41,6 +42,10 @@ const fieldTypeOptions: Array<{
     value: 'filters.attributes.generations_in_household',
     label: 'Generations in Household',
   },
+  {
+    value: 'filters.profile.children',
+    label: 'Children',
+  },
 ] as const;
 
 const fieldOptions: Partial<Record<(typeof familyFields)[number], string[]>> = {
@@ -53,4 +58,5 @@ const fieldOptions: Partial<Record<(typeof familyFields)[number], string[]>> = {
   ],
   'filters.attributes.single_parent': ['yes', 'no'],
   'filters.attributes.generations_in_household': ['1', '2', '3'],
+  'filters.profile.children': ['no children', 'has children'],
 };

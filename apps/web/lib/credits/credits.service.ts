@@ -47,7 +47,7 @@ class CreditsService {
   async getAudienceLimits({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('credits')
-      .select('*')
+      .select('*, account:account_id (restricted)')
       .eq('account_id', accountId)
       .single();
 
@@ -56,10 +56,14 @@ class CreditsService {
     }
 
     return {
-      canCreate: data.monthly_audience_limit > data.current_audience,
-      canCreateCustomInterests: data.max_custom_interests > data.current_custom,
-      b2bAccess: data.b2b_access,
-      intentAccess: data.intent_access,
+      canCreate:
+        !data.account.restricted &&
+        data.monthly_audience_limit > data.current_audience,
+      canCreateCustomInterests:
+        !data.account.restricted &&
+        data.max_custom_interests > data.current_custom,
+      b2bAccess: !data.account.restricted && data.b2b_access,
+      intentAccess: !data.account.restricted && data.intent_access,
       audienceSizeLimit: data.audience_size_limit,
     };
   }
@@ -67,7 +71,7 @@ class CreditsService {
   async canCreateEnrichment({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('credits')
-      .select('*')
+      .select('*, account:account_id (restricted)')
       .eq('account_id', accountId)
       .single();
 
@@ -76,7 +80,9 @@ class CreditsService {
     }
 
     return {
-      enabled: data.monthly_enrichment_limit > data.current_enrichment,
+      enabled:
+        !data.account.restricted &&
+        data.monthly_enrichment_limit > data.current_enrichment,
       sizeLimit: data.enrichment_size_limit,
     };
   }

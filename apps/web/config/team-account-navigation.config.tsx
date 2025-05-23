@@ -3,6 +3,7 @@ import {
   BookUser,
   CodeXml,
   CreditCard,
+  Plug,
   Settings,
   UserSearch,
   Users,
@@ -17,7 +18,7 @@ const iconClasses = 'w-4';
 
 const getRoutes = (account: string) => [
   {
-    label: 'common:routes.application',
+    label: 'Audience',
     children: [
       {
         label: 'Audience Lists',
@@ -39,6 +40,11 @@ const getRoutes = (account: string) => [
         label: 'Pixel',
         path: pathsConfig.app.accountPixel.replace('[account]', account),
         Icon: <CodeXml className={iconClasses} />,
+      },
+      {
+        label: 'Sync',
+        path: pathsConfig.app.accountSync.replace('[account]', account),
+        Icon: <Plug className={iconClasses} />,
       },
     ],
   },

@@ -68,7 +68,7 @@ export const columns: ColumnDef<AudienceList>[] = [
     accessorKey: 'next_scheduled_refresh',
     accessorFn: (audience) => audience.next_scheduled_refresh,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Next Scheduled Refresh" />
+      <DataTableColumnHeader column={column} title="Next Refresh" />
     ),
     cell({ row: { original } }) {
       return original.next_scheduled_refresh

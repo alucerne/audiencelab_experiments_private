@@ -252,6 +252,12 @@ async function mapFiltersProfile(
     return v;
   });
 
+  profile.children = profile.children.map((v) => {
+    if (v === 'no children') return 'N';
+    if (v === 'has children') return 'Y';
+    return v;
+  });
+
   return profile;
 }
 
