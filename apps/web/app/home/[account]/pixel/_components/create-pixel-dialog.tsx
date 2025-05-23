@@ -3,8 +3,8 @@
 import { useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, CopyIcon } from 'lucide-react';
-import { useForm } from 'react-hook-form';
+import { Check, ChevronLeft, ChevronRight, CopyIcon } from 'lucide-react';
+import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -14,7 +14,6 @@ import {
   Dialog,
   DialogClose,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -29,146 +28,38 @@ import {
   FormMessage,
 } from '@kit/ui/form';
 import { Input } from '@kit/ui/input';
+import { Stepper } from '@kit/ui/stepper';
 import { cn } from '@kit/ui/utils';
 
 import { createPixelFormSchema } from '~/lib/pixel/schema/create-pixel-form.schema';
 import { createPixelAction } from '~/lib/pixel/server-actions';
 
-const steps = [
-  { id: 1, label: 'Pixel', disabledAfterCompletion: true },
-  { id: 2, label: 'Install', disabledAfterCompletion: false },
-  { id: 3, label: 'Validation', disabledAfterCompletion: false },
-  { id: 4, label: 'Results', disabledAfterCompletion: false },
-  { id: 5, label: 'Webhook', disabledAfterCompletion: false },
-];
-
-export default function CreatePixelDialog() {
-  const [current, setCurrent] = useState<number>(1);
-  const [scriptUrl, setScriptUrl] = useState('');
-
+export default function CreatePixelDialog2() {
   return (
-    <Dialog
-      onOpenChange={() => {
-        setCurrent(1);
-        setScriptUrl('');
-      }}
-    >
+    <Dialog>
       <DialogTrigger asChild>
-        <Button>Create</Button>
+        <Button className="w-fit">Create</Button>
       </DialogTrigger>
       <DialogContent
         onEscapeKeyDown={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
-        className="flex h-[70vh] max-w-3xl gap-0 overflow-hidden p-0"
+        className="max-w-xl"
       >
-        <aside className="bg-sidebar flex h-full w-52 flex-col border-r p-6">
-          <h2 className="mb-4 text-lg font-semibold">Pixel Setup</h2>
-          <nav className="space-y-2">
-            {steps.map((step) => {
-              const isActive = step.id === current;
-              const isCompleted = step.id < current;
-              const isPending = step.id > current;
-              const shouldDisable =
-                isPending || (isCompleted && step.disabledAfterCompletion);
+        <DialogHeader>
+          <DialogTitle>Create Pixel</DialogTitle>
+        </DialogHeader>
 
-              return (
-                <button
-                  key={step.id}
-                  onClick={() => !shouldDisable && setCurrent(step.id)}
-                  disabled={shouldDisable}
-                  className={cn(
-                    'relative flex w-full items-center gap-3 rounded-md px-3 py-1.5 text-sm transition-all',
-                    isActive &&
-                      'bg-primary text-primary-foreground font-medium',
-                    isCompleted &&
-                      !step.disabledAfterCompletion &&
-                      'text-foreground font-medium',
-                    isPending && 'text-muted-foreground',
-                    !isPending &&
-                      !isActive &&
-                      !shouldDisable &&
-                      'hover:bg-muted',
-                  )}
-                >
-                  <div
-                    className={cn(
-                      'flex size-5 shrink-0 items-center justify-center rounded-full border text-xs',
-                      isActive &&
-                        'border-primary-foreground bg-primary-foreground text-primary',
-                      isCompleted && 'border-green-500 bg-green-500 text-white',
-                      isPending && 'border-muted-foreground',
-                    )}
-                  >
-                    {isCompleted ? <Check className="size-3.5" /> : step.id}
-                  </div>
-                  <span>{step.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
-        <div className="flex flex-1 flex-col gap-6 overflow-auto p-8">
-          {current === 1 && (
-            <PixelStepForm
-              onSuccess={(returnedScript) => {
-                setScriptUrl(returnedScript);
-                setCurrent(2);
-              }}
-            />
-          )}
-          {current === 2 && (
-            <InstallStep
-              scriptUrl={scriptUrl}
-              onProceed={() => setCurrent(3)}
-            />
-          )}
-          {current === 3 && (
-            <div>
-              <p>
-                Step 3: WIP, this is were we will validate pixel is set up
-                properly. This is pending how we will manage data.
-              </p>
-              <Button size="sm" onClick={() => setCurrent(4)} className="mt-4">
-                Next
-              </Button>
-            </div>
-          )}
-          {current === 4 && (
-            <div>
-              <p>
-                Step 4: WIP, this is were we show results of pixel validation.
-                This is pending how we will manage data.
-              </p>
-              <Button size="sm" onClick={() => setCurrent(5)} className="mt-4">
-                Next
-              </Button>
-            </div>
-          )}
-          {current === 5 && (
-            <div>
-              <p>
-                Step 5: WIP, this is were we validate the webhook used for
-                pixel. This is pending how we will manage pixel data.
-              </p>
-              <DialogClose asChild>
-                <Button size="sm" className="mt-4">
-                  Close
-                </Button>
-              </DialogClose>
-            </div>
-          )}
-        </div>
+        <PixelStepForm />
       </DialogContent>
     </Dialog>
   );
 }
 
-function PixelStepForm({
-  onSuccess,
-}: {
-  onSuccess: (delivrInstallUrl: string) => void;
-}) {
+function PixelStepForm() {
   const [pending, startTransition] = useTransition();
+  const [step, setStep] = useState(0);
+  const [scriptUrl, setScriptUrl] = useState<string | null>(null);
+
   const {
     account: { id },
   } = useTeamAccountWorkspace();
@@ -182,6 +73,25 @@ function PixelStepForm({
     resolver: zodResolver(createPixelFormSchema),
   });
 
+  const steps = [
+    {
+      component: <PixelStep />,
+      fields: ['websiteName', 'websiteUrl'],
+    },
+    {
+      component: <WebhookStep />,
+      fields: ['webhookUrl'],
+    },
+    {
+      component: scriptUrl ? (
+        <InstallStep scriptUrl={scriptUrl} />
+      ) : (
+        <p>Generating pixel...</p>
+      ),
+      fields: [],
+    },
+  ] as const;
+
   function onSubmit(values: z.infer<typeof createPixelFormSchema>) {
     startTransition(() => {
       toast.promise(
@@ -191,9 +101,9 @@ function PixelStepForm({
         }),
         {
           loading: 'Creating pixel...',
-          success: ({ delivr_install_url }) => {
-            startTransition(() => onSuccess(delivr_install_url));
-
+          success: (data) => {
+            setScriptUrl(data.delivr_install_url);
+            setStep(step + 1);
             return 'Pixel successfully created!';
           },
           error: 'Failed to create pixel',
@@ -202,83 +112,136 @@ function PixelStepForm({
     });
   }
 
+  async function onNext() {
+    const isValid = await form.trigger(steps[step]?.fields);
+    if (isValid) {
+      setStep(step + 1);
+    }
+  }
+
+  function onPrevious() {
+    setStep(step - 1);
+  }
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)}>
+        <Stepper
+          variant={'numbers'}
+          steps={['Pixel Details', 'Webhook', 'Install']}
+          currentStep={step}
+        />
+        <div className="space-y-4 py-8">{steps[step]?.component}</div>
+        <div
+          className={cn(
+            'flex w-full justify-between',
+            step === 0 && 'justify-end',
+          )}
+        >
+          {step > 0 && step < 2 && (
+            <Button
+              type="button"
+              onClick={onPrevious}
+              variant="outline"
+              size="sm"
+            >
+              <ChevronLeft className="mr-2 size-5" />
+              Previous
+            </Button>
+          )}
+          {step === steps.length - 2 && (
+            <Button type="submit" disabled={pending} size="sm">
+              {pending ? 'Creating...' : 'Create'}
+            </Button>
+          )}
+          {step < steps.length - 2 && (
+            <Button type="button" onClick={onNext} size="sm">
+              Next
+              <ChevronRight className="ml-2 size-5" />
+            </Button>
+          )}
+          {step === steps.length - 1 && (
+            <DialogClose asChild>
+              <Button type="button" size="sm" className="ml-auto">
+                Finish
+              </Button>
+            </DialogClose>
+          )}
+        </div>
+      </form>
+    </Form>
+  );
+}
+
+function PixelStep() {
+  const { control } = useFormContext<z.infer<typeof createPixelFormSchema>>();
+
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>Set Up Your Pixel</DialogTitle>
-        <DialogDescription>
-          Configure your tracking pixel to start collecting data from your
-          website
-        </DialogDescription>
-      </DialogHeader>
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <FormField
-            name="websiteName"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Website Name</FormLabel>
-                <FormControl>
-                  <Input
-                    minLength={2}
-                    maxLength={50}
-                    placeholder="My Website Pixel"
-                    {...field}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="websiteUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Website URL</FormLabel>
-                <FormControl>
-                  <Input placeholder="https://example.com" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            name="webhookUrl"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Webhook URL (Optional)</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="https://api.example.com/webhook"
-                    {...field}
-                  />
-                </FormControl>
-                <FormDescription>
-                  Webhook will receive real-time data when visitors are
-                  identified
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={pending}>
-              Next
-            </Button>
-          </div>
-        </form>
-      </Form>
+      <FormField
+        control={control}
+        name="websiteName"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Website Name</FormLabel>
+            <FormControl>
+              <Input
+                minLength={2}
+                maxLength={50}
+                placeholder="My Website Pixel"
+                {...field}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="websiteUrl"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Website URL</FormLabel>
+            <FormControl>
+              <Input placeholder="https://example.com" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
     </>
   );
 }
 
-function InstallStep({
-  scriptUrl,
-  onProceed,
-}: {
-  scriptUrl: string;
-  onProceed: () => void;
-}) {
+function WebhookStep() {
+  const { control } = useFormContext<z.infer<typeof createPixelFormSchema>>();
+
+  return (
+    <FormField
+      control={control}
+      name="webhookUrl"
+      render={({ field }) => (
+        <FormItem>
+          <FormLabel>Webhook URL</FormLabel>
+          <FormControl>
+            <Input
+              placeholder="https://example.com/webhook"
+              {...field}
+              className="w-full"
+            />
+          </FormControl>
+          <FormDescription>
+            Optional. This URL will receive pixel events (you can add one
+            later).
+          </FormDescription>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+}
+
+function InstallStep({ scriptUrl }: { scriptUrl: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
@@ -289,28 +252,23 @@ function InstallStep({
 
   return (
     <>
-      <DialogHeader>
-        <DialogTitle>Install Your Pixel Code</DialogTitle>
-        <DialogDescription asChild className="text-base">
-          <ul className="list-decimal space-y-1 pt-3 pl-5">
-            <li>
-              Insert this script into the{' '}
-              <code className="bg-muted rounded px-1">&lt;head&gt;</code> block
-              before{' '}
-              <code className="bg-muted rounded px-1">&lt;/head&gt;</code> on
-              all pages.
-            </li>
-            <li>
-              Save changes and test using browser developer tools (Network tab).
-            </li>
-          </ul>
-        </DialogDescription>
-      </DialogHeader>
+      <ul className="text-muted-foreground list-decimal space-y-1 pt-3 pl-5 text-sm">
+        <li>
+          Insert this script into the{' '}
+          <code className="bg-muted rounded px-1">&lt;head&gt;</code> block
+          before <code className="bg-muted rounded px-1">&lt;/head&gt;</code> on
+          all pages.
+        </li>
+        <li>
+          Save changes and test using browser developer tools (Network tab).
+        </li>
+      </ul>
       <div className="bg-muted relative overflow-auto rounded-md border p-4">
         <pre className="font-mono text-sm break-words whitespace-pre-wrap">
           {`<script id="audiencelab-pixel" src="${scriptUrl}" async></script>`}
         </pre>
         <Button
+          type="button"
           variant="outline"
           onClick={handleCopy}
           className="absolute top-2 right-2 h-fit gap-2 px-2.5 py-1 text-xs"
@@ -327,9 +285,6 @@ function InstallStep({
             </>
           )}
         </Button>
-      </div>
-      <div className="flex justify-end">
-        <Button onClick={onProceed}>Next</Button>
       </div>
     </>
   );
