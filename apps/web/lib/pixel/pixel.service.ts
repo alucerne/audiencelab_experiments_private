@@ -252,4 +252,23 @@ class PixelService {
       })
       .parse(await response.json());
   }
+
+  async setWebhook({
+    id,
+    webhookUrl,
+  }: {
+    id: string;
+    webhookUrl: string | null;
+  }) {
+    const { error } = await this.client
+      .from('pixel')
+      .update({
+        webhook_url: webhookUrl,
+      })
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }

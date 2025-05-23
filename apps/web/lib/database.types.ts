@@ -924,8 +924,8 @@ export type Database = {
           delivr_id: string;
           delivr_install_url: string;
           id: string;
-          trial_days: number | null;
-          trial_resolutions: number | null;
+          last_sync: string | null;
+          last_webhook_event_time: string | null;
           updated_at: string;
           webhook_url: string | null;
           website_name: string;
@@ -938,8 +938,8 @@ export type Database = {
           delivr_id: string;
           delivr_install_url: string;
           id?: string;
-          trial_days?: number | null;
-          trial_resolutions?: number | null;
+          last_sync?: string | null;
+          last_webhook_event_time?: string | null;
           updated_at?: string;
           webhook_url?: string | null;
           website_name: string;
@@ -952,8 +952,8 @@ export type Database = {
           delivr_id?: string;
           delivr_install_url?: string;
           id?: string;
-          trial_days?: number | null;
-          trial_resolutions?: number | null;
+          last_sync?: string | null;
+          last_webhook_event_time?: string | null;
           updated_at?: string;
           webhook_url?: string | null;
           website_name?: string;

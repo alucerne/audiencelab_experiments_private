@@ -133,18 +133,7 @@ export default function PixelPreview({
           />
         </div>
       </div>
-      {!preview.events ||
-        (preview.events.length === 0 && (
-          <div className="bg-muted flex flex-1 flex-col items-center justify-center pb-20">
-            <FileX className="mb-4 h-12 w-12" />
-            <h3 className="mb-2 text-lg font-medium">No Resolutions Found</h3>
-            <p className="text-muted-foreground mb-6 max-w-md text-center">
-              This pixel has no resolutions. Check back later or verify that
-              your pixel is installed.
-            </p>
-          </div>
-        ))}
-      {preview.events && preview.events.length > 0 && (
+      {preview.events && preview.events.length > 0 ? (
         <>
           <div
             ref={scrollContainerRef}
@@ -256,6 +245,15 @@ export default function PixelPreview({
             </div>
           </div>
         </>
+      ) : (
+        <div className="bg-muted flex flex-1 flex-col items-center justify-center pb-20">
+          <FileX className="mb-4 h-12 w-12" />
+          <h3 className="mb-2 text-lg font-medium">No Resolutions Found</h3>
+          <p className="text-muted-foreground mb-6 max-w-md text-center">
+            This pixel has no resolutions. Check back later or verify that your
+            pixel is installed.
+          </p>
+        </div>
       )}
     </>
   );

@@ -1,65 +1,34 @@
 'use client';
 
-import {
-  ArrowRight,
-  BarChart2,
-  Check,
-  Copy,
-  Download,
-  Edit,
-  Eye,
-  Facebook,
-  Send,
-  Trash2,
-} from 'lucide-react';
-import { toast } from 'sonner';
+import Link from 'next/link';
+import { useParams } from 'next/navigation';
+
+import { BarChart2, Boxes, Copy, Facebook, Trash2 } from 'lucide-react';
 
 import { Tables } from '@kit/supabase/database';
-import { Button } from '@kit/ui/button';
+import { Button, buttonVariants } from '@kit/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@kit/ui/tooltip';
+import { cn } from '@kit/ui/utils';
 
 import DeletePixelDialog from './delete-pixel-dialog';
+import PixelInstallDialog from './pixel-install-dialog';
+import PixelWebhookDialog from './pixel-webhook-dialog';
 
 export default function PixelTableActions({
   pixel,
 }: {
   pixel: Tables<'pixel'>;
 }) {
+  const { account } = useParams<{ account: string }>();
+
   return (
     <div className="flex items-center justify-end space-x-2">
       <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Edit className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Edit Webhook</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <ArrowRight className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Enter Pixel Dashboard</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Check className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Check Validation</TooltipContent>
-        </Tooltip>
-
         <Tooltip>
           <TooltipTrigger asChild>
             <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
@@ -71,39 +40,42 @@ export default function PixelTableActions({
 
         <Tooltip>
           <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-7 w-7"
-              onClick={async () => {
-                await navigator.clipboard.writeText(
-                  `<script id="audiencelab-pixel" src="${pixel.delivr_install_url}" async></script>`,
-                );
-                toast.success('Pixel tag copied to clipboard');
-              }}
+            <Link
+              href={`/home/${account}/pixel/${pixel.id}`}
+              className={cn(
+                buttonVariants({
+                  variant: 'ghost',
+                  size: 'icon',
+                  className: 'size-7 cursor-default',
+                }),
+              )}
             >
-              <Copy className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Copy Pixel Tag</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
               <BarChart2 className="size-3.5" />
-            </Button>
+            </Link>
           </TooltipTrigger>
           <TooltipContent>See Resolutions</TooltipContent>
         </Tooltip>
 
         <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Download className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Download CSV</TooltipContent>
+          <PixelInstallDialog pixel={pixel}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Copy className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </PixelInstallDialog>
+          <TooltipContent>Install</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <PixelWebhookDialog pixel={pixel}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-7 w-7">
+                <Boxes className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </PixelWebhookDialog>
+          <TooltipContent>Webhook</TooltipContent>
         </Tooltip>
 
         <Tooltip>
@@ -115,25 +87,7 @@ export default function PixelTableActions({
             </TooltipTrigger>
           </DeletePixelDialog>
 
-          <TooltipContent>Delete Pixel</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Send className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Send Test Webhook</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Eye className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Toggle Pixel Trial</TooltipContent>
+          <TooltipContent>Delete</TooltipContent>
         </Tooltip>
       </TooltipProvider>
     </div>

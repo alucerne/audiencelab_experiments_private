@@ -54,3 +54,23 @@ export const deletePixelAction = enhanceAction(
     }),
   },
 );
+
+export const setPixelWebhookAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createPixelService(client);
+
+    await service.setWebhook({
+      id: data.pixelId,
+      webhookUrl: data.webhookUrl,
+    });
+
+    revalidatePath('/home/[account]/pixel', 'page');
+  },
+  {
+    schema: z.object({
+      pixelId: z.string(),
+      webhookUrl: z.string().trim().url().nullable(),
+    }),
+  },
+);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { TransitionStartFunction, useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Check, ChevronLeft, ChevronRight, CopyIcon } from 'lucide-react';
@@ -33,6 +33,8 @@ import { cn } from '@kit/ui/utils';
 
 import { createPixelFormSchema } from '~/lib/pixel/schema/create-pixel-form.schema';
 import { createPixelAction } from '~/lib/pixel/server-actions';
+
+import { testWebhookUrlAction } from '../_lib/actions';
 
 export default function CreatePixelDialog2() {
   return (
@@ -79,7 +81,9 @@ function PixelStepForm() {
       fields: ['websiteName', 'websiteUrl'],
     },
     {
-      component: <WebhookStep />,
+      component: (
+        <WebhookStep pending={pending} startTransition={startTransition} />
+      ),
       fields: ['webhookUrl'],
     },
     {
@@ -144,6 +148,7 @@ function PixelStepForm() {
               onClick={onPrevious}
               variant="outline"
               size="sm"
+              disabled={pending}
             >
               <ChevronLeft className="mr-2 size-5" />
               Previous
@@ -151,7 +156,7 @@ function PixelStepForm() {
           )}
           {step === steps.length - 2 && (
             <Button type="submit" disabled={pending} size="sm">
-              {pending ? 'Creating...' : 'Create'}
+              Create
             </Button>
           )}
           {step < steps.length - 2 && (
@@ -213,8 +218,36 @@ function PixelStep() {
   );
 }
 
-function WebhookStep() {
-  const { control } = useFormContext<z.infer<typeof createPixelFormSchema>>();
+function WebhookStep({
+  pending,
+  startTransition,
+}: {
+  pending: boolean;
+  startTransition: TransitionStartFunction;
+}) {
+  const { control, getValues, trigger } =
+    useFormContext<z.infer<typeof createPixelFormSchema>>();
+
+  async function handleTest() {
+    const url = getValues('webhookUrl');
+    if (!url || url.trim() === '') {
+      toast.error('Please provide a webhook URL to test.');
+      return;
+    }
+
+    const valid = await trigger('webhookUrl');
+    if (!valid) {
+      return;
+    }
+
+    startTransition(() => {
+      toast.promise(testWebhookUrlAction({ webhookUrl: url }), {
+        loading: 'Testing webhook URL…',
+        success: 'Webhook URL is valid',
+        error: 'Failed to reach webhook URL',
+      });
+    });
+  }
 
   return (
     <FormField
@@ -224,11 +257,16 @@ function WebhookStep() {
         <FormItem>
           <FormLabel>Webhook URL</FormLabel>
           <FormControl>
-            <Input
-              placeholder="https://example.com/webhook"
-              {...field}
-              className="w-full"
-            />
+            <div className="flex gap-2">
+              <Input
+                placeholder="https://example.com/webhook"
+                {...field}
+                className="w-full"
+              />
+              <Button type="button" onClick={handleTest} disabled={pending}>
+                Test
+              </Button>
+            </div>
           </FormControl>
           <FormDescription>
             Optional. This URL will receive pixel events (you can add one
@@ -245,7 +283,9 @@ function InstallStep({ scriptUrl }: { scriptUrl: string }) {
   const [copied, setCopied] = useState(false);
 
   async function handleCopy() {
-    await navigator.clipboard.writeText(scriptUrl);
+    await navigator.clipboard.writeText(
+      `<script id="audiencelab-pixel" src="${scriptUrl}" async></script>`,
+    );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   }
