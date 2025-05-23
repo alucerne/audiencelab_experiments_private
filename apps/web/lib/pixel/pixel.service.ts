@@ -9,6 +9,10 @@ export function createPixelService(client: SupabaseClient<Database>) {
   return new PixelService(client);
 }
 
+export type ResolutionsPreview = Awaited<
+  ReturnType<PixelService['getResolutionsPreview']>
+>;
+
 class PixelService {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
@@ -19,6 +23,20 @@ class PixelService {
       .eq('account_id', params.accountId)
       .eq('deleted', false)
       .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async getPixelById(params: { id: string }) {
+    const { data, error } = await this.client
+      .from('pixel')
+      .select('*')
+      .eq('id', params.id)
+      .single();
 
     if (error) {
       throw error;
@@ -195,5 +213,43 @@ class PixelService {
     if (error) {
       throw error;
     }
+  }
+
+  async getResolutionsPreview({ id }: { id: string }) {
+    const { data, error } = await this.client
+      .from('pixel')
+      .select('id, delivr_id')
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    const response = await fetch(
+      `${miscConfig.pixelApiUrl}/fetch?pixel_id=${data.delivr_id}`,
+      {
+        method: 'GET',
+        headers: { 'Content-Type': 'application/json' },
+      },
+    );
+
+    return z
+      .object({
+        num_records: z.number(),
+        events: z
+          .array(
+            z.object({
+              timestamp: z.string(),
+              sha: z.string(),
+              ip_address: z.string(),
+              resolution: z
+                .record(z.union([z.string(), z.number(), z.array(z.string())]))
+                .nullable(),
+            }),
+          )
+          .nullable(),
+      })
+      .parse(await response.json());
   }
 }
