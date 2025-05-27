@@ -17,12 +17,21 @@ export function useAdAccounts({ enabled = true }: UseAdAccountsOptions = {}) {
   const query = useQuery({
     queryKey: ['facebook-ad-accounts'],
     queryFn: async () => {
-      const res = await integrationApp
-        .connection('facebook-ads')
-        .action('list-ad-accounts-2')
-        .run();
+      let cursor: string | undefined = undefined;
+      const allAccounts: AdAccountRecord[] = [];
 
-      return res.output.records as AdAccountRecord[];
+      do {
+        const res = await integrationApp
+          .connection('facebook-ads')
+          .action('list-ad-accounts')
+          .run({ cursor });
+
+        const { records, cursor: nextCursor } = res.output;
+        allAccounts.push(...(records as AdAccountRecord[]));
+        cursor = nextCursor;
+      } while (cursor);
+
+      return allAccounts;
     },
     enabled,
     staleTime: 5000,
