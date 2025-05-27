@@ -67,3 +67,18 @@ create policy insert_pixel
   with check (
     public.has_role_on_account(account_id) 
   );
+
+select cron.schedule(
+  'send-pixel-webhooks',
+  '*/15 * * * *', -- every 15 minutes
+  $$
+    SELECT net.http_post(
+      url := 'http://host.docker.internal:3000/api/db/pixel',
+      headers := jsonb_build_object(
+        'Content-Type', 'application/json',
+        'X-Supabase-Event-Signature', 'WEBHOOKSECRET'
+      ),
+      timeout_milliseconds := 60000
+    );
+  $$
+);
