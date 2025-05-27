@@ -61,10 +61,14 @@ export default function SingleSelect({
   options,
   value,
   onChange,
+  disabled = false,
+  placeholder = 'Select...',
 }: {
   options: string[];
   value: string;
   onChange: (value: string) => void;
+  disabled?: boolean;
+  placeholder?: string;
 }) {
   function handleChange(
     newValue: SingleValue<StringOption>,
@@ -80,7 +84,8 @@ export default function SingleSelect({
       onChange={handleChange}
       closeMenuOnSelect={true}
       hideSelectedOptions={false}
-      placeholder="Select..."
+      isDisabled={disabled}
+      placeholder={placeholder}
       unstyled
       styles={{
         input: (base) => ({

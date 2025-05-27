@@ -31,6 +31,7 @@ import {
   SelectValue,
 } from '@kit/ui/select';
 
+import SingleSelect from '~/components/ui/single-select';
 import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
 
 import { useAdAccounts } from '../_lib/hooks/use-ad-accounts';
@@ -118,48 +119,37 @@ export default function FacebookStep() {
       <FormField
         control={control}
         name="integration.fbAdAccountId"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Select Ad Account</FormLabel>
-            <Select
-              onValueChange={(value) => {
-                field.onChange(value);
-                const found = adAccounts?.find((a) => a.id === value);
-                setValue('integration.fbAdAccountName', found?.name ?? '', {
-                  shouldDirty: true,
-                  shouldValidate: true,
-                });
-              }}
-              defaultValue={field.value}
-              disabled={loadingAdAccounts}
-            >
-              <FormControl>
-                <SelectTrigger>
-                  <SelectValue
-                    placeholder={
-                      loadingAdAccounts
-                        ? 'Loading ad accounts...'
-                        : 'Choose an ad account'
-                    }
-                  />
-                </SelectTrigger>
-              </FormControl>
-              <SelectContent>
-                {adAccounts?.map((acct) => (
-                  <SelectItem key={acct.id} value={acct.id}>
-                    {acct.name}
-                  </SelectItem>
-                ))}
-                {!adAccounts?.length && (
-                  <SelectItem value="none" disabled>
-                    No ad accounts found
-                  </SelectItem>
-                )}
-              </SelectContent>
-            </Select>
-            <FormMessage />
-          </FormItem>
-        )}
+        render={({ field }) => {
+          const accounts = adAccounts ?? [];
+          const names = accounts.map((a) => a.name);
+          const selectedName =
+            accounts.find((a) => a.id === field.value)?.name ?? '';
+
+          return (
+            <FormItem>
+              <FormLabel>Select Ad Account</FormLabel>
+              <SingleSelect
+                options={names}
+                value={selectedName}
+                onChange={(name) => {
+                  const acct = accounts.find((a) => a.name === name);
+                  field.onChange(acct?.id);
+                  setValue('integration.fbAdAccountName', acct?.name ?? '', {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  });
+                }}
+                disabled={loadingAdAccounts}
+                placeholder={
+                  loadingAdAccounts
+                    ? 'Loading ad accounts...'
+                    : 'Choose an ad account'
+                }
+              />
+              <FormMessage />
+            </FormItem>
+          );
+        }}
       />
       <FormField
         control={control}
