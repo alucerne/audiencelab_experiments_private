@@ -536,10 +536,7 @@ class AudienceService {
       }
 
       updatedTopics.push(
-        ...data.map((item) => ({
-          ...item,
-          status: 'ready' as const,
-        })),
+        ...data.map((item) => ({ ...item, status: 'ready' as const })),
       );
     }
 
@@ -582,6 +579,8 @@ class AudienceService {
       .filter((t) => t.status === 'rejected')
       .map((t) => t.topic_id.replace('4eyes_', ''));
 
+    const countsByAccount: Record<string, number> = {};
+
     if (rejectedIds.length) {
       for (let i = 0; i < rejectedIds.length; i += BATCH_SIZE) {
         const batch = rejectedIds.slice(i, i + BATCH_SIZE);
@@ -596,11 +595,32 @@ class AudienceService {
         if (error) throw error;
 
         updatedTopics.push(
-          ...data.map((item) => ({
-            ...item,
-            status: 'rejected' as const,
-          })),
+          ...data.map((item) => ({ ...item, status: 'rejected' as const })),
         );
+
+        for (const row of data) {
+          countsByAccount[row.account_id] =
+            (countsByAccount[row.account_id] || 0) + 1;
+        }
+      }
+
+      for (const [account_id, decCount] of Object.entries(countsByAccount)) {
+        const { data: creditRow, error: readErr } = await this.client
+          .from('credits')
+          .select('current_custom')
+          .eq('account_id', account_id)
+          .single();
+        if (readErr) throw readErr;
+
+        const oldValue = creditRow?.current_custom ?? 0;
+        const newValue = Math.max(oldValue - decCount, 0);
+
+        const { error: updateErr } = await this.client
+          .from('credits')
+          .update({ current_custom: newValue })
+          .eq('account_id', account_id);
+
+        if (updateErr) throw updateErr;
       }
     }
 
