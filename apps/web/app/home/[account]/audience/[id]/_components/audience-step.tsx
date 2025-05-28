@@ -274,13 +274,13 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                   data
                     .slice()
                     .sort((a, b) =>
-                      a.available === b.available ? 0 : a.available ? -1 : 1,
+                      a.status === b.status ? 0 : a.status === 'ready' ? -1 : 1,
                     )
                     .map((interest, index) => (
                       <SelectItem
                         key={index}
                         value={interest.topic_id}
-                        disabled={!interest.available}
+                        disabled={interest.status !== 'ready'}
                         className="py-2 [&>span:nth-child(2)]:flex [&>span:nth-child(2)]:w-full [&>span:nth-child(2)]:min-w-0 [&>span:nth-child(2)]:flex-1 [&>span:nth-child(2)]:flex-col"
                       >
                         <div className="flex items-center gap-6">
@@ -295,10 +295,19 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                           >
                             {interest.topic || interest.description}
                           </div>
-                          <Badge variant="info" className="whitespace-nowrap">
-                            {interest.available
+                          <Badge
+                            variant={
+                              interest.status !== 'rejected'
+                                ? 'info'
+                                : 'destructive'
+                            }
+                            className="whitespace-nowrap"
+                          >
+                            {interest.status === 'ready'
                               ? `Created on ${format(new Date(interest.created_at), 'MMM dd, yyyy')}`
-                              : 'Processing'}
+                              : interest.status === 'processing'
+                                ? 'Processing...'
+                                : 'Rejected'}
                           </Badge>
                         </div>
                         <p

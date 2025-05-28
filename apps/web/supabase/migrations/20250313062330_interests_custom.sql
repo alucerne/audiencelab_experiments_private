@@ -1,10 +1,16 @@
+create type public.interest_status as enum(
+  'processing',
+  'ready',
+  'rejected'
+);
+
 create table if not exists public.interests_custom (
   id uuid primary key default uuid_generate_v4(),
   account_id uuid not null references public.accounts(id) on delete cascade,
   topic_id text not null,
   topic text null,
   description text not null,
-  available boolean not null default false,
+  status public.interest_status not null default 'processing',
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

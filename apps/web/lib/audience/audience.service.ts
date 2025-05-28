@@ -296,7 +296,7 @@ class AudienceService {
   async getCustomInterests({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('interests_custom')
-      .select('topic_id, topic, description, created_at, available')
+      .select('topic_id, topic, description, created_at, status')
       .eq('account_id', accountId);
 
     if (error) {
@@ -518,6 +518,7 @@ class AudienceService {
       account_id: string;
       topic: string | null;
       description: string;
+      status: 'ready' | 'rejected';
     }[] = [];
 
     for (let i = 0; i < validSegments.length; i += BATCH_SIZE) {
@@ -525,16 +526,82 @@ class AudienceService {
 
       const { data, error } = await this.client
         .from('interests_custom')
-        .update({ available: true })
+        .update({ status: 'ready' })
         .in('topic_id', batch)
-        .eq('available', false)
+        .eq('status', 'processing')
         .select('account_id, topic, description');
 
       if (error) {
         throw error;
       }
 
-      updatedTopics.push(...data);
+      updatedTopics.push(
+        ...data.map((item) => ({
+          ...item,
+          status: 'ready' as const,
+        })),
+      );
+    }
+
+    const taxRes = await fetch(
+      `${miscConfig.delivrPixel.apiUrl}/taxonomy/core/api/intent/topic/get`,
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${miscConfig.delivrPixel.jwt}`,
+          'X-Delivr-Client-ID': miscConfig.delivrPixel.appClientId,
+          'X-Delivr-Client-Secret': miscConfig.delivrPixel.appClientSecret,
+        },
+      },
+    );
+
+    if (!taxRes.ok) {
+      const err = await taxRes.json();
+      throw new Error(
+        `Taxonomy request failed ${taxRes.status}: ${err.message || JSON.stringify(err)}`,
+      );
+    }
+
+    const {
+      response: { topics },
+    } = z
+      .object({
+        response: z.object({
+          topics: z.array(
+            z.object({
+              topic_id: z.string(),
+              status: z.string(),
+            }),
+          ),
+        }),
+      })
+      .parse(await taxRes.json());
+
+    const rejectedIds = topics
+      .filter((t) => t.status === 'rejected')
+      .map((t) => t.topic_id.replace('4eyes_', ''));
+
+    if (rejectedIds.length) {
+      for (let i = 0; i < rejectedIds.length; i += BATCH_SIZE) {
+        const batch = rejectedIds.slice(i, i + BATCH_SIZE);
+
+        const { data, error } = await this.client
+          .from('interests_custom')
+          .update({ status: 'rejected' })
+          .in('topic_id', batch)
+          .eq('status', 'processing')
+          .select('account_id, topic, description');
+
+        if (error) throw error;
+
+        updatedTopics.push(
+          ...data.map((item) => ({
+            ...item,
+            status: 'rejected' as const,
+          })),
+        );
+      }
     }
 
     return updatedTopics;
