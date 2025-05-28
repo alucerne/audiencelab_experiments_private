@@ -240,9 +240,15 @@ class PixelService {
         events: z
           .array(
             z.object({
-              timestamp: z.string(),
-              sha: z.string(),
+              pixel_id: z.string(),
+              event_timestamp: z.string().datetime(),
+              event_type: z.string(),
+              hem_sha256: z.string(),
               ip_address: z.string(),
+              activity_start_date: z.string().datetime(),
+              activity_end_date: z.string().datetime(),
+              event_data: z.string(),
+              referrer_url: z.string().url(),
               resolution: z
                 .record(z.union([z.string(), z.number(), z.array(z.string())]))
                 .nullable(),

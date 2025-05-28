@@ -28,11 +28,15 @@ import { cn } from '@kit/ui/utils';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 import { ResolutionsPreview } from '~/lib/pixel/pixel.service';
 
-// 1) the flattened row shape: always has these three, plus any resolution keys
 type DataRow = {
-  timestamp: string;
-  sha: string;
+  event_timestamp: string;
+  event_type: string;
+  hem_sha256: string;
   ip_address: string;
+  activity_start_date: string;
+  activity_end_date: string;
+  event_data: string;
+  referrer_url: string;
 } & Record<string, string | number | string[]>;
 
 export default function PixelPreview({
@@ -47,8 +51,13 @@ export default function PixelPreview({
   const data = useMemo<DataRow[]>(
     () =>
       preview.events?.map((e) => ({
-        timestamp: e.timestamp,
-        sha: e.sha,
+        event_timestamp: e.event_timestamp,
+        event_type: e.event_type,
+        hem_sha256: e.hem_sha256,
+        activity_start_date: e.activity_start_date,
+        activity_end_date: e.activity_end_date,
+        event_data: e.event_data,
+        referrer_url: e.referrer_url,
         ip_address: e.ip_address,
         ...(e.resolution ?? {}),
       })) ?? [],
@@ -175,7 +184,7 @@ export default function PixelPreview({
                         <TableCell
                           key={cell.id}
                           className={cn(
-                            'max-w-40 truncate py-1.5 whitespace-nowrap',
+                            'max-w-48 truncate py-1.5 whitespace-nowrap',
                             cell.column.id !== 'rowNumber' && 'min-w-28',
                             index > 1 && 'border-muted-foreground/20 border-l',
                           )}
