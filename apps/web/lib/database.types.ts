@@ -502,30 +502,30 @@ export type Database = {
       interests_custom: {
         Row: {
           account_id: string;
-          available: boolean;
           created_at: string;
           description: string;
           id: string;
+          status: Database['public']['Enums']['interest_status'];
           topic: string | null;
           topic_id: string;
           updated_at: string;
         };
         Insert: {
           account_id: string;
-          available?: boolean;
           created_at?: string;
           description: string;
           id?: string;
+          status?: Database['public']['Enums']['interest_status'];
           topic?: string | null;
           topic_id: string;
           updated_at?: string;
         };
         Update: {
           account_id?: string;
-          available?: boolean;
           created_at?: string;
           description?: string;
           id?: string;
+          status?: Database['public']['Enums']['interest_status'];
           topic?: string | null;
           topic_id?: string;
           updated_at?: string;
@@ -1656,6 +1656,7 @@ export type Database = {
         | 'members.manage'
         | 'invites.manage';
       billing_provider: 'stripe' | 'lemon-squeezy' | 'paddle';
+      interest_status: 'processing' | 'ready' | 'rejected';
       notification_channel: 'in_app' | 'email';
       notification_type: 'info' | 'warning' | 'error';
       payment_status: 'pending' | 'succeeded' | 'failed';
