@@ -247,11 +247,27 @@ class PixelService {
               ip_address: z.string(),
               activity_start_date: z.string().datetime(),
               activity_end_date: z.string().datetime(),
-              event_data: z.string(),
-              referrer_url: z.string().url(),
+              referrer_url: z.string(),
+              event_data: z.record(
+                z.union([
+                  z.string(),
+                  z.number(),
+                  z.array(z.string()),
+                  z.null(),
+                  z.record(z.unknown()),
+                ]),
+              ),
               resolution: z
-                .record(z.union([z.string(), z.number(), z.array(z.string())]))
-                .nullable(),
+                .record(
+                  z.union([
+                    z.string(),
+                    z.number(),
+                    z.array(z.string()),
+                    z.record(z.unknown()),
+                  ]),
+                )
+                .nullable()
+                .optional(),
             }),
           )
           .nullable(),
