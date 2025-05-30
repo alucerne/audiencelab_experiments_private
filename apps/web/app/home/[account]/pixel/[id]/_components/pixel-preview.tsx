@@ -35,7 +35,6 @@ type DataRow = {
   ip_address: string;
   activity_start_date: string;
   activity_end_date: string;
-  event_data: string;
   referrer_url: string;
 } & Record<string, string | number | string[]>;
 
@@ -56,9 +55,9 @@ export default function PixelPreview({
         hem_sha256: e.hem_sha256,
         activity_start_date: e.activity_start_date,
         activity_end_date: e.activity_end_date,
-        event_data: e.event_data,
         referrer_url: e.referrer_url,
         ip_address: e.ip_address,
+        ...(e.event_data ?? {}),
         ...(e.resolution ?? {}),
       })) ?? [],
     [preview.events],
