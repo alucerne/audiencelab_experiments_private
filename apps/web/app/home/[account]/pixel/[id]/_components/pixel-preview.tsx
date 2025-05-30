@@ -28,15 +28,7 @@ import { cn } from '@kit/ui/utils';
 import { TeamAccountLayoutPageHeader } from '~/home/[account]/_components/team-account-layout-page-header';
 import { ResolutionsPreview } from '~/lib/pixel/pixel.service';
 
-type DataRow = {
-  event_timestamp: string;
-  event_type: string;
-  hem_sha256: string;
-  ip_address: string;
-  activity_start_date: string;
-  activity_end_date: string;
-  referrer_url: string;
-} & Record<string, string | number | string[]>;
+type DataRow = Record<string, string | number | string[]>;
 
 export default function PixelPreview({
   pixel,
@@ -49,17 +41,40 @@ export default function PixelPreview({
 
   const data = useMemo<DataRow[]>(
     () =>
-      preview.events?.map((e) => ({
-        event_timestamp: e.event_timestamp,
-        event_type: e.event_type,
-        hem_sha256: e.hem_sha256,
-        activity_start_date: e.activity_start_date,
-        activity_end_date: e.activity_end_date,
-        referrer_url: e.referrer_url,
-        ip_address: e.ip_address,
-        ...(e.event_data ?? {}),
-        ...(e.resolution ?? {}),
-      })) ?? [],
+      preview.events?.map((e) => {
+        const flatEventData = Object.entries(e.event_data ?? {}).reduce<
+          Record<string, string | number | string[]>
+        >((acc, [key, val]) => {
+          if (val !== null && typeof val === 'object') {
+            acc[key] = JSON.stringify(val);
+          } else {
+            acc[key] = val as string | number | string[];
+          }
+          return acc;
+        }, {});
+        const flatResolution = Object.entries(e.resolution ?? {}).reduce<
+          Record<string, string | number | string[]>
+        >((acc, [key, val]) => {
+          if (val !== null && typeof val === 'object') {
+            acc[key] = JSON.stringify(val);
+          } else {
+            acc[key] = val as string | number | string[];
+          }
+          return acc;
+        }, {});
+
+        return {
+          event_timestamp: e.event_timestamp,
+          event_type: e.event_type,
+          hem_sha256: e.hem_sha256,
+          activity_start_date: e.activity_start_date,
+          activity_end_date: e.activity_end_date,
+          referrer_url: e.referrer_url,
+          ip_address: e.ip_address,
+          ...flatEventData,
+          ...flatResolution,
+        };
+      }) ?? [],
     [preview.events],
   );
 
@@ -71,18 +86,7 @@ export default function PixelPreview({
       Object.keys(row).forEach((k) => allKeys.add(k as keyof DataRow)),
     );
 
-    const columnOrderPriority: Record<keyof DataRow, number> = {
-      timestamp: 1,
-      sha: 2,
-      ip_address: 3,
-    };
-    const specialCases: Partial<Record<keyof DataRow, string>> = {
-      timestamp: 'Timestamp',
-      sha: 'SHA256',
-      ip_address: 'IP Address',
-    };
     const formatColumnName = (k: string) =>
-      specialCases[k as keyof DataRow] ??
       k
         .split('_')
         .map((w) => w[0]?.toUpperCase() + w.slice(1).toLowerCase())
@@ -95,19 +99,14 @@ export default function PixelPreview({
       size: 25,
     };
 
-    const dataCols: ColumnDef<DataRow>[] = Array.from(allKeys)
-      .sort(
-        (a, b) =>
-          (columnOrderPriority[a] || 100) - (columnOrderPriority[b] || 100),
-      )
-      .map((key) => ({
-        accessorKey: key,
-        header: formatColumnName(key),
-        cell: ({ row }) => {
-          const v = row.original[key];
-          return Array.isArray(v) ? v.join(', ') : (v ?? '—');
-        },
-      }));
+    const dataCols: ColumnDef<DataRow>[] = Array.from(allKeys).map((key) => ({
+      accessorKey: key,
+      header: formatColumnName(key),
+      cell: ({ row }) => {
+        const v = row.original[key];
+        return Array.isArray(v) ? v.join(', ') : (v ?? '—');
+      },
+    }));
 
     return [rowNumCol, ...dataCols];
   }, [data]);
