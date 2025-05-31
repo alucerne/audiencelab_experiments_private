@@ -89,6 +89,14 @@ export const POST = enhanceRouteHandler(
               return;
             }
 
+            if (body.latest_timestamp === '0001-01-01T00:00:00Z') {
+              logger.info(
+                ctx,
+                `No new events for pixel ${pixel.id}, skipping update.`,
+              );
+              return;
+            }
+
             const { error: updateError } = await client
               .from('pixel')
               .update({
