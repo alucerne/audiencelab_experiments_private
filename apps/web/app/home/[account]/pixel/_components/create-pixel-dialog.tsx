@@ -284,7 +284,7 @@ function InstallStep({ scriptUrl }: { scriptUrl: string }) {
 
   async function handleCopy() {
     await navigator.clipboard.writeText(
-      `<script id="audiencelab-pixel" src="${scriptUrl}" async></script>`,
+      `<script src="${scriptUrl}" async></script>`,
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -305,7 +305,7 @@ function InstallStep({ scriptUrl }: { scriptUrl: string }) {
       </ul>
       <div className="bg-muted relative overflow-auto rounded-md border p-4">
         <pre className="font-mono text-sm break-words whitespace-pre-wrap">
-          {`<script id="audiencelab-pixel" src="${scriptUrl}" async></script>`}
+          {`<script src="${scriptUrl}" async></script>`}
         </pre>
         <Button
           type="button"
