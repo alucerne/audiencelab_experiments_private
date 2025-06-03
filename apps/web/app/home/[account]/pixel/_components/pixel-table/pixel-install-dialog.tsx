@@ -26,7 +26,7 @@ export default function PixelInstallDialog({
 
   async function handleCopy() {
     await navigator.clipboard.writeText(
-      `<script id="audiencelab-pixel" src="${pixel.delivr_install_url}" async></script>`,
+      `<script src="${pixel.delivr_install_url}" async></script>`,
     );
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
@@ -56,7 +56,7 @@ export default function PixelInstallDialog({
         </DialogHeader>
         <div className="bg-muted relative overflow-auto rounded-md border p-4">
           <pre className="font-mono text-sm break-words whitespace-pre-wrap">
-            {`<script id="audiencelab-pixel" src="${pixel.delivr_install_url}" async></script>`}
+            {`<script src="${pixel.delivr_install_url}" async></script>`}
           </pre>
           <Button
             type="button"
