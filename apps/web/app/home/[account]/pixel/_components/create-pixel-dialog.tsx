@@ -3,7 +3,7 @@
 import { TransitionStartFunction, useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Check, ChevronLeft, ChevronRight, CopyIcon } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -35,6 +35,7 @@ import { createPixelFormSchema } from '~/lib/pixel/schema/create-pixel-form.sche
 import { createPixelAction } from '~/lib/pixel/server-actions';
 
 import { testWebhookUrlAction } from '../_lib/actions';
+import { PixelInstallDialogContent } from './pixel-table/pixel-install-dialog';
 
 export default function CreatePixelDialog2() {
   return (
@@ -88,7 +89,12 @@ function PixelStepForm() {
     },
     {
       component: scriptUrl ? (
-        <InstallStep scriptUrl={scriptUrl} />
+        <>
+          <p className="text-muted-foreground text-sm">
+            Choose your installation method below.
+          </p>
+          <PixelInstallDialogContent installUrl={scriptUrl} note={false} />
+        </>
       ) : (
         <p>Generating pixel...</p>
       ),
@@ -276,56 +282,5 @@ function WebhookStep({
         </FormItem>
       )}
     />
-  );
-}
-
-function InstallStep({ scriptUrl }: { scriptUrl: string }) {
-  const [copied, setCopied] = useState(false);
-
-  async function handleCopy() {
-    await navigator.clipboard.writeText(
-      `<script src="${scriptUrl}" async></script>`,
-    );
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <>
-      <ul className="text-muted-foreground list-decimal space-y-1 pt-3 pl-5 text-sm">
-        <li>
-          Insert this script into the{' '}
-          <code className="bg-muted rounded px-1">&lt;head&gt;</code> block
-          before <code className="bg-muted rounded px-1">&lt;/head&gt;</code> on
-          all pages.
-        </li>
-        <li>
-          Save changes and test using browser developer tools (Network tab).
-        </li>
-      </ul>
-      <div className="bg-muted relative overflow-auto rounded-md border p-4">
-        <pre className="font-mono text-sm break-words whitespace-pre-wrap">
-          {`<script src="${scriptUrl}" async></script>`}
-        </pre>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={handleCopy}
-          className="absolute top-2 right-2 h-fit gap-2 px-2.5 py-1 text-xs"
-        >
-          {copied ? (
-            <>
-              <Check className="size-3" />
-              <span>Copied</span>
-            </>
-          ) : (
-            <>
-              <CopyIcon className="size-3" />
-              <span>Copy</span>
-            </>
-          )}
-        </Button>
-      </div>
-    </>
   );
 }

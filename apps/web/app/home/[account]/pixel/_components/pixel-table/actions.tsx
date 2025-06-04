@@ -57,7 +57,7 @@ export default function PixelTableActions({
         </Tooltip>
 
         <Tooltip>
-          <PixelInstallDialog pixel={pixel}>
+          <PixelInstallDialog installUrl={pixel.delivr_install_url}>
             <TooltipTrigger asChild>
               <Button variant="ghost" size="icon" className="h-7 w-7">
                 <Copy className="size-3.5" />
