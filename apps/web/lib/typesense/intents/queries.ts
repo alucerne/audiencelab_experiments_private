@@ -28,9 +28,9 @@ export async function get4EyesIntentIds({
         keywords.map(async (keyword) => {
           return typesenseClient
             .collections<{
-              intent_id: string;
+              id: string;
               intent: string;
-            }>('intents_auto_embed')
+            }>('interests')
             .documents()
             .search({
               q: keyword,
@@ -40,9 +40,7 @@ export async function get4EyesIntentIds({
         }),
       )
     : typesenseClient
-        .collections<{ intent_id: string; intent: string }>(
-          'intents_auto_embed',
-        )
+        .collections<{ id: string; intent: string }>('interests')
         .documents()
         .search({
           q: '*',
@@ -55,9 +53,7 @@ export async function get4EyesIntentIds({
     ? interests.flatMap((response) => response.hits || [])
     : interests.hits || [];
 
-  return Array.from(
-    new Set(allHits.map((hit) => `4eyes_${hit.document.intent_id}`)),
-  );
+  return Array.from(new Set(allHits.map((hit) => `4eyes_${hit.document.id}`)));
 }
 
 export async function getIntentNames({
@@ -73,7 +69,7 @@ export async function getIntentNames({
     .collections<{
       intent: string;
       b2b: boolean;
-    }>('intents_auto_embed')
+    }>('interests')
     .documents()
     .search({
       q: search,
@@ -81,6 +77,7 @@ export async function getIntentNames({
       filter_by: `b2b:=${b2b}`,
       per_page: 20,
       num_typos: typos,
+      infix: 'always',
     });
 
   return searchResponse.hits?.map((hit) => hit.document.intent) ?? [];
