@@ -3,9 +3,15 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import { BarChart2, Boxes, Copy, Facebook, Trash2 } from 'lucide-react';
+import {
+  BarChart2,
+  Boxes,
+  Copy,
+  Download,
+  Facebook,
+  Trash2,
+} from 'lucide-react';
 
-import { Tables } from '@kit/supabase/database';
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
   Tooltip,
@@ -15,15 +21,14 @@ import {
 } from '@kit/ui/tooltip';
 import { cn } from '@kit/ui/utils';
 
+import { Pixel } from '~/lib/pixel/pixel.service';
+
 import DeletePixelDialog from './delete-pixel-dialog';
+import { PixelExportDialog } from './export-dialog';
 import PixelInstallDialog from './pixel-install-dialog';
 import PixelWebhookDialog from './pixel-webhook-dialog';
 
-export default function PixelTableActions({
-  pixel,
-}: {
-  pixel: Tables<'pixel'>;
-}) {
+export default function PixelTableActions({ pixel }: { pixel: Pixel }) {
   const { account } = useParams<{ account: string }>();
 
   return (
@@ -37,7 +42,6 @@ export default function PixelTableActions({
           </TooltipTrigger>
           <TooltipContent>Sync with Facebook</TooltipContent>
         </Tooltip>
-
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
@@ -55,7 +59,6 @@ export default function PixelTableActions({
           </TooltipTrigger>
           <TooltipContent>See Resolutions</TooltipContent>
         </Tooltip>
-
         <Tooltip>
           <PixelInstallDialog installUrl={pixel.delivr_install_url}>
             <TooltipTrigger asChild>
@@ -66,7 +69,16 @@ export default function PixelTableActions({
           </PixelInstallDialog>
           <TooltipContent>Install</TooltipContent>
         </Tooltip>
-
+        <Tooltip>
+          <PixelExportDialog pixel={pixel}>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" size="icon" className="size-7">
+                <Download className="size-3.5" />
+              </Button>
+            </TooltipTrigger>
+          </PixelExportDialog>
+          <TooltipContent>Export Data</TooltipContent>
+        </Tooltip>
         <Tooltip>
           <PixelWebhookDialog pixel={pixel}>
             <TooltipTrigger asChild>
@@ -77,7 +89,6 @@ export default function PixelTableActions({
           </PixelWebhookDialog>
           <TooltipContent>Webhook</TooltipContent>
         </Tooltip>
-
         <Tooltip>
           <DeletePixelDialog pixel={pixel}>
             <TooltipTrigger asChild>
@@ -86,7 +97,6 @@ export default function PixelTableActions({
               </Button>
             </TooltipTrigger>
           </DeletePixelDialog>
-
           <TooltipContent>Delete</TooltipContent>
         </Tooltip>
       </TooltipProvider>

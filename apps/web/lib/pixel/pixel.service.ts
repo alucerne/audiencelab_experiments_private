@@ -13,13 +13,15 @@ export type ResolutionsPreview = Awaited<
   ReturnType<PixelService['getResolutionsPreview']>
 >;
 
+export type Pixel = Awaited<ReturnType<PixelService['getPixels']>>[number];
+
 class PixelService {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
   async getPixels(params: { accountId: string }) {
     const { data, error } = await this.client
       .from('pixel')
-      .select('*')
+      .select('*, pixel_export(*)')
       .eq('account_id', params.accountId)
       .eq('deleted', false)
       .order('created_at', { ascending: false });
@@ -296,5 +298,54 @@ class PixelService {
     if (error) {
       throw error;
     }
+  }
+
+  async createExport({ pixelId }: { pixelId: string }) {
+    const { data: pixelData, error: pixelError } = await this.client
+      .from('pixel')
+      .select('account_id, delivr_id')
+      .eq('id', pixelId)
+      .single();
+
+    if (pixelError) {
+      throw pixelError;
+    }
+
+    const response = await fetch(`${miscConfig.pixelApiUrl}/export`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pixel_id: pixelData.delivr_id,
+      }),
+    });
+
+    const body = z
+      .object({
+        message: z.string(),
+        num_rows: z.number(),
+        object_key: z.string(),
+      })
+      .parse(await response.json());
+
+    if (body.num_rows === 0) {
+      throw new Error('No data to export for this pixel');
+    }
+
+    const { data, error } = await this.client
+      .from('pixel_export')
+      .insert({
+        account_id: pixelData.account_id,
+        pixel_id: pixelId,
+        csv_url: `https://storage.googleapis.com/v3-audiencelab-export-pixel/${body.object_key}`,
+        count: body.num_rows,
+      })
+      .select('*')
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
   }
 }

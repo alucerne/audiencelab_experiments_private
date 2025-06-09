@@ -24,6 +24,7 @@ grant select, insert, update, delete on public.enqueue_job to service_role;
 
 -- Indexes
 create index ix_enqueue_job_account_id on public.enqueue_job(account_id);
+create index ix_enqueue_job_audience_id on public.enqueue_job(audience_id);
 
 -- RLS
 alter table public.enqueue_job enable row level security;

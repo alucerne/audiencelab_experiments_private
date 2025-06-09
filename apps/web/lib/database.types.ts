@@ -983,6 +983,65 @@ export type Database = {
           },
         ];
       };
+      pixel_export: {
+        Row: {
+          account_id: string;
+          count: number;
+          created_at: string;
+          csv_url: string;
+          id: string;
+          pixel_id: string;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          count: number;
+          created_at?: string;
+          csv_url: string;
+          id?: string;
+          pixel_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          count?: number;
+          created_at?: string;
+          csv_url?: string;
+          id?: string;
+          pixel_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pixel_export_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pixel_export_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pixel_export_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'pixel_export_pixel_id_fkey';
+            columns: ['pixel_id'];
+            isOneToOne: false;
+            referencedRelation: 'pixel';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       ref_departments: {
         Row: {
           created_at: string | null;

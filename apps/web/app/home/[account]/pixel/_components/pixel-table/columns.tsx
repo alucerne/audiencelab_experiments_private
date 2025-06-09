@@ -1,12 +1,13 @@
 import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
 
-import { Tables } from '@kit/supabase/database';
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
+
+import { Pixel } from '~/lib/pixel/pixel.service';
 
 import PixelTableActions from './actions';
 
-export const columns: ColumnDef<Tables<'pixel'>>[] = [
+export const columns: ColumnDef<Pixel>[] = [
   {
     accessorKey: 'websiteName',
     accessorFn: (row) => row.website_name,

@@ -82,3 +82,65 @@ select cron.schedule(
     );
   $$
 );
+
+create table if not exists public.pixel_export (
+  id uuid primary key default uuid_generate_v4(),
+  account_id uuid not null references public.accounts(id) on delete cascade,
+  pixel_id uuid not null references public.pixel(id) on delete cascade,
+  csv_url text not null,
+  count integer not null,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+-- revoke permissions on public.pixel_export
+revoke all on public.pixel_export from public, service_role;
+
+-- grant required permissions on public.pixel_export
+grant select, insert, update, delete on public.pixel_export to authenticated;
+grant select, insert, update, delete on public.pixel_export to service_role;
+
+-- Indexes
+create index ix_pixel_export_pixel_id on public.pixel_export(pixel_id);
+
+-- RLS
+alter table public.pixel_export enable row level security;
+
+-- SELECT(public.pixel_export)
+create policy select_pixel_export
+  on public.pixel_export
+  for select
+  to authenticated
+  using (
+    public.has_role_on_account(account_id) 
+  );
+
+-- DELETE(public.pixel_export)
+create policy delete_pixel_export
+  on public.pixel_export
+  for delete
+  to authenticated
+  using (
+    public.has_role_on_account(account_id) 
+  );
+
+-- UPDATE(public.pixel_export)
+create policy update_pixel_export
+  on public.pixel_export
+  for update
+  to authenticated
+  using (
+    public.has_role_on_account(account_id) 
+  )
+  with check (
+    public.has_role_on_account(account_id) 
+  );
+
+-- INSERT(public.pixel_export)
+create policy insert_pixel_export
+  on public.pixel_export
+  for insert
+  to authenticated
+  with check (
+    public.has_role_on_account(account_id) 
+  );
