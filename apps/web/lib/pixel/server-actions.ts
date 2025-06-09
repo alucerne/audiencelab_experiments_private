@@ -74,3 +74,21 @@ export const setPixelWebhookAction = enhanceAction(
     }),
   },
 );
+
+export const createPixelExportAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createPixelService(client);
+
+    const pixelExport = await service.createExport(data);
+
+    revalidatePath('/home/[account]/pixel', 'page');
+
+    return pixelExport;
+  },
+  {
+    schema: z.object({
+      pixelId: z.string(),
+    }),
+  },
+);

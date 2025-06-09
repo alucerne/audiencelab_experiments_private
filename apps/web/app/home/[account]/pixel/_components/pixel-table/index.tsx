@@ -25,16 +25,12 @@ import {
   TableRow,
 } from '@kit/ui/table';
 
-import { Tables } from '~/lib/database.types';
+import { Pixel } from '~/lib/pixel/pixel.service';
 
 import CreatePixelDialog from '../create-pixel-dialog';
 import { columns } from './columns';
 
-const nameIdFilterFn: FilterFn<Tables<'pixel'>> = (
-  row,
-  _,
-  filterValue: string,
-) => {
+const nameIdFilterFn: FilterFn<Pixel> = (row, _, filterValue: string) => {
   const fullName = row.original.website_name.toLowerCase();
   const searchText = filterValue.toLowerCase();
 
@@ -44,9 +40,9 @@ const nameIdFilterFn: FilterFn<Tables<'pixel'>> = (
 export default function PixelsTable({
   pixels,
 }: React.PropsWithChildren<{
-  pixels: Tables<'pixel'>[];
+  pixels: Pixel[];
 }>) {
-  const table = useReactTable<Tables<'pixel'>>({
+  const table = useReactTable<Pixel>({
     data: pixels,
     columns: columns,
     initialState: {
