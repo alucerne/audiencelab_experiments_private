@@ -427,7 +427,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
               queryKey: ['customInterests', accountId],
             });
             handleClose();
-            return 'Your custom audience is being created. This process can take up to 24 hours.';
+            return 'Your custom audience is being created. This process can take up to 72 hours.';
           },
           error: 'Failed to create custom audience',
         },
