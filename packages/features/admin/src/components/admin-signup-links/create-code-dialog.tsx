@@ -377,12 +377,12 @@ function Step2() {
           name="permissions.max_custom_interests"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Max Custom Interests</FormLabel>
+              <FormLabel>Max Custom Intents</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
               <FormDescription>
-                Maximum number of custom interests allowed
+                Maximum number of custom intents allowed
               </FormDescription>
               <FormMessage />
             </FormItem>
