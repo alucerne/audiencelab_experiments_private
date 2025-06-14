@@ -288,6 +288,22 @@ export const searchCitiesAction = enhanceAction(
   },
 );
 
+export const searchBatchCitiesAction = enhanceAction(
+  async ({ search: searchTokens }: { search: string[] }) => {
+    const { default: cities } = await import('./filters-mappings/cities.json');
+
+    const validTokens = searchTokens.filter((token) =>
+      cities.some((city: string) => city.toLowerCase() === token.toLowerCase()),
+    );
+    return validTokens;
+  },
+  {
+    schema: z.object({
+      search: z.array(z.string()),
+    }),
+  },
+);
+
 export const searchZipsAction = enhanceAction(
   async ({ search }) => {
     const { default: zips } = await import('./filters-mappings/zips.json');

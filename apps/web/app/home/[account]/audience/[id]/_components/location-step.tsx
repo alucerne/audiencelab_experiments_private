@@ -16,6 +16,7 @@ import {
   audienceFiltersFormSchema,
 } from '~/lib/audience/schema/audience-filters-form.schema';
 import {
+  searchBatchCitiesAction,
   searchBatchZipsAction,
   searchCitiesAction,
   searchZipsAction,
@@ -44,6 +45,9 @@ export default function LocationStep() {
                 value={field.value}
                 onChange={(selected) => field.onChange(selected)}
                 searchAction={(search) => searchCitiesAction({ search })}
+                batchSearchAction={(search) =>
+                  searchBatchCitiesAction({ search })
+                }
                 debounceTime={500}
               />
             </FormControl>
@@ -79,8 +83,8 @@ export default function LocationStep() {
                 value={field.value}
                 onChange={(selected) => field.onChange(selected)}
                 searchAction={(search) => searchZipsAction({ search })}
-                batchSearchAction={(searchTerms) =>
-                  searchBatchZipsAction({ search: searchTerms })
+                batchSearchAction={(search) =>
+                  searchBatchZipsAction({ search })
                 }
                 debounceTime={500}
                 placeholder="Type to search, or enter multiple zip codes separated by commas..."
