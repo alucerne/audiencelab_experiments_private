@@ -248,9 +248,9 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
         name="segment"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Your Custom Audiences</FormLabel>
+            <FormLabel>Your Custom Intents</FormLabel>
             <FormDescription>
-              Select a custom audience you have created.
+              Select a custom intent you have created.
             </FormDescription>
             <Select
               onValueChange={(val) => field.onChange([val])}
@@ -268,7 +268,7 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                   </SelectItem>
                 ) : error ? (
                   <SelectItem value="error" disabled>
-                    Error loading custom audiences
+                    Error loading custom intents
                   </SelectItem>
                 ) : data?.length ? (
                   data
@@ -325,7 +325,7 @@ function CustomAudience({ canCreate }: { canCreate: boolean }) {
                     ))
                 ) : (
                   <SelectItem value="no-results" disabled>
-                    No custom audiences found
+                    No custom intents found
                   </SelectItem>
                 )}
               </SelectContent>
@@ -421,15 +421,15 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
           description: getValues('audience.customDescription'),
         }),
         {
-          loading: 'Creating custom audience...',
+          loading: 'Creating custom intent...',
           success: () => {
             queryClient.invalidateQueries({
               queryKey: ['customInterests', accountId],
             });
             handleClose();
-            return 'Your custom audience is being created. This process can take up to 72 hours.';
+            return 'Your custom intent is being created. This process can take up to 72 hours.';
           },
-          error: 'Failed to create custom audience',
+          error: 'Failed to create custom intent',
         },
       );
     });
@@ -447,7 +447,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
     >
       <DialogTrigger asChild>
         <Button disabled={disabled} size="sm" className="w-fit gap-2 text-sm">
-          New Custom Audience
+          New Custom Intent
         </Button>
       </DialogTrigger>
       <DialogContent
@@ -456,7 +456,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
         className="flex max-h-[90vh] max-w-xl flex-col overflow-y-auto"
       >
         <DialogHeader>
-          <DialogTitle>Create Custom Audience</DialogTitle>
+          <DialogTitle>Create Custom Intent</DialogTitle>
         </DialogHeader>
         <FormField
           control={control}
@@ -465,7 +465,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
             <FormItem>
               <FormLabel>Topic</FormLabel>
               <FormDescription>
-                What is the topic of your custom audience?
+                What is the topic of your custom intent?
               </FormDescription>
               <FormControl>
                 <Input {...field} />
@@ -480,7 +480,7 @@ function CreateCustomAudienceDialog({ disabled }: { disabled: boolean }) {
           render={({ field }) => (
             <FormItem className="mt-2">
               <FormLabel>Description</FormLabel>
-              <FormDescription>Describe your custom audience.</FormDescription>
+              <FormDescription>Describe your custom intent.</FormDescription>
               <FormControl>
                 <Textarea {...field} rows={5} />
               </FormControl>

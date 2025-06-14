@@ -31,13 +31,13 @@ export const POST = enhanceRouteHandler(
           interest.status === 'ready'
             ? api.createNotification({
                 account_id: interest.account_id,
-                body: `Your custom audience is now ready: ${interest.topic || interest.description.slice(0, 50) + '...'}`,
+                body: `Your custom intent is now ready: ${interest.topic || interest.description.slice(0, 50) + '...'}`,
                 channel: 'in_app',
                 type: 'info',
               })
             : api.createNotification({
                 account_id: interest.account_id,
-                body: `Your custom audience was rejected: ${interest.topic || interest.description.slice(0, 50) + '...'}`,
+                body: `Your custom intent was rejected: ${interest.topic || interest.description.slice(0, 50) + '...'}`,
                 channel: 'in_app',
                 type: 'error',
               }),

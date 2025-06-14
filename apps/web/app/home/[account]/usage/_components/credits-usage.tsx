@@ -166,7 +166,7 @@ export default function CreditsUsage({
               </div>
               <div className="flex items-center justify-between rounded-md border p-4">
                 <div>
-                  <h3 className="font-medium">Custom Audiences</h3>
+                  <h3 className="font-medium">Custom Intents</h3>
                   <p className="text-muted-foreground mt-1 text-sm">
                     Your unique leads
                   </p>

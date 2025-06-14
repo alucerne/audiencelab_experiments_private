@@ -148,12 +148,12 @@ function AdminAddCreditsForm({
           name="current_custom"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Current Custom Interests</FormLabel>
+              <FormLabel>Current Custom Intents</FormLabel>
               <FormControl>
                 <Input type="number" className="max-w-xs" {...field} />
               </FormControl>
               <FormDescription>
-                Total number of custom interests created by this account
+                Total number of custom intents created by this account
                 <br />
                 <em className="text-muted-foreground text-sm">
                   Original: {credits.current_custom}

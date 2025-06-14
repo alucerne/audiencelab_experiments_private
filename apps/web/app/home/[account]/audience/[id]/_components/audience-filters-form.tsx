@@ -124,7 +124,7 @@ export default function AudienceFiltersForm({
 
   const steps = [
     {
-      label: 'Audience Lists',
+      label: 'Intent',
       description: 'Build your core target audience.',
       icon: <ListChecks />,
       component: <AudienceStep limits={limits} />,
@@ -374,8 +374,7 @@ export default function AudienceFiltersForm({
                     type="button"
                     variant="ghost"
                     disabled={
-                      (!limits.intentAccess &&
-                        step.label === 'Audience Lists') ||
+                      (!limits.intentAccess && step.label === 'Intent') ||
                       (step.label === 'Date' && segmentList.length === 0)
                     }
                     className={cn(

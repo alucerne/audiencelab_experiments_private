@@ -3,14 +3,7 @@
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 
-import {
-  BarChart2,
-  Boxes,
-  Copy,
-  Download,
-  Facebook,
-  Trash2,
-} from 'lucide-react';
+import { BarChart2, Boxes, Copy, Download, Trash2 } from 'lucide-react';
 
 import { Button, buttonVariants } from '@kit/ui/button';
 import {
@@ -34,14 +27,6 @@ export default function PixelTableActions({ pixel }: { pixel: Pixel }) {
   return (
     <div className="flex items-center justify-end space-x-2">
       <TooltipProvider delayDuration={300}>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-7 w-7" disabled>
-              <Facebook className="size-3.5" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Sync with Facebook</TooltipContent>
-        </Tooltip>
         <Tooltip>
           <TooltipTrigger asChild>
             <Link
