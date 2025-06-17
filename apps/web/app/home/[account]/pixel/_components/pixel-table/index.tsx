@@ -12,6 +12,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
+import { Button } from '@kit/ui/button';
 import {
   DataTablePagination,
   DataTableToolbar,
@@ -39,8 +40,13 @@ const nameIdFilterFn: FilterFn<Pixel> = (row, _, filterValue: string) => {
 
 export default function PixelsTable({
   pixels,
+  limits,
 }: React.PropsWithChildren<{
   pixels: Pixel[];
+  limits: {
+    sizeLimit: number;
+    enabled: boolean;
+  };
 }>) {
   const table = useReactTable<Pixel>({
     data: pixels,
@@ -64,7 +70,15 @@ export default function PixelsTable({
         table={table}
         dataName="Pixel"
         searchPlaceholder="Search by name..."
-        actions={<CreatePixelDialog />}
+        actions={
+          limits.enabled ? (
+            <CreatePixelDialog />
+          ) : (
+            <Button className="w-fit" disabled>
+              Create
+            </Button>
+          )
+        }
       />
       <div className="w-full overflow-hidden rounded-md border">
         <Table>

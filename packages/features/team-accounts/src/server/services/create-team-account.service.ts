@@ -78,6 +78,8 @@ class CreateTeamAccountService {
         monthly_audience_limit: z.coerce.number().int().min(0),
         max_custom_interests: z.coerce.number().int().min(0),
         monthly_enrichment_limit: z.coerce.number().int().min(0),
+        pixel_size_limit: z.coerce.number().int().min(0),
+        monthly_pixel_limit: z.coerce.number().int().min(0),
       });
 
       const parsedPermissions = permissionsSchema.parse(

@@ -4,6 +4,7 @@ import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { PageBody } from '@kit/ui/page';
 
+import { createCreditsService } from '~/lib/credits/credits.service';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
 import { createPixelService } from '~/lib/pixel/pixel.service';
@@ -28,8 +29,12 @@ function PixelsPage({ params }: { params: Promise<{ account: string }> }) {
 
   const client = getSupabaseServerClient();
   const service = createPixelService(client);
+  const credits = createCreditsService(client);
 
   const pixels = use(service.getPixels({ accountId: workspace.account.id }));
+  const limits = use(
+    credits.canCreatePixel({ accountId: workspace.account.id }),
+  );
 
   return (
     <>
@@ -41,7 +46,7 @@ function PixelsPage({ params }: { params: Promise<{ account: string }> }) {
 
       <PageBody className="gap-6">
         <PixelActionsBox />
-        <PixelTable pixels={pixels} />
+        <PixelTable pixels={pixels} limits={limits} />
       </PageBody>
     </>
   );

@@ -1,9 +1,8 @@
-import { BarChart2, Boxes, Copy, Facebook, Trash2 } from 'lucide-react';
+import { BarChart2, Boxes, Copy, Trash2 } from 'lucide-react';
 
 import { Card, CardHeader, CardTitle } from '@kit/ui/card';
 
 const actions = [
-  { icon: <Facebook className="size-4" />, label: 'Sync with Facebook' },
   { icon: <BarChart2 className="size-4" />, label: 'See Resolutions' },
   { icon: <Copy className="size-4" />, label: 'Install' },
   { icon: <Boxes className="size-4" />, label: 'Webhook' },

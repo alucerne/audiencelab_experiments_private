@@ -5,6 +5,7 @@ import {
   Ban,
   BookUser,
   CheckCircle,
+  CodeXml,
   Filter,
   UserSearch,
 } from 'lucide-react';
@@ -25,6 +26,7 @@ export default function CreditsUsage({
   enrichment,
   audience,
   audienceFilters,
+  pixel,
 }: CreditMetrics) {
   const enrichmentPercentage =
     enrichment.monthlyMax > 0
@@ -34,6 +36,8 @@ export default function CreditsUsage({
     audience.maxLists > 0
       ? (audience.currentCount / audience.maxLists) * 100
       : 0;
+  const pixelPercentage =
+    pixel.maxPixels > 0 ? (pixel.currentCount / pixel.maxPixels) * 100 : 0;
 
   return (
     <div className="container m-0 p-0">
@@ -184,6 +188,45 @@ export default function CreditsUsage({
                   {audienceFilters.maxCustomInterests}
                 </Badge>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+        <Card className="md:col-span-2">
+          <CardHeader className="pb-2">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-xl font-semibold">
+                <div className="flex items-center gap-2">
+                  <CodeXml className="h-5 w-5" />
+                  <span>Pixels</span>
+                </div>
+              </CardTitle>
+              <Badge
+                variant={pixelPercentage >= 100 ? 'destructive' : 'outline'}
+              >
+                {pixel.currentCount} / {pixel.maxPixels}
+              </Badge>
+            </div>
+            <CardDescription>
+              Monthly pixels used this calendar month
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span>Usage</span>
+                <span>{Math.min(100, pixelPercentage).toFixed(0)}%</span>
+              </div>
+              <Progress
+                value={Math.min(100, pixelPercentage)}
+                className="bg-muted"
+              />
+            </div>
+
+            <div className="bg-muted rounded-md p-3">
+              <h4 className="mb-1 font-medium">Resolution Limit</h4>
+              <p className="text-muted-foreground text-sm">
+                Maximum {pixel.sizeLimit.toLocaleString()} resolutions per pixel
+              </p>
             </div>
           </CardContent>
         </Card>
