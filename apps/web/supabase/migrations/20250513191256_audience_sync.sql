@@ -102,8 +102,6 @@ begin
 end;
 $$;
 
-drop trigger if exists enqueue_job_csv_url on public.enqueue_job;
-
 create trigger enqueue_job_csv_url
   after update on public.enqueue_job
   for each row
