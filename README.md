@@ -12,7 +12,7 @@
 1. install dependencies
 
    ```bash
-   pnpm dev
+   pnpm i
    ```
 
 2. start supabase docker container
