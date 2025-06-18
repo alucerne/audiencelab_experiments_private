@@ -84,6 +84,7 @@ function AdminAddCreditsForm({
       current_audience: credits.current_audience,
       current_enrichment: credits.current_enrichment,
       current_custom: credits.current_custom,
+      current_pixel: credits.current_pixel,
     },
   });
 
@@ -157,6 +158,26 @@ function AdminAddCreditsForm({
                 <br />
                 <em className="text-muted-foreground text-sm">
                   Original: {credits.current_custom}
+                </em>
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="current_pixel"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Current Pixels</FormLabel>
+              <FormControl>
+                <Input type="number" className="max-w-xs" {...field} />
+              </FormControl>
+              <FormDescription>
+                Total number of pixels created for this calendar month
+                <br />
+                <em className="text-muted-foreground text-sm">
+                  Original: {credits.current_pixel}
                 </em>
               </FormDescription>
               <FormMessage />

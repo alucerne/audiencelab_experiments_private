@@ -355,12 +355,15 @@ export type Database = {
           current_audience: number;
           current_custom: number;
           current_enrichment: number;
+          current_pixel: number;
           enrichment_size_limit: number;
           id: string;
           intent_access: boolean;
           max_custom_interests: number;
           monthly_audience_limit: number;
           monthly_enrichment_limit: number;
+          monthly_pixel_limit: number;
+          pixel_size_limit: number;
           updated_at: string;
         };
         Insert: {
@@ -371,12 +374,15 @@ export type Database = {
           current_audience?: number;
           current_custom?: number;
           current_enrichment?: number;
+          current_pixel?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
           max_custom_interests?: number;
           monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
+          monthly_pixel_limit?: number;
+          pixel_size_limit?: number;
           updated_at?: string;
         };
         Update: {
@@ -387,12 +393,15 @@ export type Database = {
           current_audience?: number;
           current_custom?: number;
           current_enrichment?: number;
+          current_pixel?: number;
           enrichment_size_limit?: number;
           id?: string;
           intent_access?: boolean;
           max_custom_interests?: number;
           monthly_audience_limit?: number;
           monthly_enrichment_limit?: number;
+          monthly_pixel_limit?: number;
+          pixel_size_limit?: number;
           updated_at?: string;
         };
         Relationships: [

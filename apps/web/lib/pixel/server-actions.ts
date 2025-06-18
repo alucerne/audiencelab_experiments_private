@@ -7,13 +7,25 @@ import { z } from 'zod';
 import { enhanceAction } from '@kit/next/actions';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
+import { createCreditsService } from '../credits/credits.service';
 import { createPixelService } from './pixel.service';
 import { createPixelFormSchema } from './schema/create-pixel-form.schema';
 
 export const createPixelAction = enhanceAction(
   async (data) => {
     const client = getSupabaseServerClient();
+    const credits = createCreditsService(client);
+
+    const { enabled } = await credits.canCreatePixel({
+      accountId: data.accountId,
+    });
+
+    if (!enabled) {
+      throw new Error('Pixel limit exceeded');
+    }
+
     const service = createPixelService(client);
+
     const pixel = await service.createPixel({
       accountId: data.accountId,
       websiteName: data.pixelData.websiteName,

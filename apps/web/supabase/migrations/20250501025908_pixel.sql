@@ -144,3 +144,45 @@ create policy insert_pixel_export
   with check (
     public.has_role_on_account(account_id) 
   );
+
+CREATE OR REPLACE FUNCTION public.increment_pixel_count()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  UPDATE public.credits
+    SET current_pixel = current_pixel + 1
+  WHERE account_id = NEW.account_id;
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.increment_pixel_count() FROM public;
+
+CREATE TRIGGER after_insert_pixel
+AFTER INSERT ON public.pixel
+FOR EACH ROW
+EXECUTE FUNCTION public.increment_pixel_count();
+
+CREATE OR REPLACE FUNCTION public.decrement_pixel_count()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+BEGIN
+  IF (OLD.deleted IS DISTINCT FROM NEW.deleted) AND NEW.deleted = true THEN
+    UPDATE public.credits
+      SET current_pixel = GREATEST(current_pixel - 1, 0)
+    WHERE account_id = NEW.account_id;
+  END IF;
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.decrement_pixel_count() FROM public;
+
+CREATE TRIGGER after_soft_delete_pixel
+AFTER UPDATE ON public.pixel
+FOR EACH ROW
+EXECUTE FUNCTION public.decrement_pixel_count();

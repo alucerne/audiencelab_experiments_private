@@ -41,6 +41,11 @@ class CreditsService {
         b2bAccess: data.b2b_access,
         intentAccess: data.intent_access,
       },
+      pixel: {
+        maxPixels: data.monthly_pixel_limit,
+        currentCount: data.current_pixel,
+        sizeLimit: data.pixel_size_limit,
+      },
     };
   }
 
@@ -65,6 +70,25 @@ class CreditsService {
       b2bAccess: !data.account.restricted && data.b2b_access,
       intentAccess: !data.account.restricted && data.intent_access,
       audienceSizeLimit: data.audience_size_limit,
+    };
+  }
+
+  async canCreatePixel({ accountId }: { accountId: string }) {
+    const { data, error } = await this.client
+      .from('credits')
+      .select('*, account:account_id (restricted)')
+      .eq('account_id', accountId)
+      .single();
+
+    if (error) {
+      throw new Error('Error fetching credits');
+    }
+
+    return {
+      enabled:
+        !data.account.restricted &&
+        data.monthly_pixel_limit > data.current_pixel,
+      sizeLimit: data.pixel_size_limit,
     };
   }
 

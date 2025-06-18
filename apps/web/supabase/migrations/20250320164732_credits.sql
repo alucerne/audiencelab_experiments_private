@@ -6,9 +6,12 @@ create table if not exists public.credits (
   audience_size_limit integer not null default 500000,
   b2b_access boolean not null default true,
   intent_access boolean not null default true,
+  monthly_pixel_limit integer not null default 1,
+  pixel_size_limit integer not null default 100000,
   monthly_enrichment_limit integer not null default 1,
   enrichment_size_limit integer not null default 500000,
   current_audience integer not null default 0,
+  current_pixel integer not null default 0,
   current_enrichment integer not null default 0,
   current_custom integer not null default 0,
   created_at timestamptz not null default now(),
@@ -79,7 +82,6 @@ AFTER INSERT ON public.interests_custom
 FOR EACH ROW
 EXECUTE FUNCTION public.increment_custom_interests_count();
 
-
 CREATE OR REPLACE FUNCTION public.increment_enrichment_count()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -99,6 +101,30 @@ CREATE TRIGGER after_insert_job_enrich
 AFTER INSERT ON public.job_enrich
 FOR EACH ROW
 EXECUTE FUNCTION public.increment_enrichment_count();
+
+CREATE OR REPLACE FUNCTION public.decrement_enrichment_count()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF (OLD.status IS DISTINCT FROM NEW.status)
+     AND (NEW.status IN ('NO_DATA', 'FAILED')) THEN
+     
+    UPDATE public.credits
+    SET current_enrichment = GREATEST(current_enrichment - 1, 0)
+    WHERE account_id = NEW.account_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.decrement_enrichment_count() FROM public;
+
+CREATE TRIGGER after_failed_job_enrich
+AFTER UPDATE ON public.job_enrich
+FOR EACH ROW
+EXECUTE FUNCTION public.decrement_enrichment_count();
 
 CREATE OR REPLACE FUNCTION public.increment_audience_count()
 RETURNS trigger
@@ -168,6 +194,12 @@ SELECT cron.schedule(
           ON j.audience_id = a.id
         WHERE a.account_id = c.account_id
           AND a.deleted    = FALSE
+      ),
+      current_pixel = (
+        SELECT COUNT(*)
+        FROM public.pixel AS p
+        WHERE p.account_id = c.account_id
+          AND p.deleted = FALSE
       )
     ;
   $$
