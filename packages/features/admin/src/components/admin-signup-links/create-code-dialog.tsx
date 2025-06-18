@@ -91,6 +91,8 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
         monthly_audience_limit: 20,
         max_custom_interests: 1,
         monthly_enrichment_limit: 1,
+        pixel_size_limit: 1000000,
+        monthly_pixel_limit: 3,
       },
     },
   });
@@ -179,7 +181,7 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
             step === 0 && 'justify-end',
           )}
         >
-          {step > 0 && (
+          {step > 0 && step < steps.length - 1 && (
             <Button
               type="button"
               onClick={onPrevious}
@@ -326,6 +328,54 @@ function Step2() {
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <FormField
           control={control}
+          name="permissions.monthly_audience_limit"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Audience Limit</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormDescription>
+                Maximum audience lists allowed per month
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="permissions.monthly_enrichment_limit"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Enrichment Limit</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormDescription>
+                Maximum enrichments allowed per month
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
+          name="permissions.monthly_pixel_limit"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Monthly Pixel Limit</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormDescription>
+                Maximum pixels allowed per month
+              </FormDescription>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={control}
           name="permissions.audience_size_limit"
           render={({ field }) => (
             <FormItem>
@@ -358,20 +408,19 @@ function Step2() {
         />
         <FormField
           control={control}
-          name="permissions.monthly_audience_limit"
+          name="permissions.pixel_size_limit"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Monthly Audience Limit</FormLabel>
+              <FormLabel>Pixel Resolution Limit</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
-              <FormDescription>
-                Maximum audience lists allowed per month
-              </FormDescription>
+              <FormDescription>Maximum resolutions per pixel</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
+
         <FormField
           control={control}
           name="permissions.max_custom_interests"
@@ -383,22 +432,6 @@ function Step2() {
               </FormControl>
               <FormDescription>
                 Maximum number of custom intents allowed
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="permissions.monthly_enrichment_limit"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Monthly Enrichment Limit</FormLabel>
-              <FormControl>
-                <Input type="number" {...field} />
-              </FormControl>
-              <FormDescription>
-                Maximum enrichments allowed per month
               </FormDescription>
               <FormMessage />
             </FormItem>

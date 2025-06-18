@@ -42,6 +42,8 @@ export default function AdminCreditsForm({
       monthly_audience_limit: credits.monthly_audience_limit,
       max_custom_interests: credits.max_custom_interests,
       monthly_enrichment_limit: credits.monthly_enrichment_limit,
+      pixel_size_limit: credits.pixel_size_limit,
+      monthly_pixel_limit: credits.monthly_pixel_limit,
     },
   });
 
@@ -61,22 +63,6 @@ export default function AdminCreditsForm({
         <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           <FormField
             control={form.control}
-            name="audience_size_limit"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Audience Size Limit</FormLabel>
-                <FormControl>
-                  <Input type="number" {...field} />
-                </FormControl>
-                <FormDescription>
-                  Maximum number of contacts in an audience
-                </FormDescription>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
             name="monthly_audience_limit"
             render={({ field }) => (
               <FormItem>
@@ -93,15 +79,47 @@ export default function AdminCreditsForm({
           />
           <FormField
             control={form.control}
-            name="max_custom_interests"
+            name="monthly_enrichment_limit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Max Custom Intents</FormLabel>
+                <FormLabel>Monthly Enrichment Limit</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Maximum number of custom intents allowed
+                  Maximum enrichments allowed per month
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="monthly_pixel_limit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Monthly Pixel Limit</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Maximum pixels allowed per month
+                </FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="audience_size_limit"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Audience Size Limit</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>
+                  Maximum number of contacts in an audience
                 </FormDescription>
                 <FormMessage />
               </FormItem>
@@ -125,15 +143,30 @@ export default function AdminCreditsForm({
           />
           <FormField
             control={form.control}
-            name="monthly_enrichment_limit"
+            name="pixel_size_limit"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Monthly Enrichment Limit</FormLabel>
+                <FormLabel>Pixel Resolution Limit</FormLabel>
+                <FormControl>
+                  <Input type="number" {...field} />
+                </FormControl>
+                <FormDescription>Maximum resolutions per pixel</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="max_custom_interests"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Max Custom Intents</FormLabel>
                 <FormControl>
                   <Input type="number" {...field} />
                 </FormControl>
                 <FormDescription>
-                  Maximum enrichments allowed per month
+                  Maximum number of custom intents allowed
                 </FormDescription>
                 <FormMessage />
               </FormItem>
