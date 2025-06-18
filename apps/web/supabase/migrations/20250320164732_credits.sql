@@ -79,7 +79,6 @@ AFTER INSERT ON public.interests_custom
 FOR EACH ROW
 EXECUTE FUNCTION public.increment_custom_interests_count();
 
-
 CREATE OR REPLACE FUNCTION public.increment_enrichment_count()
 RETURNS trigger
 LANGUAGE plpgsql
@@ -99,6 +98,30 @@ CREATE TRIGGER after_insert_job_enrich
 AFTER INSERT ON public.job_enrich
 FOR EACH ROW
 EXECUTE FUNCTION public.increment_enrichment_count();
+
+CREATE OR REPLACE FUNCTION public.decrement_enrichment_count()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  IF (OLD.status IS DISTINCT FROM NEW.status)
+     AND (NEW.status IN ('NO_DATA', 'FAILED')) THEN
+     
+    UPDATE public.credits
+    SET current_enrichment = GREATEST(current_enrichment - 1, 0)
+    WHERE account_id = NEW.account_id;
+  END IF;
+  
+  RETURN NEW;
+END;
+$$;
+
+REVOKE ALL ON FUNCTION public.decrement_enrichment_count() FROM public;
+
+CREATE TRIGGER after_failed_job_enrich
+AFTER UPDATE ON public.job_enrich
+FOR EACH ROW
+EXECUTE FUNCTION public.decrement_enrichment_count();
 
 CREATE OR REPLACE FUNCTION public.increment_audience_count()
 RETURNS trigger
