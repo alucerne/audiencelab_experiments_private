@@ -14,6 +14,7 @@ create table if not exists public.credits (
   current_pixel integer not null default 0,
   current_enrichment integer not null default 0,
   current_custom integer not null default 0,
+  whitelabel_host_account_id uuid references public.accounts(id) on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
