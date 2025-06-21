@@ -436,21 +436,21 @@ export type Database = {
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: true;
+            isOneToOne: false;
             referencedRelation: 'accounts';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: true;
+            isOneToOne: false;
             referencedRelation: 'user_account_workspace';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: true;
+            isOneToOne: false;
             referencedRelation: 'user_accounts';
             referencedColumns: ['id'];
           },

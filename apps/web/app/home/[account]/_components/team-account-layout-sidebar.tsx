@@ -25,6 +25,7 @@ export function TeamAccountLayoutSidebar(props: {
   accountId: string;
   accounts: AccountModel[];
   user: User;
+  isWhiteLabelHost: boolean;
 }) {
   return (
     <SidebarContainer
@@ -32,6 +33,7 @@ export function TeamAccountLayoutSidebar(props: {
       accountId={props.accountId}
       accounts={props.accounts}
       user={props.user}
+      isWhiteLabelHost={props.isWhiteLabelHost}
     />
   );
 }
@@ -41,11 +43,12 @@ function SidebarContainer(props: {
   accountId: string;
   accounts: AccountModel[];
   user: User;
+  isWhiteLabelHost: boolean;
 }) {
   const { account, accounts, user } = props;
   const userId = user.id;
 
-  const config = getTeamAccountSidebarConfig(account);
+  const config = getTeamAccountSidebarConfig(account, props.isWhiteLabelHost);
   const collapsible = config.sidebarCollapsedStyle;
 
   return (

@@ -1,6 +1,6 @@
 create table if not exists public.credits (
   id uuid primary key default uuid_generate_v4(),
-  account_id uuid not null references public.accounts(id) on delete cascade,
+  account_id uuid not null unique references public.accounts(id) on delete cascade,
   monthly_audience_limit integer not null default 20,
   max_custom_interests integer not null default 1,
   audience_size_limit integer not null default 500000,

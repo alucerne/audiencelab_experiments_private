@@ -3,6 +3,9 @@ import {
   BookUser,
   CodeXml,
   CreditCard,
+  FileChartColumn,
+  House,
+  LayoutTemplate,
   Plug,
   Settings,
   UserSearch,
@@ -16,7 +19,7 @@ import pathsConfig from '~/config/paths.config';
 
 const iconClasses = 'w-4';
 
-const getRoutes = (account: string) => [
+const getRoutes = (account: string, isWhiteLabelHost: boolean) => [
   {
     label: 'Audience',
     children: [
@@ -48,6 +51,40 @@ const getRoutes = (account: string) => [
       },
     ],
   },
+  ...(isWhiteLabelHost
+    ? [
+        {
+          label: 'White-label',
+          children: [
+            {
+              label: 'Credits',
+              path: pathsConfig.app.accountWhiteLabel.replace(
+                '[account]',
+                account,
+              ),
+              Icon: <House className={iconClasses} />,
+              end: true,
+            },
+            {
+              label: 'Teams',
+              path: pathsConfig.app.accountWhiteLabelTeams.replace(
+                '[account]',
+                account,
+              ),
+              Icon: <FileChartColumn className={iconClasses} />,
+            },
+            {
+              label: 'Branding',
+              path: pathsConfig.app.accountWhiteLabelBranding.replace(
+                '[account]',
+                account,
+              ),
+              Icon: <LayoutTemplate className={iconClasses} />,
+            },
+          ],
+        },
+      ]
+    : []),
   {
     label: 'common:routes.settings',
     collapsible: false,
@@ -78,9 +115,12 @@ const getRoutes = (account: string) => [
   },
 ];
 
-export function getTeamAccountSidebarConfig(account: string) {
+export function getTeamAccountSidebarConfig(
+  account: string,
+  isWhiteLabelHost = false,
+) {
   return NavigationConfigSchema.parse({
-    routes: getRoutes(account),
+    routes: getRoutes(account, isWhiteLabelHost),
     style: process.env.NEXT_PUBLIC_TEAM_NAVIGATION_STYLE,
     sidebarCollapsed: process.env.NEXT_PUBLIC_TEAM_SIDEBAR_COLLAPSED,
     sidebarCollapsedStyle: process.env.NEXT_PUBLIC_SIDEBAR_COLLAPSED_STYLE,

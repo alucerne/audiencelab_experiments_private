@@ -5,6 +5,8 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
+import { cn } from '~/utils';
+
 import { Button } from '../shadcn/button';
 import { ImageUploadInput } from './image-upload-input';
 import { Trans } from './trans';
@@ -13,6 +15,9 @@ export function ImageUploader(
   props: React.PropsWithChildren<{
     value: string | null | undefined;
     onValueChange: (value: File | null) => unknown;
+    accept?: string;
+    notRounded?: boolean;
+    square?: boolean;
   }>,
 ) {
   const [image, setImage] = useState(props.value);
@@ -47,7 +52,7 @@ export function ImageUploader(
   const Input = () => (
     <ImageUploadInput
       {...control}
-      accept={'image/*'}
+      accept={props.accept ?? 'image/*'}
       className={'absolute h-full w-full'}
       visible={false}
       multiple={false}
@@ -69,11 +74,20 @@ export function ImageUploader(
 
   return (
     <div className={'flex items-center space-x-4'}>
-      <label className={'animate-in fade-in zoom-in-50 relative h-20 w-20'}>
+      <label
+        className={cn(
+          'animate-in fade-in zoom-in-50 relative',
+          !props.notRounded ? 'h-20 w-20' : 'h-12',
+        )}
+      >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           decoding="async"
-          className={'h-20 w-20 rounded-full object-cover'}
+          className={cn(
+            'object-cover',
+            !props.notRounded ? 'h-20 w-20 rounded-full' : 'h-12',
+            props.square && 'rounded-md',
+          )}
           src={image}
           alt={''}
         />
