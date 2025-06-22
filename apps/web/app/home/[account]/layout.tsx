@@ -63,6 +63,7 @@ function SidebarLayout({
               accountId={data.account.id}
               accounts={accounts}
               user={data.user}
+              isWhiteLabelHost={data.account.is_whitelabel_host}
             />
           </PageNavigation>
 

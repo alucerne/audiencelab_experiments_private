@@ -97,3 +97,51 @@ export const updateWhiteLabelIconAction = enhanceAction(
     }),
   },
 );
+
+export const createWhiteLabelSignupLinkAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createWhiteLabelService(client);
+
+    const signupLink = await service.createSignupLink(data);
+
+    revalidatePath('/home/[account]/white-label/signup-links', 'page');
+
+    return signupLink;
+  },
+  {
+    schema: SignupLinkFormSchema.extend({
+      accountId: z.string(),
+    }),
+  },
+);
+
+export const disableSignupLinkAction = enhanceAction(
+  async ({ id }) => {
+    const client = getSupabaseServerClient();
+    const service = createWhiteLabelService(client);
+
+    await service.disableSignupLink(id);
+
+    revalidatePath('/home/[account]/white-label/signup-links', 'page');
+  },
+  {
+    schema: z.object({
+      id: z.string(),
+    }),
+  },
+);
+
+export const updateSignupLinkPermissionsAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createWhiteLabelService(client);
+
+    await service.updatePermissions(data);
+
+    revalidatePath('/home/[account]/white-label/signup-links', 'page');
+  },
+  {
+    schema: CreditsFormSchema,
+  },
+);

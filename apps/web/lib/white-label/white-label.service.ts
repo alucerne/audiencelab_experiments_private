@@ -244,4 +244,121 @@ class WhiteLabelService {
       verified: true as const,
     };
   }
+
+  async getSignupLinks(accountId: string) {
+    const { data, error } = await this.client
+      .from('signup_codes')
+      .select(
+        `
+        *,
+        signup_code_usages (
+          id,
+          created_at,
+          updated_at,
+          account:account_id (
+            id,
+            name,
+            email
+          )
+        )
+      `,
+      )
+      .eq('whitelabel_host_account_id', accountId)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async createSignupLink({
+    accountId,
+    signup,
+    permissions,
+  }: z.infer<typeof SignupLinkFormSchema> & { accountId: string }) {
+    const { data: hostCredits, error: creditError } = await this.client
+      .from('whitelabel_credits')
+      .select('*')
+      .eq('account_id', accountId)
+      .maybeSingle();
+
+    if (creditError || !hostCredits) {
+      throw creditError || new Error('Host credits not found');
+    }
+
+    const numericFields = [
+      'monthly_audience_limit',
+      'max_custom_interests',
+      'audience_size_limit',
+      'monthly_pixel_limit',
+      'pixel_size_limit',
+      'monthly_enrichment_limit',
+      'enrichment_size_limit',
+    ] as const;
+
+    const exceededFields = numericFields.filter(
+      (field) => permissions[field] > hostCredits[field],
+    );
+
+    if (exceededFields.length > 0) {
+      throw new Error(
+        `Signup permissions exceed host credits for: ${exceededFields.join(', ')}`,
+      );
+    }
+
+    if (permissions.b2b_access && !hostCredits.b2b_access) {
+      throw new Error('Host does not allow B2B access.');
+    }
+
+    if (permissions.intent_access && !hostCredits.intent_access) {
+      throw new Error('Host does not allow intent access.');
+    }
+
+    const { data, error } = await this.client
+      .from('signup_codes')
+      .insert({
+        whitelabel_host_account_id: accountId,
+        name: signup.name,
+        code: signup.code,
+        max_usage: signup.max_usage,
+        expires_at: signup.expires_at?.toISOString(),
+        permissions,
+      })
+      .select()
+      .single();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  async disableSignupLink(id: string) {
+    const { error } = await this.client
+      .from('signup_codes')
+      .update({
+        enabled: false,
+      })
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+  }
+
+  async updatePermissions({ id, ...data }: z.infer<typeof CreditsFormSchema>) {
+    const { error } = await this.client
+      .from('signup_codes')
+      .update({
+        permissions: data,
+      })
+      .eq('id', id);
+
+    if (error) {
+      throw error;
+    }
+  }
 }
