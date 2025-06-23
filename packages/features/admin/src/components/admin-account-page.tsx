@@ -27,9 +27,7 @@ import {
   TableRow,
 } from '@kit/ui/table';
 
-import AdminAddCreditsDialog from './admin-add-credits-dialog';
 import { AdminBanUserDialog } from './admin-ban-user-dialog';
-import AdminCreditsForm from './admin-credits-form';
 import { AdminDeleteAccountDialog } from './admin-delete-account-dialog';
 import { AdminDeleteUserDialog } from './admin-delete-user-dialog';
 import { AdminImpersonateUserDialog } from './admin-impersonate-user-dialog';
@@ -37,6 +35,8 @@ import { AdminMembersTable } from './admin-members-table';
 import { AdminMembershipsTable } from './admin-memberships-table';
 import { AdminReactivateUserDialog } from './admin-reactivate-user-dialog';
 import AdminRestrictAccountDialog from './admin-restrict-account-dialog';
+import AdminAddCreditsDialog from './admin-team/admin-add-credits-dialog';
+import AdminCreditsForm from './admin-team/admin-credits-form';
 
 type Account = Tables<'accounts'>;
 type Membership = Tables<'accounts_memberships'>;
@@ -203,23 +203,6 @@ async function TeamAccountPage(props: {
       </PageHeader>
 
       <PageBody className={'space-y-6 py-4'}>
-        <div className={'flex justify-between'}>
-          <div className={'flex items-center gap-x-4'}>
-            <div className={'flex items-center gap-x-2.5'}>
-              <ProfileAvatar
-                pictureUrl={props.account.picture_url}
-                displayName={props.account.name}
-              />
-
-              <span className={'text-sm font-semibold capitalize'}>
-                {props.account.name}
-              </span>
-            </div>
-
-            <Badge variant={'outline'}>Team Account</Badge>
-          </div>
-        </div>
-
         <div>
           <div className={'flex flex-col gap-y-8'}>
             <div className={'flex flex-col gap-y-2.5'}>

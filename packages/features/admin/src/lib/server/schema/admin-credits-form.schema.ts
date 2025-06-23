@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-export const AdminCreditsFormSchema = z.object({
+export const AdminCreditsSchema = z.object({
   audience_size_limit: z.coerce.number().int().min(0),
   b2b_access: z.boolean().default(false),
   enrichment_size_limit: z.coerce.number().int().min(0),
@@ -10,5 +10,8 @@ export const AdminCreditsFormSchema = z.object({
   monthly_enrichment_limit: z.coerce.number().int().min(0),
   pixel_size_limit: z.coerce.number().int().min(0),
   monthly_pixel_limit: z.coerce.number().int().min(0),
+});
+
+export const AdminCreditsFormSchema = AdminCreditsSchema.extend({
   id: z.string().uuid(),
 });

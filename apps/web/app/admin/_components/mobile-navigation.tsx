@@ -18,11 +18,15 @@ export function AdminMobileNavigation() {
 
       <DropdownMenuContent>
         <DropdownMenuItem>
-          <Link href={'/admin'}>Home</Link>
+          <Link href={'/admin'}>Teams</Link>
         </DropdownMenuItem>
 
         <DropdownMenuItem>
           <Link href={'/admin/users'}>Accounts</Link>
+        </DropdownMenuItem>
+
+        <DropdownMenuItem>
+          <Link href={'/admin/signup-links'}>Signup Links</Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

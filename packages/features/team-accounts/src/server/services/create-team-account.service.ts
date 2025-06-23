@@ -50,7 +50,8 @@ class CreateTeamAccountService {
       .select(
         `
         signup_codes (
-          permissions
+          permissions,
+          whitelabel_host_account_id
         )
       `,
       )
@@ -111,6 +112,27 @@ class CreateTeamAccountService {
         ctx,
         `Credits successfully created for account ${teamAccountId}`,
       );
+
+      if (usage.signup_codes.whitelabel_host_account_id) {
+        const { error: whiteLabelError } = await adminClient
+          .from('accounts')
+          .update({
+            whitelabel_host_account_id:
+              usage.signup_codes.whitelabel_host_account_id,
+          })
+          .eq('id', teamAccountId);
+
+        if (whiteLabelError) {
+          logger.error(
+            {
+              error: whiteLabelError,
+              ...ctx,
+            },
+            `Failed to set whitelabel host account ID for team account`,
+          );
+          throw new Error('Error setting whitelabel host account ID');
+        }
+      }
     }
 
     return { data, error };

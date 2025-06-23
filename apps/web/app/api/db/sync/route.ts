@@ -16,8 +16,6 @@ export const POST = enhanceRouteHandler(
         return new Response('Missing signature', { status: 400 });
       }
 
-      console.log('Received webhook:', body);
-
       const verifier = await getDatabaseWebhookVerifier();
 
       await verifier.verifySignatureOrThrow(signature);
@@ -25,15 +23,11 @@ export const POST = enhanceRouteHandler(
       const client = getSupabaseServerAdminClient();
       const service = createAudienceSyncService(client);
 
-      console.log('Starting sync for audience:', body.audience_sync_id);
-
       await service.startSync({
         accountId: body.account_id,
         syncId: body.audience_sync_id,
         csvUrl: body.csv_url,
       });
-
-      console.log('Sync started successfully');
 
       return new Response(null, { status: 200 });
     } catch (error) {
