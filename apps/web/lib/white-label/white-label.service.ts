@@ -361,4 +361,18 @@ class WhiteLabelService {
       throw error;
     }
   }
+
+  async getTeams(whiteLabelId: string) {
+    const { data, error } = await this.client
+      .from('accounts')
+      .select('*')
+      .eq('whitelabel_host_account_id', whiteLabelId)
+      .eq('is_personal_account', false);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }
