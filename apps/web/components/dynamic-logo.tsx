@@ -52,9 +52,7 @@ export function DynamicLogo({
   className?: string;
   label?: string;
 }) {
-  console.log('DynamicLogo rendered');
   const domain = typeof window !== 'undefined' ? window.location.hostname : '';
-  console.log('Domain:', domain);
 
   const { data } = useQuery({
     queryKey: ['logo', domain],
@@ -62,8 +60,6 @@ export function DynamicLogo({
     enabled: !!domain,
     staleTime: 60 * 60 * 1000,
   });
-
-  console.log('DATA', data);
 
   const logoSrc = data?.logo_url || logo.src;
   const image = (

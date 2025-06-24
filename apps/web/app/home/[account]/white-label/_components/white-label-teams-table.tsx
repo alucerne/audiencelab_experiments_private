@@ -143,7 +143,9 @@ export default function WhiteLabelTeamsTable({
             </div>
           ))
         ) : (
-          <div className="p-20">No teams found.</div>
+          <div className="p-20 text-center sm:col-span-3 lg:col-span-4">
+            No teams found.
+          </div>
         )}
       </div>
       <DataTablePagination table={table} />
