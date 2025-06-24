@@ -375,4 +375,19 @@ class WhiteLabelService {
 
     return data;
   }
+
+  async getLogosByDomain(domain: string) {
+    const { data, error } = await this.client
+      .from('whitelabel_branding')
+      .select('logo_url, icon_url')
+      .eq('domain', domain)
+      .eq('domain_verified', true)
+      .maybeSingle();
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

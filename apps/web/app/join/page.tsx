@@ -13,7 +13,7 @@ import { Button } from '@kit/ui/button';
 import { Heading } from '@kit/ui/heading';
 import { Trans } from '@kit/ui/trans';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import pathsConfig from '~/config/paths.config';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
@@ -70,7 +70,7 @@ async function JoinTeamAccountPage(props: JoinTeamAccountPageProps) {
   // the invitation is not found or expired
   if (!invitation) {
     return (
-      <AuthLayoutShell Logo={AppLogo}>
+      <AuthLayoutShell Logo={DynamicLogo}>
         <InviteNotFoundOrExpired />
       </AuthLayoutShell>
     );
@@ -114,7 +114,7 @@ async function JoinTeamAccountPage(props: JoinTeamAccountPageProps) {
   const email = auth.data.email ?? '';
 
   return (
-    <AuthLayoutShell Logo={AppLogo}>
+    <AuthLayoutShell Logo={DynamicLogo}>
       <AcceptInvitationContainer
         email={email}
         inviteToken={token}

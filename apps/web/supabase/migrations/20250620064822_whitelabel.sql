@@ -26,6 +26,30 @@ create table if not exists public.whitelabel_branding (
   updated_at timestamptz not null default now()
 );
 
+-- revoke permissions on public.whitelabel_branding
+revoke all on public.whitelabel_branding from public, service_role;
+
+-- grant required permissions on public.whitelabel_branding
+grant select, insert, delete on public.whitelabel_branding to authenticated;
+grant select, insert, update, delete on public.whitelabel_branding to service_role;
+grant select on public.whitelabel_branding to public;
+GRANT USAGE ON SCHEMA public TO public;
+
+
+-- Indexes
+create index ix_audience_domain on public.whitelabel_branding(domain);
+
+-- RLS
+alter table public.whitelabel_branding enable row level security;
+
+create policy public_select_verified_branding
+on public.whitelabel_branding
+for select
+to public
+using (
+  domain_verified = true
+);
+
 insert into
   storage.buckets (id, name, PUBLIC)
 values
