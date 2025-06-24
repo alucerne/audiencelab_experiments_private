@@ -43,15 +43,15 @@ export function CodeUsersDialog({
               return (
                 <Link
                   key={usage.id}
-                  href={`/admin/users/${usage.account.id}`}
+                  href={`/admin/users/${usage.accounts.id}`}
                   className="bg-card hover:bg-accent flex w-full items-start justify-between gap-4 rounded-lg border p-4 transition"
                 >
                   <div className="min-w-0 flex-1 space-y-0.5 overflow-hidden">
                     <p className="truncate text-sm font-semibold leading-none">
-                      {usage.account.name}
+                      {usage.accounts.name}
                     </p>
                     <p className="text-muted-foreground truncate text-sm">
-                      {usage.account.email ?? 'No email'}
+                      {usage.accounts.email ?? 'No email'}
                     </p>
                   </div>
                   <div className="text-muted-foreground whitespace-nowrap text-sm">

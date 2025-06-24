@@ -5,8 +5,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { Image as ImageIcon } from 'lucide-react';
 import { useForm } from 'react-hook-form';
 
-import { cn } from '~/utils';
-
+import { cn } from '../lib/utils';
 import { Button } from '../shadcn/button';
 import { ImageUploadInput } from './image-upload-input';
 import { Trans } from './trans';

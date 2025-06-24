@@ -30,7 +30,7 @@ class AdminSignupLinksService {
           id,
           created_at,
           updated_at,
-          account:account_id (
+          accounts!account_id (
             id,
             name,
             email
