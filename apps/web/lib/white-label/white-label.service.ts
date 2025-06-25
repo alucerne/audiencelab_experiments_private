@@ -390,4 +390,68 @@ class WhiteLabelService {
 
     return data;
   }
+
+  async getWhiteLabelCredits({ accountId }: { accountId: string }) {
+    const [{ data: limits }, { data: usage }] = await Promise.all([
+      this.client
+        .from('whitelabel_credits')
+        .select('*')
+        .eq('account_id', accountId)
+        .single(),
+
+      this.client
+        .from('whitelabel_credits_usage')
+        .select('*')
+        .eq('account_id', accountId)
+        .maybeSingle(),
+    ]);
+
+    if (!limits)
+      throw new Error('Missing credit limits for this whitelabel account');
+
+    return {
+      enrichment: {
+        monthlyMax: limits.monthly_enrichment_limit,
+        allocated: usage?.allocated_monthly_enrichment_limit ?? 0,
+        currentCount: usage?.current_enrichment ?? 0,
+        sizeLimit: limits.enrichment_size_limit,
+        allocatedSize: usage?.allocated_enrichment_size_limit ?? 0,
+      },
+      audience: {
+        maxLists: limits.monthly_audience_limit,
+        allocated: usage?.allocated_monthly_audience_limit ?? 0,
+        currentCount: usage?.current_audience ?? 0,
+        sizeLimit: limits.audience_size_limit,
+        allocatedSize: usage?.allocated_audience_size_limit ?? 0,
+      },
+      audienceFilters: {
+        maxCustomInterests: limits.max_custom_interests,
+        allocated: usage?.allocated_max_custom_interests ?? 0,
+        currentCustom: usage?.current_custom ?? 0,
+        b2bAccess: limits.b2b_access,
+        intentAccess: limits.intent_access,
+      },
+      pixel: {
+        maxPixels: limits.monthly_pixel_limit,
+        allocated: usage?.allocated_monthly_pixel_limit ?? 0,
+        currentCount: usage?.current_pixel ?? 0,
+        sizeLimit: limits.pixel_size_limit,
+        allocatedSize: usage?.allocated_pixel_size_limit ?? 0,
+      },
+    };
+  }
+
+  async getTeamsIds(hostId: string) {
+    const { data, error } = await this.client
+      .from('accounts')
+      .select('name, id')
+      .eq('whitelabel_host_account_id', hostId)
+      .eq('is_personal_account', false);
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }

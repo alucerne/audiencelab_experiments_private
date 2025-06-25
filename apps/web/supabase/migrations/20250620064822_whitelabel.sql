@@ -99,3 +99,27 @@ with check (
     )
   )
 );
+
+create or replace view public.whitelabel_credits_usage as
+select
+  whitelabel_host_account_id as account_id,
+
+  sum(current_enrichment) as current_enrichment,
+  sum(current_audience) as current_audience,
+  sum(current_pixel) as current_pixel,
+  sum(current_custom) as current_custom,
+
+  sum(monthly_enrichment_limit) as allocated_monthly_enrichment_limit,
+  sum(enrichment_size_limit) as allocated_enrichment_size_limit,
+
+  sum(monthly_audience_limit) as allocated_monthly_audience_limit,
+  sum(audience_size_limit) as allocated_audience_size_limit,
+
+  sum(monthly_pixel_limit) as allocated_monthly_pixel_limit,
+  sum(pixel_size_limit) as allocated_pixel_size_limit,
+
+  sum(max_custom_interests) as allocated_max_custom_interests
+
+from public.credits
+where whitelabel_host_account_id is not null
+group by whitelabel_host_account_id;

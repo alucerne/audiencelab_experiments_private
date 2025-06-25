@@ -436,21 +436,21 @@ export type Database = {
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: 'accounts';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: 'user_account_workspace';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: 'user_accounts';
             referencedColumns: ['id'];
           },
@@ -1637,6 +1637,45 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'roles';
             referencedColumns: ['name'];
+          },
+        ];
+      };
+      whitelabel_credits_usage: {
+        Row: {
+          account_id: string | null;
+          allocated_audience_size_limit: number | null;
+          allocated_enrichment_size_limit: number | null;
+          allocated_max_custom_interests: number | null;
+          allocated_monthly_audience_limit: number | null;
+          allocated_monthly_enrichment_limit: number | null;
+          allocated_monthly_pixel_limit: number | null;
+          allocated_pixel_size_limit: number | null;
+          current_audience: number | null;
+          current_custom: number | null;
+          current_enrichment: number | null;
+          current_pixel: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
           },
         ];
       };

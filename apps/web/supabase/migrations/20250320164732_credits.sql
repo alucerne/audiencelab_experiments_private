@@ -38,7 +38,8 @@ create policy select_credits
   for select
   to authenticated
   using (
-    public.has_role_on_account(account_id) 
+    public.has_role_on_account(account_id)
+    or public.has_role_on_account(whitelabel_host_account_id)
   );
 
 CREATE OR REPLACE FUNCTION public.create_team_credits()
