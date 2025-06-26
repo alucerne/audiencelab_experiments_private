@@ -12,7 +12,7 @@ import {
 } from '@kit/ui/page';
 import { SidebarProvider } from '@kit/ui/shadcn-sidebar';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import { getTeamAccountSidebarConfig } from '~/config/team-account-navigation.config';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
@@ -63,11 +63,12 @@ function SidebarLayout({
               accountId={data.account.id}
               accounts={accounts}
               user={data.user}
+              isWhiteLabelHost={data.account.is_whitelabel_host}
             />
           </PageNavigation>
 
           <PageMobileNavigation className={'flex items-center justify-between'}>
-            <AppLogo />
+            <DynamicLogo />
 
             <div className={'flex space-x-4'}>
               <TeamAccountLayoutMobileNavigation
@@ -122,7 +123,7 @@ function HeaderLayout({
         </PageNavigation>
 
         <PageMobileNavigation className={'flex items-center justify-between'}>
-          <AppLogo />
+          <DynamicLogo />
 
           <div className={'group-data-[mobile:hidden]'}>
             <TeamAccountLayoutMobileNavigation

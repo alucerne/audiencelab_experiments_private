@@ -121,10 +121,16 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
       id: 'name',
       header: 'Name',
       cell: ({ row }) => {
+        const isPersonalAccount = row.original.is_personal_account;
+
         return (
           <Link
             className={'hover:underline'}
-            href={`/admin/users/${row.original.id}`}
+            href={
+              isPersonalAccount
+                ? `/admin/users/${row.original.id}`
+                : `/admin/teams/${row.original.id}`
+            }
           >
             {row.original.name}
           </Link>
@@ -183,7 +189,11 @@ function getColumns(isPersonal?: boolean): ColumnDef<Account>[] {
                   <DropdownMenuItem>
                     <Link
                       className={'h-full w-full'}
-                      href={`/admin/users/${userId}`}
+                      href={
+                        isPersonalAccount
+                          ? `/admin/users/${userId}`
+                          : `/admin/teams/${userId}`
+                      }
                     >
                       View
                     </Link>

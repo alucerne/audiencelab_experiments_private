@@ -8,7 +8,7 @@ import {
 } from '@kit/ui/shadcn-sidebar';
 import { cn } from '@kit/ui/utils';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import featuresFlagConfig from '~/config/feature-flags.config';
 import { personalAccountNavigationConfig } from '~/config/personal-account-navigation.config';
@@ -33,7 +33,7 @@ export function HomeSidebar(props: HomeSidebarProps) {
           <If
             condition={featuresFlagConfig.enableTeamAccounts}
             fallback={
-              <AppLogo
+              <DynamicLogo
                 className={cn(
                   'p-2 group-data-[minimized=true]:max-w-full group-data-[minimized=true]:py-0',
                 )}

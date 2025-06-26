@@ -23,11 +23,23 @@ import { ProfileAvatar } from '@kit/ui/profile-avatar';
 type Memberships =
   Database['public']['Functions']['get_account_members']['Returns'][number];
 
-export function AdminMembersTable(props: { members: Memberships[] }) {
-  return <DataTable data={props.members} columns={getColumns()} />;
+export function AdminMembersTable(props: {
+  members: Memberships[];
+  whiteLabelHost?: boolean;
+  slug?: string;
+}) {
+  return (
+    <DataTable
+      data={props.members}
+      columns={getColumns(props.whiteLabelHost, props.slug)}
+    />
+  );
 }
 
-function getColumns(): ColumnDef<Memberships>[] {
+function getColumns(
+  whiteLabelHost?: boolean,
+  slug?: string,
+): ColumnDef<Memberships>[] {
   return [
     {
       header: 'User ID',
@@ -47,13 +59,17 @@ function getColumns(): ColumnDef<Memberships>[] {
               <ProfileAvatar
                 pictureUrl={row.original.picture_url}
                 displayName={name}
-                className='size-7'
+                className="size-7"
               />
             </div>
 
             <Link
               className={'hover:underline'}
-              href={`/admin/users/${row.original.id}`}
+              href={
+                whiteLabelHost
+                  ? `/home/${slug}/white-label/users/${row.original.id}`
+                  : `/admin/users/${row.original.id}`
+              }
             >
               <span>{name}</span>
             </Link>

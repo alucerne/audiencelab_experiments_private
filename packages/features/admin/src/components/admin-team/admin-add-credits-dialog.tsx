@@ -31,8 +31,8 @@ import {
 import { Input } from '@kit/ui/input';
 import { Trans } from '@kit/ui/trans';
 
-import { updateTeamUsageAction } from '../lib/server/admin-server-actions';
-import { AdminUsageFormSchema } from '../lib/server/schema/admin-usage-form.schema';
+import { updateTeamUsageAction } from '../../lib/server/admin-server-actions';
+import { AdminUsageFormSchema } from '../../lib/server/schema/admin-usage-form.schema';
 
 export default function AdminAddCreditsDialog({
   credits,

@@ -1,6 +1,6 @@
 create table if not exists public.credits (
   id uuid primary key default uuid_generate_v4(),
-  account_id uuid not null references public.accounts(id) on delete cascade,
+  account_id uuid not null unique references public.accounts(id) on delete cascade,
   monthly_audience_limit integer not null default 20,
   max_custom_interests integer not null default 1,
   audience_size_limit integer not null default 500000,
@@ -14,6 +14,7 @@ create table if not exists public.credits (
   current_pixel integer not null default 0,
   current_enrichment integer not null default 0,
   current_custom integer not null default 0,
+  whitelabel_host_account_id uuid references public.accounts(id) on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );
@@ -37,7 +38,8 @@ create policy select_credits
   for select
   to authenticated
   using (
-    public.has_role_on_account(account_id) 
+    public.has_role_on_account(account_id)
+    or public.has_role_on_account(whitelabel_host_account_id)
   );
 
 CREATE OR REPLACE FUNCTION public.create_team_credits()

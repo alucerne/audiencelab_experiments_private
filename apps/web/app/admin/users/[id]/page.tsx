@@ -1,7 +1,7 @@
 import { cache } from 'react';
 
-import { AdminAccountPage } from '@kit/admin/components/admin-account-page';
 import { AdminGuard } from '@kit/admin/components/admin-guard';
+import { AdminUserPage } from '@kit/admin/components/admin-user-page';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 
 interface Params {
@@ -12,31 +12,32 @@ interface Params {
 
 export const generateMetadata = async (props: Params) => {
   const params = await props.params;
-  const account = await loadAccount(params.id);
+  const account = await loadUser(params.id);
 
   return {
-    title: `Admin | ${account.name}`,
+    title: `${account.name} | Admin`,
   };
 };
 
-async function AccountPage(props: Params) {
+async function UserPage(props: Params) {
   const params = await props.params;
-  const account = await loadAccount(params.id);
+  const account = await loadUser(params.id);
 
-  return <AdminAccountPage account={account} />;
+  return <AdminUserPage account={account} />;
 }
 
-export default AdminGuard(AccountPage);
+export default AdminGuard(UserPage);
 
-const loadAccount = cache(accountLoader);
+const loadUser = cache(userLoader);
 
-async function accountLoader(id: string) {
+async function userLoader(id: string) {
   const client = getSupabaseServerAdminClient();
 
   const { data, error } = await client
     .from('accounts')
-    .select('*, memberships: accounts_memberships (*)')
+    .select('*')
     .eq('id', id)
+    .eq('is_personal_account', true)
     .single();
 
   if (error) {

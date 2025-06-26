@@ -51,6 +51,7 @@ export type Database = {
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
+          whitelabel_host_account_id: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -68,6 +69,7 @@ export type Database = {
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
+          whitelabel_host_account_id?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -85,8 +87,31 @@ export type Database = {
           slug?: string | null;
           updated_at?: string | null;
           updated_by?: string | null;
+          whitelabel_host_account_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'accounts_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'accounts_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'accounts_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       accounts_memberships: {
         Row: {
@@ -365,6 +390,7 @@ export type Database = {
           monthly_pixel_limit: number;
           pixel_size_limit: number;
           updated_at: string;
+          whitelabel_host_account_id: string | null;
         };
         Insert: {
           account_id: string;
@@ -384,6 +410,7 @@ export type Database = {
           monthly_pixel_limit?: number;
           pixel_size_limit?: number;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
         Update: {
           account_id?: string;
@@ -403,25 +430,47 @@ export type Database = {
           monthly_pixel_limit?: number;
           pixel_size_limit?: number;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
         Relationships: [
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: 'accounts';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: 'user_account_workspace';
             referencedColumns: ['id'];
           },
           {
             foreignKeyName: 'credits_account_id_fkey';
             columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
             isOneToOne: false;
             referencedRelation: 'user_accounts';
             referencedColumns: ['id'];
@@ -1171,6 +1220,7 @@ export type Database = {
           id: string;
           signup_code_id: string;
           updated_at: string;
+          whitelabel_host_account_id: string | null;
         };
         Insert: {
           account_id: string;
@@ -1178,6 +1228,7 @@ export type Database = {
           id?: string;
           signup_code_id: string;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
         Update: {
           account_id?: string;
@@ -1185,6 +1236,7 @@ export type Database = {
           id?: string;
           signup_code_id?: string;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
         Relationships: [
           {
@@ -1215,6 +1267,27 @@ export type Database = {
             referencedRelation: 'signup_codes';
             referencedColumns: ['id'];
           },
+          {
+            foreignKeyName: 'signup_code_usages_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_code_usages_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_code_usages_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
         ];
       };
       signup_codes: {
@@ -1228,6 +1301,7 @@ export type Database = {
           name: string;
           permissions: Json;
           updated_at: string;
+          whitelabel_host_account_id: string | null;
         };
         Insert: {
           code: string;
@@ -1239,6 +1313,7 @@ export type Database = {
           name: string;
           permissions?: Json;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
         Update: {
           code?: string;
@@ -1250,8 +1325,31 @@ export type Database = {
           name?: string;
           permissions?: Json;
           updated_at?: string;
+          whitelabel_host_account_id?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: 'signup_codes_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_codes_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'signup_codes_whitelabel_host_account_id_fkey';
+            columns: ['whitelabel_host_account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       subscription_items: {
         Row: {
@@ -1383,6 +1481,134 @@ export type Database = {
           },
         ];
       };
+      whitelabel_branding: {
+        Row: {
+          account_id: string;
+          company_name: string | null;
+          created_at: string;
+          domain: string | null;
+          domain_verified: boolean;
+          icon_url: string | null;
+          id: string;
+          logo_url: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          company_name?: string | null;
+          created_at?: string;
+          domain?: string | null;
+          domain_verified?: boolean;
+          icon_url?: string | null;
+          id?: string;
+          logo_url?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          company_name?: string | null;
+          created_at?: string;
+          domain?: string | null;
+          domain_verified?: boolean;
+          icon_url?: string | null;
+          id?: string;
+          logo_url?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'whitelabel_branding_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'whitelabel_branding_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'whitelabel_branding_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      whitelabel_credits: {
+        Row: {
+          account_id: string;
+          audience_size_limit: number;
+          b2b_access: boolean;
+          created_at: string;
+          enrichment_size_limit: number;
+          id: string;
+          intent_access: boolean;
+          max_custom_interests: number;
+          monthly_audience_limit: number;
+          monthly_enrichment_limit: number;
+          monthly_pixel_limit: number;
+          pixel_size_limit: number;
+          updated_at: string;
+        };
+        Insert: {
+          account_id: string;
+          audience_size_limit: number;
+          b2b_access: boolean;
+          created_at?: string;
+          enrichment_size_limit: number;
+          id?: string;
+          intent_access: boolean;
+          max_custom_interests: number;
+          monthly_audience_limit: number;
+          monthly_enrichment_limit: number;
+          monthly_pixel_limit: number;
+          pixel_size_limit: number;
+          updated_at?: string;
+        };
+        Update: {
+          account_id?: string;
+          audience_size_limit?: number;
+          b2b_access?: boolean;
+          created_at?: string;
+          enrichment_size_limit?: number;
+          id?: string;
+          intent_access?: boolean;
+          max_custom_interests?: number;
+          monthly_audience_limit?: number;
+          monthly_enrichment_limit?: number;
+          monthly_pixel_limit?: number;
+          pixel_size_limit?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'whitelabel_credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'whitelabel_credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'whitelabel_credits_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: true;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       user_account_workspace: {
@@ -1411,6 +1637,45 @@ export type Database = {
             isOneToOne: false;
             referencedRelation: 'roles';
             referencedColumns: ['name'];
+          },
+        ];
+      };
+      whitelabel_credits_usage: {
+        Row: {
+          account_id: string | null;
+          allocated_audience_size_limit: number | null;
+          allocated_enrichment_size_limit: number | null;
+          allocated_max_custom_interests: number | null;
+          allocated_monthly_audience_limit: number | null;
+          allocated_monthly_enrichment_limit: number | null;
+          allocated_monthly_pixel_limit: number | null;
+          allocated_pixel_size_limit: number | null;
+          current_audience: number | null;
+          current_custom: number | null;
+          current_enrichment: number | null;
+          current_pixel: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'accounts';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_account_workspace';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'credits_whitelabel_host_account_id_fkey';
+            columns: ['account_id'];
+            isOneToOne: false;
+            referencedRelation: 'user_accounts';
+            referencedColumns: ['id'];
           },
         ];
       };
@@ -1496,6 +1761,7 @@ export type Database = {
           slug: string | null;
           updated_at: string | null;
           updated_by: string | null;
+          whitelabel_host_account_id: string | null;
         };
       };
       get_account_invitations: {
@@ -1638,6 +1904,7 @@ export type Database = {
           subscription_status: Database['public']['Enums']['subscription_status'];
           permissions: Database['public']['Enums']['app_permissions'][];
           restricted: boolean;
+          is_whitelabel_host: boolean;
         }[];
       };
       transfer_team_account_ownership: {

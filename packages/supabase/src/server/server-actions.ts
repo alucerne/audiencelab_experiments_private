@@ -78,7 +78,7 @@ export const signupAction = enhanceAction(
     if (data.code) {
       const { data: codeEntry, error: codeError } = await adminClient
         .from('signup_codes')
-        .select('id')
+        .select('id, whitelabel_host_account_id')
         .eq('code', data.code)
         .maybeSingle();
 
@@ -89,7 +89,15 @@ export const signupAction = enhanceAction(
       await adminClient.from('signup_code_usages').insert({
         signup_code_id: codeEntry.id,
         account_id: createData.user.id,
+        whitelabel_host_account_id: codeEntry.whitelabel_host_account_id,
       });
+
+      await adminClient
+        .from('accounts')
+        .update({
+          whitelabel_host_account_id: codeEntry.whitelabel_host_account_id,
+        })
+        .eq('id', createData.user.id);
     }
 
     const signInData = await client.auth.signInWithPassword({

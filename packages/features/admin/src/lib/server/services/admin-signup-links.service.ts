@@ -20,8 +20,8 @@ export type SignupLinkData = Awaited<
 class AdminSignupLinksService {
   constructor(private readonly client: SupabaseClient<Database>) {}
 
-  async getSignupLinks() {
-    const { data, error } = await this.client
+  async getSignupLinks(whiteLabelId?: string) {
+    let query = this.client
       .from('signup_codes')
       .select(
         `
@@ -30,7 +30,7 @@ class AdminSignupLinksService {
           id,
           created_at,
           updated_at,
-          account:account_id (
+          accounts!account_id (
             id,
             name,
             email
@@ -39,6 +39,14 @@ class AdminSignupLinksService {
       `,
       )
       .order('created_at', { ascending: false });
+
+    if (whiteLabelId) {
+      query = query.eq('whitelabel_host_account_id', whiteLabelId);
+    } else {
+      query = query.is('whitelabel_host_account_id', null);
+    }
+
+    const { data, error } = await query;
 
     if (error) {
       throw new Error(`Failed to fetch signup links: ${error.message}`);
