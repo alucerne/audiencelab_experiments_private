@@ -132,6 +132,27 @@ class CreateTeamAccountService {
           );
           throw new Error('Error setting whitelabel host account ID');
         }
+
+        const { error: creditsError } = await adminClient
+          .from('credits')
+          .update({
+            whitelabel_host_account_id:
+              usage.signup_codes.whitelabel_host_account_id,
+          })
+          .eq('account_id', teamAccountId);
+
+        if (creditsError) {
+          logger.error(
+            {
+              error: creditsError,
+              ...ctx,
+            },
+            `Failed to set whitelabel host account ID for credits`,
+          );
+          throw new Error(
+            'Error setting whitelabel host account ID for credits',
+          );
+        }
       }
     }
 
