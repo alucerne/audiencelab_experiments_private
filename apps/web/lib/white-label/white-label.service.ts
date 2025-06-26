@@ -159,6 +159,10 @@ class WhiteLabelService {
         },
         body: JSON.stringify({
           name: domain,
+          gitBranch:
+            process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'staging'
+              ? 'staging'
+              : undefined,
         }),
       },
     );

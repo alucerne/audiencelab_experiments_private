@@ -42,6 +42,36 @@ create index ix_audience_domain on public.whitelabel_branding(domain);
 -- RLS
 alter table public.whitelabel_branding enable row level security;
 
+-- SELECT(public.whitelabel_branding)
+create policy select_whitelabel_branding
+  on public.whitelabel_branding
+  for select
+  to authenticated
+  using (
+    public.has_role_on_account(account_id)
+  );
+
+-- UPDATE(public.whitelabel_branding)
+create policy update_whitelabel_branding
+  on public.whitelabel_branding
+  for update
+  to authenticated
+  using (
+    public.has_role_on_account(account_id) 
+  )
+  with check (
+    public.has_role_on_account(account_id) 
+  );
+
+-- INSERT(public.whitelabel_branding)
+create policy insert_whitelabel_branding
+  on public.whitelabel_branding
+  for insert
+  to authenticated
+  with check (
+    public.has_role_on_account(account_id) 
+  );
+
 create policy public_select_verified_branding
 on public.whitelabel_branding
 for select
