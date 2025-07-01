@@ -4,7 +4,7 @@ import {
 } from '@kit/ui/bordered-navigation-menu';
 import { If } from '@kit/ui/if';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 import featuresFlagConfig from '~/config/feature-flags.config';
 import { personalAccountNavigationConfig } from '~/config/personal-account-navigation.config';
@@ -39,7 +39,7 @@ export function HomeMenuNavigation(props: { workspace: UserWorkspace }) {
   return (
     <div className={'flex w-full flex-1 justify-between'}>
       <div className={'flex items-center space-x-8'}>
-        <AppLogo />
+        <DynamicLogo />
 
         <BorderedNavigationMenu>
           {routes.map((route) => (

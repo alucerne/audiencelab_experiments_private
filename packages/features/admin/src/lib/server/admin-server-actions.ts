@@ -17,12 +17,16 @@ import {
   ImpersonateUserSchema,
   ReactivateUserSchema,
 } from './schema/admin-actions.schema';
-import { AdminCreditsFormSchema } from './schema/admin-credits-form.schema';
+import {
+  AdminCreditsFormSchema,
+  AdminCreditsSchema,
+} from './schema/admin-credits-form.schema';
 import { AdminSignupLinkFormSchema } from './schema/admin-signup-link-form.schema';
 import { AdminUsageFormSchema } from './schema/admin-usage-form.schema';
 import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { createAdminSignupLinksService } from './services/admin-signup-links.service';
+import { createAdminWhiteLabelService } from './services/admin-white-label.service';
 import { adminAction } from './utils/admin-action';
 
 /**
@@ -275,5 +279,129 @@ export const restrictAccountAction = enhanceAction(
       accountId: z.string(),
       currentlyRestricted: z.boolean(),
     }),
+  },
+);
+
+export const enableWhiteLabelAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminAccountsService(adminClient);
+
+    await service.enableWhiteLabel(data);
+
+    revalidatePath('/admin/teams/[id]/white-label', 'layout');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      permissions: AdminCreditsSchema,
+    }),
+  },
+);
+
+export const updateWhiteLabelCompanyNameAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminWhiteLabelService(adminClient);
+
+    await service.updateCompanyName(data);
+
+    revalidatePath('/admin/teams/[id]/white-label/profile', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      name: z.string(),
+    }),
+  },
+);
+
+export const updateWhiteLabelLogoAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminWhiteLabelService(adminClient);
+
+    await service.updateLogo(data);
+
+    revalidatePath('/admin/teams/[id]/white-label/profile', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      logoUrl: z.string(),
+    }),
+  },
+);
+
+export const updateWhiteLabelIconAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminWhiteLabelService(adminClient);
+
+    await service.updateIcon(data);
+
+    revalidatePath('/admin/teams/[id]/white-label/profile', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      iconUrl: z.string(),
+    }),
+  },
+);
+
+export const updateWhiteLabelDomainAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminWhiteLabelService(adminClient);
+
+    await service.updateDomain(data);
+
+    revalidatePath('/admin/teams/[id]/white-label/profile', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      domain: z.string(),
+    }),
+  },
+);
+
+export const verifyWhiteLabelDomainAction = enhanceAction(
+  async (data) => {
+    const adminClient = getSupabaseServerAdminClient();
+    const service = createAdminWhiteLabelService(adminClient);
+
+    const verified = await service.verifyDomain(data);
+
+    revalidatePath('/admin/teams/[id]/white-label/profile', 'page');
+
+    return verified;
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      domain: z.string(),
+    }),
+  },
+);
+
+export const updateWhiteLabelPermissionsAction = enhanceAction(
+  async ({ id, ...data }) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const { error } = await adminClient
+      .from('whitelabel_credits')
+      .update(data)
+      .eq('id', id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    revalidatePath('/admin/teams/[id]/white-label', 'page');
+  },
+  {
+    schema: AdminCreditsFormSchema,
   },
 );

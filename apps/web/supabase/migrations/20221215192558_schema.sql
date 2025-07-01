@@ -313,7 +313,8 @@ create table if not exists
     delivr_org_id text null,
     delivr_project_id text null,
     restricted boolean default false not null,
-    primary key (id)
+    primary key (id),
+    whitelabel_host_account_id uuid references public.accounts (id) on delete set null
   );
 
 comment on table public.accounts is 'Accounts are the top level entity in the Supabase MakerKit. They can be team or personal accounts.';
@@ -882,18 +883,21 @@ service_role;
 --   - they are the primary owner of the account
 --   - they have a role on the account
 --   - they are reading an account of the same team
+--   - if they are the whitelabel host of the team
+
 create policy accounts_read on public.accounts for
 select
   to authenticated using (
-    (
-      (
-        select
-          auth.uid ()
-      ) = primary_owner_user_id
-    )
-    or public.has_role_on_account (id)
-    or public.is_account_team_member (id)
-  );
+  (
+    auth.uid() = primary_owner_user_id
+  )
+  or public.has_role_on_account(id)
+  or public.is_account_team_member(id)
+  or (
+    whitelabel_host_account_id is not null
+    and public.has_role_on_account(whitelabel_host_account_id)
+  )
+);
 
 -- DELETE(accounts_memberships):
 -- Users with the required role can remove members from an account or remove their own
@@ -2511,7 +2515,8 @@ returns table (
   primary_owner_user_id uuid,
   subscription_status public.subscription_status,
   permissions public.app_permissions[],
-  restricted boolean
+  restricted boolean,
+  is_whitelabel_host boolean
 )
 set search_path to ''
 as $$
@@ -2527,7 +2532,12 @@ begin
         accounts.primary_owner_user_id,
         subscriptions.status,
         array_agg(role_permissions.permission),
-        accounts.restricted
+        accounts.restricted,
+        exists (
+          select 1
+          from public.whitelabel_credits
+          where whitelabel_credits.account_id = accounts.id
+        ) as is_whitelabel_host
     from
         public.accounts
         join public.accounts_memberships on accounts.id = accounts_memberships.account_id

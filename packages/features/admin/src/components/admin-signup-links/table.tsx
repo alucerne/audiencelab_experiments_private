@@ -43,9 +43,11 @@ const nameIdFilterFn: FilterFn<SignupLinkData> = (
 export default function SignupLinksTable({
   signupLinks,
   signupUrl,
+  create = true,
 }: {
   signupLinks: SignupLinkData[];
   signupUrl: string;
+  create?: boolean;
 }) {
   const columns = getColumns(signupUrl);
 
@@ -72,7 +74,9 @@ export default function SignupLinksTable({
         table={table}
         dataName="Signup Link"
         searchPlaceholder="Search by code..."
-        actions={<CreateCodeDialog signupUrl={signupUrl} />}
+        actions={
+          create ? <CreateCodeDialog signupUrl={signupUrl} /> : undefined
+        }
       />
       <div className="w-full overflow-hidden rounded-md border">
         <Table>

@@ -7,6 +7,7 @@ import { generateRootMetadata } from '~/lib/root-metdata';
 import { getRootTheme } from '~/lib/root-theme';
 
 import '../styles/globals.css';
+import { Favicons } from './favicons';
 
 export const generateMetadata = () => {
   return generateRootMetadata();
@@ -26,6 +27,7 @@ export default async function RootLayout({
       <body>
         <RootProviders theme={theme} lang={language}>
           {children}
+          <Favicons />
         </RootProviders>
 
         <Toaster richColors={true} theme={theme} position="top-center" />

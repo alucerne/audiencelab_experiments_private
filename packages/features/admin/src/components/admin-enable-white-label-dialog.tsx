@@ -1,14 +1,22 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
-import * as z from 'zod';
+import { z } from 'zod';
 
-import { Tables } from '@kit/supabase/database';
 import { Button } from '@kit/ui/button';
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@kit/ui/dialog';
 import {
   Form,
   FormControl,
@@ -19,41 +27,76 @@ import {
   FormMessage,
 } from '@kit/ui/form';
 import { Input } from '@kit/ui/input';
+import { Spinner } from '@kit/ui/spinner';
 import { Switch } from '@kit/ui/switch';
+import { Trans } from '@kit/ui/trans';
 
-import { updateTeamPermissionsAction } from '../lib/server/admin-server-actions';
-import { AdminCreditsFormSchema } from '../lib/server/schema/admin-credits-form.schema';
+import { enableWhiteLabelAction } from '../lib/server/admin-server-actions';
+import { AdminCreditsSchema } from '../lib/server/schema/admin-credits-form.schema';
 
-export default function AdminCreditsForm({
-  credits,
+export default function AdminEnableWhiteLabelDialog({
+  accountId,
 }: {
-  credits: Tables<'credits'>;
+  accountId: string;
 }) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button className="w-fit">Enable</Button>
+      </DialogTrigger>
+      <DialogContent
+        onEscapeKeyDown={(e) => e.preventDefault()}
+        onInteractOutside={(e) => e.preventDefault()}
+        className="max-w-2xl"
+      >
+        <DialogHeader>
+          <DialogTitle>Enable White-label</DialogTitle>
+          <DialogDescription>
+            Configure the white-label settings for this account. The white-label
+            host will allocate these credits to the teams that sign up under
+            this account.
+          </DialogDescription>
+        </DialogHeader>
+
+        <EnableWhiteLabelForm accountId={accountId} />
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function EnableWhiteLabelForm({ accountId }: { accountId: string }) {
   const [pending, startTransition] = useTransition();
 
-  const form = useForm<z.infer<typeof AdminCreditsFormSchema>>({
-    resolver: zodResolver(AdminCreditsFormSchema),
+  const form = useForm<z.infer<typeof AdminCreditsSchema>>({
+    resolver: zodResolver(AdminCreditsSchema),
     defaultValues: {
-      id: credits.id,
-      audience_size_limit: credits.audience_size_limit,
-      b2b_access: credits.b2b_access,
-      enrichment_size_limit: credits.enrichment_size_limit,
-      intent_access: credits.intent_access,
-      monthly_audience_limit: credits.monthly_audience_limit,
-      max_custom_interests: credits.max_custom_interests,
-      monthly_enrichment_limit: credits.monthly_enrichment_limit,
-      pixel_size_limit: credits.pixel_size_limit,
-      monthly_pixel_limit: credits.monthly_pixel_limit,
+      audience_size_limit: 500000,
+      b2b_access: false,
+      enrichment_size_limit: 500000,
+      intent_access: false,
+      monthly_audience_limit: 20,
+      max_custom_interests: 1,
+      monthly_enrichment_limit: 1,
+      pixel_size_limit: 1000000,
+      monthly_pixel_limit: 3,
     },
   });
 
-  function onSubmit(values: z.infer<typeof AdminCreditsFormSchema>) {
+  function onSubmit(values: z.infer<typeof AdminCreditsSchema>) {
     startTransition(() => {
-      toast.promise(updateTeamPermissionsAction(values), {
-        loading: 'Updating permissions...',
-        success: 'Permissions updated',
-        error: 'Failed to update permissions',
-      });
+      toast.promise(
+        enableWhiteLabelAction({
+          permissions: values,
+          accountId,
+        }),
+        {
+          loading: 'Enabling white-label...',
+          success: 'White-label enabled!',
+          error: 'Failed to enable white-label',
+        },
+      );
     });
   }
 
@@ -215,9 +258,21 @@ export default function AdminCreditsForm({
             )}
           />
         </div>
-        <Button type="submit" size="sm" disabled={pending}>
-          {pending ? 'Updating...' : 'Update Permissions'}
-        </Button>
+        <div className={'flex justify-end space-x-2'}>
+          <DialogClose asChild>
+            <Button
+              variant={'outline'}
+              size="sm"
+              type={'button'}
+              disabled={pending}
+            >
+              <Trans i18nKey={'common:cancel'} />
+            </Button>
+          </DialogClose>
+          <Button size="sm" disabled={pending}>
+            {!pending ? 'Enable' : <Spinner className="mx-2.5 size-4" />}
+          </Button>
+        </div>
       </form>
     </Form>
   );

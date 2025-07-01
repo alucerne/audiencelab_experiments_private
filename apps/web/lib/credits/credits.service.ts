@@ -52,7 +52,7 @@ class CreditsService {
   async getAudienceLimits({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('credits')
-      .select('*, account:account_id (restricted)')
+      .select('*, accounts!account_id (restricted)')
       .eq('account_id', accountId)
       .single();
 
@@ -62,13 +62,13 @@ class CreditsService {
 
     return {
       canCreate:
-        !data.account.restricted &&
+        !data.accounts.restricted &&
         data.monthly_audience_limit > data.current_audience,
       canCreateCustomInterests:
-        !data.account.restricted &&
+        !data.accounts.restricted &&
         data.max_custom_interests > data.current_custom,
-      b2bAccess: !data.account.restricted && data.b2b_access,
-      intentAccess: !data.account.restricted && data.intent_access,
+      b2bAccess: !data.accounts.restricted && data.b2b_access,
+      intentAccess: !data.accounts.restricted && data.intent_access,
       audienceSizeLimit: data.audience_size_limit,
     };
   }
@@ -76,7 +76,7 @@ class CreditsService {
   async canCreatePixel({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('credits')
-      .select('*, account:account_id (restricted)')
+      .select('*, accounts!account_id (restricted)')
       .eq('account_id', accountId)
       .single();
 
@@ -86,7 +86,7 @@ class CreditsService {
 
     return {
       enabled:
-        !data.account.restricted &&
+        !data.accounts.restricted &&
         data.monthly_pixel_limit > data.current_pixel,
       sizeLimit: data.pixel_size_limit,
     };
@@ -95,7 +95,7 @@ class CreditsService {
   async canCreateEnrichment({ accountId }: { accountId: string }) {
     const { data, error } = await this.client
       .from('credits')
-      .select('*, account:account_id (restricted)')
+      .select('*, accounts!account_id (restricted)')
       .eq('account_id', accountId)
       .single();
 
@@ -105,7 +105,7 @@ class CreditsService {
 
     return {
       enabled:
-        !data.account.restricted &&
+        !data.accounts.restricted &&
         data.monthly_enrichment_limit > data.current_enrichment,
       sizeLimit: data.enrichment_size_limit,
     };

@@ -47,8 +47,6 @@ export default function FacebookStep() {
     name: 'integration.fbAdAccountId',
   });
 
-  console.log('fbAdAccountId', fbAdAccountId);
-
   const { adAccounts, isLoading: loadingAdAccounts } = useAdAccounts({
     enabled: true,
   });

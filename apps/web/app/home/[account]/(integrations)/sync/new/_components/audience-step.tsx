@@ -52,8 +52,6 @@ export default function AudienceStep() {
     enabled: Boolean(accountId),
   });
 
-  console.log('audienceIds', audienceIds);
-
   const {
     data: refreshDetails,
     isLoading: refreshLoading,

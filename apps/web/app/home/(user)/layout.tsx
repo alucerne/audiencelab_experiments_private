@@ -6,7 +6,7 @@ import { UserWorkspaceContextProvider } from '@kit/accounts/components';
 import { Page, PageMobileNavigation, PageNavigation } from '@kit/ui/page';
 import { SidebarProvider } from '@kit/ui/shadcn-sidebar';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import { personalAccountNavigationConfig } from '~/config/personal-account-navigation.config';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
@@ -78,7 +78,7 @@ function MobileNavigation({
 }) {
   return (
     <>
-      <AppLogo />
+      <DynamicLogo />
 
       <HomeMobileNavigation workspace={workspace} />
     </>

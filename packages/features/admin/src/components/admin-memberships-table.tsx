@@ -26,11 +26,23 @@ type Membership = Tables<'accounts_memberships'> & {
   };
 };
 
-export function AdminMembershipsTable(props: { memberships: Membership[] }) {
-  return <DataTable data={props.memberships} columns={getColumns()} />;
+export function AdminMembershipsTable(props: {
+  memberships: Membership[];
+  whiteLabelHost?: boolean;
+  slug?: string;
+}) {
+  return (
+    <DataTable
+      data={props.memberships}
+      columns={getColumns(props.whiteLabelHost, props.slug)}
+    />
+  );
 }
 
-function getColumns(): ColumnDef<Membership>[] {
+function getColumns(
+  whiteLabelHost?: boolean,
+  slug?: string,
+): ColumnDef<Membership>[] {
   return [
     {
       header: 'User ID',
@@ -45,7 +57,11 @@ function getColumns(): ColumnDef<Membership>[] {
         return (
           <Link
             className={'hover:underline'}
-            href={`/admin/users/${row.original.account_id}`}
+            href={
+              whiteLabelHost
+                ? `/home/${slug}/white-label/teams/${row.original.account_id}`
+                : `/admin/teams/${row.original.account_id}`
+            }
           >
             {row.original.account.name}
           </Link>
@@ -91,7 +107,7 @@ function getColumns(): ColumnDef<Membership>[] {
                   <DropdownMenuItem>
                     <Link
                       className={'h-full w-full'}
-                      href={`/admin/users/${row.original.account_id}`}
+                      href={`/admin/teams/${row.original.account_id}`}
                     >
                       View
                     </Link>

@@ -17,7 +17,7 @@ import {
   SidebarMenuButton,
 } from '@kit/ui/shadcn-sidebar';
 
-import { AppLogo } from '~/components/app-logo';
+import { DynamicLogo } from '~/components/dynamic-logo';
 import { ProfileAccountDropdownContainer } from '~/components/personal-account-dropdown-container';
 
 export function AdminSidebar() {
@@ -26,7 +26,7 @@ export function AdminSidebar() {
   return (
     <Sidebar collapsible="icon">
       <SidebarHeader className={'m-2'}>
-        <AppLogo href={'/admin'} className="max-w-full" />
+        <DynamicLogo href={'/admin'} className="max-w-full" />
       </SidebarHeader>
 
       <SidebarContent>

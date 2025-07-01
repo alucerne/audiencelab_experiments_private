@@ -126,7 +126,7 @@ export const ImageUploadInput: React.FC<Props> =
         ref={setRef}
         type={'file'}
         onInput={onInputChange}
-        accept="image/*"
+        accept={props.accept ?? 'image/*'}
         aria-labelledby={'image-upload-input'}
       />
     );
