@@ -26,6 +26,8 @@ import {
   verifyWhiteLabelDomainAction,
 } from '~/lib/white-label/server-actions';
 
+import RemoveDomainDialog from './remove-domain-dialog';
+
 export const UpdateWhiteLabelDomainFormSchema = z.object({
   domain: z
     .string()
@@ -98,15 +100,16 @@ export default function AddDomainForm({
               );
             }}
           />
-
-          <div>
+          {domain ? (
+            <RemoveDomainDialog domain={domain} />
+          ) : (
             <Button
               className={'w-full md:w-auto'}
               disabled={!!domain || pending}
             >
               Set
             </Button>
-          </div>
+          )}
         </form>
       </Form>
       {domain && isFetching && (
