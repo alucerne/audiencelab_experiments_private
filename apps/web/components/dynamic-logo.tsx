@@ -10,8 +10,6 @@ import { cn } from '@kit/ui/utils';
 import { getLogosByDomainAction } from '~/lib/white-label/server-actions';
 import logo from '~/public/images/logo.png';
 
-// Update path if needed
-
 function LogoImage({
   src,
   className,
@@ -54,14 +52,19 @@ export function DynamicLogo({
 }) {
   const domain = typeof window !== 'undefined' ? window.location.hostname : '';
 
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     queryKey: ['logo', domain],
     queryFn: () => getLogosByDomainAction({ domain }),
     enabled: !!domain,
     staleTime: 60 * 60 * 1000,
   });
 
+  if (isLoading) {
+    return null;
+  }
+
   const logoSrc = data?.logo_url || logo.src;
+
   const image = (
     <LogoImage src={logoSrc} className={className} og={!data?.logo_url} />
   );
