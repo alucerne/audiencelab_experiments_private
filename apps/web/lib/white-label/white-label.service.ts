@@ -249,6 +249,38 @@ class WhiteLabelService {
     };
   }
 
+  async removeDomain({
+    accountId,
+    domain,
+  }: {
+    accountId: string;
+    domain: string;
+  }) {
+    const response = await fetch(
+      `https://api.vercel.com/v9/projects/prj_tknJjbjlQwDgSyq7ZMy9JPt6nDnV/domains/${domain}?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
+      {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer kXwgeHc3gXmmqDKy8pggeDWU`,
+          'Content-Type': 'application/json',
+        },
+      },
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to remove domain from Vercel`);
+    }
+
+    const { error } = await this.client
+      .from('whitelabel_branding')
+      .update({ domain: null, domain_verified: false })
+      .eq('account_id', accountId);
+
+    if (error) {
+      throw error;
+    }
+  }
+
   async getSignupLinks(accountId: string) {
     const { data, error } = await this.client
       .from('signup_codes')

@@ -64,6 +64,25 @@ export const verifyWhiteLabelDomainAction = enhanceAction(
   },
 );
 
+export const removeWhiteLabelDomainAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createWhiteLabelService(client);
+
+    const verified = await service.removeDomain(data);
+
+    revalidatePath('/home/[account]/white-label/branding', 'page');
+
+    return verified;
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      domain: z.string(),
+    }),
+  },
+);
+
 export const updateWhiteLabelLogoAction = enhanceAction(
   async (data) => {
     const client = getSupabaseServerClient();
