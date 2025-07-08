@@ -75,6 +75,23 @@ export default function EmailsStep() {
         name="filters.notNulls"
         render={() => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
+            <FormLabel>Valid Phones</FormLabel>
+            <FormControl>
+              <Switch
+                checked={hasValue('VALID_PHONES')}
+                onCheckedChange={(checked) =>
+                  toggleValue('VALID_PHONES', checked)
+                }
+              />
+            </FormControl>
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="filters.notNulls"
+        render={() => (
+          <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
             <FormLabel>Skip Traced Wireless Phone Number</FormLabel>
             <FormControl>
               <Switch
