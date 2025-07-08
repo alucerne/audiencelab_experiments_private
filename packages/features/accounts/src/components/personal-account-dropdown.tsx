@@ -6,13 +6,7 @@ import Link from 'next/link';
 
 import type { User } from '@supabase/supabase-js';
 
-import {
-  ChevronsUpDown,
-  Home,
-  LogOut,
-  MessageCircleQuestion,
-  Shield,
-} from 'lucide-react';
+import { ChevronsUpDown, Home, LogOut, Shield } from 'lucide-react';
 
 import {
   DropdownMenu,
@@ -155,23 +149,6 @@ export function PersonalAccountDropdown({
 
             <span>
               <Trans i18nKey={'common:routes.home'} />
-            </span>
-          </Link>
-        </DropdownMenuItem>
-
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem asChild>
-          <Link
-            className={'s-full flex cursor-pointer items-center space-x-2'}
-            href="https://docs.audiencelab.io/audiencelab-v3/4z72nzTBAcQ8nqMRzSvb33/welcome-to-v3-getting-started/4z72nzTBAewfeeA3XzU45g"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <MessageCircleQuestion className={'h-5'} />
-
-            <span>
-              <Trans i18nKey={'common:documentation'} />
             </span>
           </Link>
         </DropdownMenuItem>
