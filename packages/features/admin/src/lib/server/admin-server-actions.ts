@@ -396,7 +396,7 @@ export const updateWhiteLabelPermissionsAction = enhanceAction(
       .eq('id', id);
 
     if (error) {
-      throw new Error(error.message);
+      throw error;
     }
 
     revalidatePath('/admin/teams/[id]/white-label', 'page');

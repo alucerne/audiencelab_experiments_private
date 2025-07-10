@@ -21,7 +21,10 @@ import {
 import { Input } from '@kit/ui/input';
 import { Switch } from '@kit/ui/switch';
 
-import { updateTeamPermissionsAction } from '../../lib/server/admin-server-actions';
+import {
+  updateTeamPermissionsAction,
+  updateWhiteLabelPermissionsAction,
+} from '../../lib/server/admin-server-actions';
 import { AdminCreditsFormSchema } from '../../lib/server/schema/admin-credits-form.schema';
 
 export default function AdminCreditsForm({
@@ -53,7 +56,7 @@ export default function AdminCreditsForm({
     startTransition(() => {
       toast.promise(
         whitelabel
-          ? updateTeamPermissionsAction(values)
+          ? updateWhiteLabelPermissionsAction(values)
           : updateTeamPermissionsAction(values),
         {
           loading: 'Updating permissions...',
