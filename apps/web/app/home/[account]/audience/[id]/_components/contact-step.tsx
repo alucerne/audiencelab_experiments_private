@@ -58,12 +58,12 @@ export default function EmailsStep() {
         name="filters.notNulls"
         render={() => (
           <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-xs">
-            <FormLabel>Business Emails</FormLabel>
+            <FormLabel>Valid Business Emails</FormLabel>
             <FormControl>
               <Switch
-                checked={hasValue('BUSINESS_EMAIL')}
+                checked={hasValue('DEEP_EMAILS_VALIDATION_STATUS')}
                 onCheckedChange={(checked) =>
-                  toggleValue('BUSINESS_EMAIL', checked)
+                  toggleValue('DEEP_EMAILS_VALIDATION_STATUS', checked)
                 }
               />
             </FormControl>
