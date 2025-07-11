@@ -114,12 +114,15 @@ export default function AudienceFiltersForm({
     }
   }, [defaultValues]);
 
-  const isUpdate = useMemo(() => {
-    if (!defaultValues) return false;
+  const { isUpdate, originalSegment } = useMemo(() => {
+    if (!defaultValues) return { isUpdate: false, originalSegment: null };
 
     const parsed = audienceFiltersFormSchema.safeParse(defaultValues);
 
-    return parsed.success;
+    return {
+      isUpdate: parsed.success,
+      originalSegment: parsed.success ? parsed.data.segment : null,
+    };
   }, [defaultValues]);
 
   const steps = [
@@ -241,6 +244,7 @@ export default function AudienceFiltersForm({
           accountId,
           audienceId: id,
           filters: values,
+          hasSegmentChanged: isUpdate && hasSegmentChanged,
         }),
         {
           loading: isUpdate ? 'Updating audience...' : 'Generating audience...',
@@ -296,6 +300,18 @@ export default function AudienceFiltersForm({
       form.setValue('audience.dateRange', 7);
     }
   }, [segmentList]);
+
+  const hasSegmentChanged = useMemo(() => {
+    if (!originalSegment || !segmentList) return false;
+
+    const original = originalSegment.map((s) => s.toLowerCase()).sort();
+    const current = segmentList.map((s) => s.toLowerCase()).sort();
+
+    return (
+      original.length !== current.length ||
+      original.some((value, index) => value !== current[index])
+    );
+  }, [originalSegment, segmentList]);
 
   return (
     <>
@@ -442,10 +458,19 @@ export default function AudienceFiltersForm({
                       ? 'Confirm Audience Update'
                       : 'Confirm Audience Generation'}
                   </DialogTitle>
-                  <DialogDescription>
-                    {isUpdate
-                      ? 'This will queue your audience to be updated.'
-                      : 'This will queue your audience for generation.'}
+                  <DialogDescription className="flex flex-col space-y-2">
+                    {isUpdate ? (
+                      <span>This will queue your audience to be updated.</span>
+                    ) : (
+                      'This will queue your audience for generation.'
+                    )}
+                    {isUpdate && hasSegmentChanged && (
+                      <span>
+                        NOTE: Your have updated your intents since creating this
+                        audience! Generating a new audience will require using
+                        another usage credit.
+                      </span>
+                    )}
                   </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>

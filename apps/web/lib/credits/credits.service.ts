@@ -110,4 +110,25 @@ class CreditsService {
       sizeLimit: data.enrichment_size_limit,
     };
   }
+
+  async incrementCurrentAudience({ accountId }: { accountId: string }) {
+    const { data, error: selectError } = await this.client
+      .from('credits')
+      .select('current_audience')
+      .eq('account_id', accountId)
+      .single();
+
+    if (selectError) {
+      throw selectError;
+    }
+
+    const { error: updateError } = await this.client
+      .from('credits')
+      .update({ current_audience: data.current_audience + 1 })
+      .eq('account_id', accountId);
+
+    if (updateError) {
+      throw updateError;
+    }
+  }
 }

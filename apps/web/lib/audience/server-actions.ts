@@ -7,6 +7,7 @@ import { z } from 'zod';
 
 import { enhanceAction } from '@kit/next/actions';
 import { getLogger } from '@kit/shared/logger';
+import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 import miscConfig from '~/config/misc.config';
@@ -73,6 +74,15 @@ export const addAudienceFiltersAction = enhanceAction(
       limit: limits.audienceSizeLimit,
     });
 
+    if (data.hasSegmentChanged) {
+      const client = getSupabaseServerAdminClient();
+      const adminCredits = createCreditsService(client);
+
+      await adminCredits.incrementCurrentAudience({
+        accountId: data.accountId,
+      });
+    }
+
     revalidatePath('/home/[account]/audience/[id]', 'page');
     revalidatePath('/home/[account]', 'page');
   },
@@ -81,6 +91,7 @@ export const addAudienceFiltersAction = enhanceAction(
       accountId: z.string(),
       audienceId: z.string(),
       filters: audienceFiltersFormSchema,
+      hasSegmentChanged: z.boolean(),
     }),
   },
 );
