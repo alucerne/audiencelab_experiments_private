@@ -88,6 +88,7 @@ export const testWebhookUrlAction = enhanceAction(
             SKIPTRACE_B2B_SOURCE:
               'https://www.angi.com/companylist/us/ca/fresno/sunrun-reviews-11059068.htm',
             SKIPTRACE_B2B_WEBSITE: 'Sunrun.com',
+            VALID_PHONES: '+112039531555, +113476039555',
           },
           {
             UUID: '00e68ecd5f2873052c841a9b32',
@@ -165,6 +166,7 @@ export const testWebhookUrlAction = enhanceAction(
             SKIPTRACE_B2B_SOURCE:
               'https://www.buildzoom.com/contractor/nike-beaverton-or',
             SKIPTRACE_B2B_WEBSITE: '',
+            VALID_PHONES: '112088619555',
           },
         ],
       }),
