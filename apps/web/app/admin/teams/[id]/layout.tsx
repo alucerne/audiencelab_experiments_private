@@ -1,8 +1,9 @@
-import { BadgeX, Lock, LockOpen } from 'lucide-react';
+import { BadgeX } from 'lucide-react';
 
 import { AdminDeleteAccountDialog } from '@kit/admin/components/admin-delete-account-dialog';
 import { AdminGuard } from '@kit/admin/components/admin-guard';
 import AdminRestrictAccountDialog from '@kit/admin/components/admin-restrict-account-dialog';
+import AdminRestrictWhiteLabelDialog from '@kit/admin/components/admin-white-label/admin-restrict-white-label-dialog';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
@@ -47,25 +48,13 @@ async function AdminTeamLayout(props: Params) {
           <AdminRestrictAccountDialog
             accountId={account.id}
             currentlyRestricted={account.restricted}
-          >
-            <Button
-              size={'sm'}
-              variant={'outline'}
-              className="border-destructive text-destructive hover:text-destructive hover:bg-destructive/5"
-            >
-              {account.restricted ? (
-                <>
-                  <LockOpen className={'mr-1 h-4'} />
-                  Unrestrict
-                </>
-              ) : (
-                <>
-                  <Lock className={'mr-1 h-4'} />
-                  Restrict
-                </>
-              )}
-            </Button>
-          </AdminRestrictAccountDialog>
+          />
+          {account.whitelabel_credits && (
+            <AdminRestrictWhiteLabelDialog
+              accountId={account.id}
+              currentlyRestricted={account.whitelabel_credits.restricted}
+            />
+          )}
           <AdminDeleteAccountDialog accountId={account.id}>
             <Button size={'sm'} variant={'destructive'}>
               <BadgeX className={'mr-1 h-4'} />

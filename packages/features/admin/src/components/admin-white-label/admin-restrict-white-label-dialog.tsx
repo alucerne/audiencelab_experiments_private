@@ -18,9 +18,9 @@ import {
 } from '@kit/ui/alert-dialog';
 import { Button } from '@kit/ui/button';
 
-import { restrictAccountAction } from '../lib/server/admin-server-actions';
+import { restrictWhiteLabelAction } from '../../lib/server/admin-server-actions';
 
-export default function AdminRestrictAccountDialog({
+export default function AdminRestrictWhiteLabelDialog({
   accountId,
   currentlyRestricted,
 }: {
@@ -32,18 +32,18 @@ export default function AdminRestrictAccountDialog({
   function handleToggleRestriction() {
     startTransition(async () => {
       toast.promise(
-        restrictAccountAction({
+        restrictWhiteLabelAction({
           accountId,
           currentlyRestricted,
         }),
         {
           loading: currentlyRestricted
-            ? 'Unrestricting account...'
-            : 'Restricting account...',
+            ? 'Unrestricting white-label...'
+            : 'Restricting white-label...',
           success: currentlyRestricted
-            ? 'Account unrestricted.'
-            : 'Account restricted.',
-          error: 'Failed to update account restriction status.',
+            ? 'White-label unrestricted.'
+            : 'White-label restricted.',
+          error: 'Failed to update white-label restriction status.',
         },
       );
     });
@@ -60,12 +60,12 @@ export default function AdminRestrictAccountDialog({
           {currentlyRestricted ? (
             <>
               <LockOpen className={'mr-1 h-4'} />
-              Unrestrict
+              Unrestrict White-label
             </>
           ) : (
             <>
               <Lock className={'mr-1 h-4'} />
-              Restrict
+              Restrict White-label
             </>
           )}
         </Button>
@@ -73,12 +73,14 @@ export default function AdminRestrictAccountDialog({
       <AlertDialogContent className="max-w-md">
         <AlertDialogHeader>
           <AlertDialogTitle>
-            {currentlyRestricted ? 'Unrestrict Account' : 'Restrict Account'}
+            {currentlyRestricted
+              ? 'Unrestrict White-label'
+              : 'Restrict White-label'}
           </AlertDialogTitle>
           <AlertDialogDescription>
             {currentlyRestricted
-              ? 'This will restore full access to the account.'
-              : 'Are you sure you want to restrict this account? All site features will be disabled.'}
+              ? "This will restore full access to the white-label's subaccounts."
+              : 'Are you sure you want to restrict this white-label account? All subaccounts will lose access to all site features.'}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

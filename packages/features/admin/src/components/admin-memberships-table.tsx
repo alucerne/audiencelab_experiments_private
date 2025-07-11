@@ -107,7 +107,11 @@ function getColumns(
                   <DropdownMenuItem>
                     <Link
                       className={'h-full w-full'}
-                      href={`/admin/teams/${row.original.account_id}`}
+                      href={
+                        whiteLabelHost
+                          ? `/home/${slug}/white-label/teams/${row.original.account_id}`
+                          : `/admin/teams/${row.original.account_id}`
+                      }
                     >
                       View
                     </Link>

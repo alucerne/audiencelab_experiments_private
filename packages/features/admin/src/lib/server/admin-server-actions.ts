@@ -27,137 +27,123 @@ import { createAdminAccountsService } from './services/admin-accounts.service';
 import { createAdminAuthUserService } from './services/admin-auth-user.service';
 import { createAdminSignupLinksService } from './services/admin-signup-links.service';
 import { createAdminWhiteLabelService } from './services/admin-white-label.service';
-import { adminAction } from './utils/admin-action';
 
 /**
  * @name banUserAction
  * @description Ban a user from the system.
  */
-export const banUserAction = adminAction(
-  enhanceAction(
-    async ({ userId }) => {
-      const service = getAdminAuthService();
-      const logger = await getLogger();
+export const banUserAction = enhanceAction(
+  async ({ userId }) => {
+    const service = getAdminAuthService();
+    const logger = await getLogger();
 
-      logger.info({ userId }, `Super Admin is banning user...`);
+    logger.info({ userId }, `Super Admin is banning user...`);
 
-      await service.banUser(userId);
+    await service.banUser(userId);
 
-      logger.info({ userId }, `Super Admin has successfully banned user`);
+    logger.info({ userId }, `Super Admin has successfully banned user`);
 
-      revalidateAdmin();
+    revalidateAdmin();
 
-      return {
-        success: true,
-      };
-    },
-    {
-      schema: BanUserSchema,
-    },
-  ),
+    return {
+      success: true,
+    };
+  },
+  {
+    schema: BanUserSchema,
+  },
 );
 
 /**
  * @name reactivateUserAction
  * @description Reactivate a user in the system.
  */
-export const reactivateUserAction = adminAction(
-  enhanceAction(
-    async ({ userId }) => {
-      const service = getAdminAuthService();
-      const logger = await getLogger();
+export const reactivateUserAction = enhanceAction(
+  async ({ userId }) => {
+    const service = getAdminAuthService();
+    const logger = await getLogger();
 
-      logger.info({ userId }, `Super Admin is reactivating user...`);
+    logger.info({ userId }, `Super Admin is reactivating user...`);
 
-      await service.reactivateUser(userId);
+    await service.reactivateUser(userId);
 
-      logger.info({ userId }, `Super Admin has successfully reactivated user`);
+    logger.info({ userId }, `Super Admin has successfully reactivated user`);
 
-      revalidateAdmin();
+    revalidateAdmin();
 
-      return {
-        success: true,
-      };
-    },
-    {
-      schema: ReactivateUserSchema,
-    },
-  ),
+    return {
+      success: true,
+    };
+  },
+  {
+    schema: ReactivateUserSchema,
+  },
 );
 
 /**
  * @name impersonateUserAction
  * @description Impersonate a user in the system.
  */
-export const impersonateUserAction = adminAction(
-  enhanceAction(
-    async ({ userId }) => {
-      const service = getAdminAuthService();
-      const logger = await getLogger();
+export const impersonateUserAction = enhanceAction(
+  async ({ userId }) => {
+    const service = getAdminAuthService();
+    const logger = await getLogger();
 
-      logger.info({ userId }, `Super Admin is impersonating user...`);
+    logger.info({ userId }, `Super Admin is impersonating user...`);
 
-      return await service.impersonateUser(userId);
-    },
-    {
-      schema: ImpersonateUserSchema,
-    },
-  ),
+    return await service.impersonateUser(userId);
+  },
+  {
+    schema: ImpersonateUserSchema,
+  },
 );
 
 /**
  * @name deleteUserAction
  * @description Delete a user from the system.
  */
-export const deleteUserAction = adminAction(
-  enhanceAction(
-    async ({ userId }) => {
-      const service = getAdminAuthService();
-      const logger = await getLogger();
+export const deleteUserAction = enhanceAction(
+  async ({ userId }) => {
+    const service = getAdminAuthService();
+    const logger = await getLogger();
 
-      logger.info({ userId }, `Super Admin is deleting user...`);
+    logger.info({ userId }, `Super Admin is deleting user...`);
 
-      await service.deleteUser(userId);
+    await service.deleteUser(userId);
 
-      logger.info({ userId }, `Super Admin has successfully deleted user`);
+    logger.info({ userId }, `Super Admin has successfully deleted user`);
 
-      revalidateAdmin();
+    revalidateAdmin();
 
-      return redirect('/admin/users');
-    },
-    {
-      schema: DeleteUserSchema,
-    },
-  ),
+    return redirect('/admin/users');
+  },
+  {
+    schema: DeleteUserSchema,
+  },
 );
 
 /**
  * @name deleteAccountAction
  * @description Delete an account from the system.
  */
-export const deleteAccountAction = adminAction(
-  enhanceAction(
-    async ({ accountId }) => {
-      const service = getAdminAccountsService();
-      const logger = await getLogger();
+export const deleteAccountAction = enhanceAction(
+  async ({ accountId }) => {
+    const service = getAdminAccountsService();
+    const logger = await getLogger();
 
-      logger.info({ accountId }, `Super Admin is deleting account...`);
+    logger.info({ accountId }, `Super Admin is deleting account...`);
 
-      await service.deleteAccount(accountId);
+    await service.deleteAccount(accountId);
 
-      logger.info(
-        { accountId },
-        `Super Admin has successfully deleted account`,
-      );
+    logger.info({ accountId }, `Super Admin has successfully deleted account`);
 
-      revalidateAdmin();
+    revalidateAdmin();
 
-      return redirect('/admin/users');
-    },
-    {
-      schema: DeleteAccountSchema,
-    },
-  ),
+    return redirect('/admin/users');
+  },
+  {
+    schema: DeleteAccountSchema,
+  },
 );
 
 function getAdminAuthService() {
@@ -396,12 +382,35 @@ export const updateWhiteLabelPermissionsAction = enhanceAction(
       .eq('id', id);
 
     if (error) {
-      throw new Error(error.message);
+      throw error;
     }
 
     revalidatePath('/admin/teams/[id]/white-label', 'page');
   },
   {
     schema: AdminCreditsFormSchema,
+  },
+);
+
+export const restrictWhiteLabelAction = enhanceAction(
+  async ({ accountId, currentlyRestricted }) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const { error } = await adminClient
+      .from('whitelabel_credits')
+      .update({ restricted: !currentlyRestricted })
+      .eq('account_id', accountId);
+
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath('/admin/users/[id]', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      currentlyRestricted: z.boolean(),
+    }),
   },
 );

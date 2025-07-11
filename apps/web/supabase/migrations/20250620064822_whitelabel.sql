@@ -10,6 +10,7 @@ create table if not exists public.whitelabel_credits (
   pixel_size_limit integer not null,
   monthly_enrichment_limit integer not null,
   enrichment_size_limit integer not null,
+  restricted boolean not null default false,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
 );

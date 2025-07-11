@@ -1,4 +1,4 @@
-import { BadgeX, Lock, LockOpen } from 'lucide-react';
+import { BadgeX } from 'lucide-react';
 
 import { AdminDeleteAccountDialog } from '@kit/admin/components/admin-delete-account-dialog';
 import AdminRestrictAccountDialog from '@kit/admin/components/admin-restrict-account-dialog';
@@ -39,25 +39,7 @@ export default async function AdminTeamLayout(props: Params) {
           <AdminRestrictAccountDialog
             accountId={account.id}
             currentlyRestricted={account.restricted}
-          >
-            <Button
-              size={'sm'}
-              variant={'outline'}
-              className="border-destructive text-destructive hover:text-destructive hover:bg-destructive/5"
-            >
-              {account.restricted ? (
-                <>
-                  <LockOpen className={'mr-1 h-4'} />
-                  Unrestrict
-                </>
-              ) : (
-                <>
-                  <Lock className={'mr-1 h-4'} />
-                  Restrict
-                </>
-              )}
-            </Button>
-          </AdminRestrictAccountDialog>
+          />
           <AdminDeleteAccountDialog accountId={account.id}>
             <Button size={'sm'} variant={'destructive'}>
               <BadgeX className={'mr-1 h-4'} />

@@ -12,7 +12,7 @@ export default async function AdminTeamWhiteLabel(props: { account: Account }) {
   return (
     <>
       <PageBody className={'space-y-6 py-4'}>
-        <AdminCreditsForm credits={permissions} />
+        <AdminCreditsForm credits={permissions} whitelabel />
       </PageBody>
     </>
   );

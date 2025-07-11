@@ -10,10 +10,14 @@ import {
 
 export default function RestrictedDialog({
   restricted,
+  whiteLabelRestricted,
 }: {
   restricted: boolean;
+  whiteLabelRestricted: boolean;
 }) {
-  if (!restricted) return null;
+  if (!restricted && !whiteLabelRestricted) {
+    return null;
+  }
 
   return (
     <Dialog open={true}>
@@ -23,13 +27,27 @@ export default function RestrictedDialog({
         onEscapeKeyDown={(e) => e.preventDefault()}
       >
         <DialogHeader>
-          <DialogTitle className="text-destructive">
-            Account Restricted
-          </DialogTitle>
-          <DialogDescription>
-            Your account has been restricted. Please contact support via the
-            ticket system to reactivate your account.
-          </DialogDescription>
+          {restricted && (
+            <>
+              <DialogTitle className="text-destructive">
+                Account Restricted
+              </DialogTitle>
+              <DialogDescription>
+                Your account has been restricted. Please contact support via the
+                ticket system to reactivate your account.
+              </DialogDescription>
+            </>
+          )}
+          {whiteLabelRestricted && (
+            <>
+              <DialogTitle className="text-destructive">
+                The site is experiencing down-time.
+              </DialogTitle>
+              <DialogDescription>
+                Please contact support for more updates.
+              </DialogDescription>
+            </>
+          )}
         </DialogHeader>
       </DialogContent>
     </Dialog>
