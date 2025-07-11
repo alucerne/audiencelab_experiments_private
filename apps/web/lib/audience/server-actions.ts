@@ -91,7 +91,7 @@ export const addAudienceFiltersAction = enhanceAction(
       accountId: z.string(),
       audienceId: z.string(),
       filters: audienceFiltersFormSchema,
-      hasSegmentChanged: z.boolean(),
+      hasSegmentChanged: z.boolean().optional(),
     }),
   },
 );
