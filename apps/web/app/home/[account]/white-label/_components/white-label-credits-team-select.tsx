@@ -19,7 +19,6 @@ type Team = {
 };
 
 export function TeamFilterSelect({ teams }: { teams: Team[] }) {
-  console.log('TeamFilterSelect rendered with teams:', teams);
   const searchParams = useSearchParams();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();

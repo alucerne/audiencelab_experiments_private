@@ -67,8 +67,6 @@ export default async function WhiteLabelUsagePage({
     accountId: workspace.account.id,
   });
 
-  console.log('White-label credits data1:', creditsData);
-
   return (
     <>
       <PageHeader

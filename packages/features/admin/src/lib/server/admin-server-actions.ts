@@ -405,3 +405,26 @@ export const updateWhiteLabelPermissionsAction = enhanceAction(
     schema: AdminCreditsFormSchema,
   },
 );
+
+export const restrictWhiteLabelAction = enhanceAction(
+  async ({ accountId, currentlyRestricted }) => {
+    const adminClient = getSupabaseServerAdminClient();
+
+    const { error } = await adminClient
+      .from('whitelabel_credits')
+      .update({ restricted: !currentlyRestricted })
+      .eq('account_id', accountId);
+
+    if (error) {
+      throw error;
+    }
+
+    revalidatePath('/admin/users/[id]', 'page');
+  },
+  {
+    schema: z.object({
+      accountId: z.string(),
+      currentlyRestricted: z.boolean(),
+    }),
+  },
+);

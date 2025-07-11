@@ -81,7 +81,10 @@ function SidebarLayout({
 
           <>
             {children}
-            <RestrictedDialog restricted={data.account.restricted} />
+            <RestrictedDialog
+              restricted={data.account.restricted}
+              whiteLabelRestricted={data.account.whitelabel_restricted}
+            />
             <Script id="crisp-chat">
               {`window.$crisp=[];
                 window.CRISP_WEBSITE_ID="6517cb99-e657-430f-9db0-88e9bb65648f";

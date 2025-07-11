@@ -2516,7 +2516,8 @@ returns table (
   subscription_status public.subscription_status,
   permissions public.app_permissions[],
   restricted boolean,
-  is_whitelabel_host boolean
+  is_whitelabel_host boolean,
+  whitelabel_restricted boolean
 )
 set search_path to ''
 as $$
@@ -2537,7 +2538,15 @@ begin
           select 1
           from public.whitelabel_credits
           where whitelabel_credits.account_id = accounts.id
-        ) as is_whitelabel_host
+        ) as is_whitelabel_host,
+        coalesce(
+          (
+            select wc2.restricted
+            from public.whitelabel_credits wc2
+            where wc2.account_id = accounts.whitelabel_host_account_id
+          ),
+          false
+        ) as whitelabel_restricted
     from
         public.accounts
         join public.accounts_memberships on accounts.id = accounts_memberships.account_id

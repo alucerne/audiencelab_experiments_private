@@ -474,6 +474,7 @@ class WhiteLabelService {
         sizeLimit: limits.pixel_size_limit,
         allocatedSize: usage?.allocated_pixel_size_limit ?? 0,
       },
+      restricted: limits.restricted,
     };
   }
 
