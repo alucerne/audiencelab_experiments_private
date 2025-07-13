@@ -10,7 +10,7 @@ import { Database } from '~/lib/database.types';
 
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
-import { getDateRange, mapFilters } from './utils';
+import { mapFilters } from './utils';
 
 export function createAudienceService(client: SupabaseClient<Database>) {
   return new AudienceService(client);
@@ -464,12 +464,6 @@ class AudienceService {
     intentIds: string[];
   }) {
     filters.segment = intentIds;
-    if (
-      filters.segment.length > 0 &&
-      typeof filters.audience.dateRange === 'number'
-    ) {
-      filters.dateRange = getDateRange(filters.audience.dateRange);
-    }
 
     const { audience: _audience, ...audienceFilters } = filters;
 

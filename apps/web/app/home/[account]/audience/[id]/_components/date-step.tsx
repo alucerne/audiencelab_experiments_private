@@ -16,7 +16,7 @@ import {
 } from '~/lib/audience/schema/audience-filters-form.schema';
 
 export const dateFields = [
-  'audience.dateRange',
+  'daysBack',
 ] as const satisfies readonly Path<AudienceFiltersFormValues>[];
 
 export default function DateStep() {
@@ -26,7 +26,7 @@ export default function DateStep() {
   return (
     <FormField
       control={control}
-      name="audience.dateRange"
+      name="daysBack"
       render={({ field }) => (
         <FormItem>
           <FormLabel>Current Date Range: {field.value ?? '—'}</FormLabel>

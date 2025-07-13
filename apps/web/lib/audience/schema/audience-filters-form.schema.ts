@@ -25,15 +25,11 @@ export const audienceFiltersFormSchema = z.object({
     b2b: z.boolean(),
     customTopic: z.string(),
     customDescription: z.string(),
-    dateRange: z.number().nullable(),
   }), //webapp only
   jobId: z.string(),
   segment: z.array(z.string()),
   score: z.array(z.string()),
-  dateRange: z.object({
-    startDate: z.string().date().nullable(),
-    endDate: z.string().date().nullable(),
-  }),
+  daysBack: z.number().nullable(),
   filters: z.object({
     age: z.object({
       minAge: z.number().nullable(),
@@ -103,14 +99,10 @@ export const audienceFiltersFormDefaultValues = {
     b2b: false,
     customTopic: '',
     customDescription: '',
-    dateRange: 7,
   },
   jobId: '',
   segment: [],
-  dateRange: {
-    startDate: null,
-    endDate: null,
-  },
+  daysBack: null,
   score: [],
   filters: {
     age: {

@@ -292,12 +292,12 @@ export default function AudienceFiltersForm({
   const segmentList = form.watch('segment');
 
   useEffect(() => {
-    const currentValue = form.getValues('audience.dateRange');
+    const currentValue = form.getValues('daysBack');
 
     if (segmentList.length === 0 && currentValue !== null) {
-      form.setValue('audience.dateRange', null);
+      form.setValue('daysBack', null);
     } else if (segmentList.length > 0 && currentValue !== 7) {
-      form.setValue('audience.dateRange', 7);
+      form.setValue('daysBack', 7);
     }
   }, [segmentList]);
 
