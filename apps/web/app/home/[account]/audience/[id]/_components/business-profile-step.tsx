@@ -1,5 +1,6 @@
 import { Path, useFormContext } from 'react-hook-form';
 
+import { Badge } from '@kit/ui/badge';
 import {
   FormControl,
   FormField,
@@ -21,6 +22,25 @@ export default function BusinessProfileStep() {
 
   return (
     <>
+      <FormField
+        control={control}
+        name="filters.businessProfile.companyDescription"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="flex items-center gap-1.5">
+              B2B Business Keywords
+              <Badge variant="secondary">BETA</Badge>
+            </FormLabel>
+            <FormControl>
+              <CreatableInput
+                value={field.value}
+                onChange={(newValue) => field.onChange(newValue)}
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
       <FormField
         control={control}
         name="filters.businessProfile.jobTitle"

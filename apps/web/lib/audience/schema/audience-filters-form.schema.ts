@@ -51,6 +51,7 @@ export const audienceFiltersFormSchema = z.object({
       children: z.array(z.string()),
     }),
     businessProfile: z.object({
+      companyDescription: z.array(z.string()),
       jobTitle: z.array(z.string()),
       seniority: z.array(z.string()),
       department: z.array(z.string()),
@@ -128,6 +129,7 @@ export const audienceFiltersFormDefaultValues = {
       children: [],
     },
     businessProfile: {
+      companyDescription: [],
       jobTitle: [],
       seniority: [],
       department: [],
