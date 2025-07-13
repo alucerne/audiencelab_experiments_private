@@ -9,7 +9,7 @@ import { getLogosByDomainAction } from '~/lib/white-label/server-actions';
 export function Favicons() {
   const domain = typeof window !== 'undefined' ? window.location.hostname : '';
 
-  const { data } = useQuery({
+  const { data, isFetched } = useQuery({
     queryKey: ['icon', domain],
     queryFn: () => getLogosByDomainAction({ domain }),
     enabled: !!domain,
@@ -17,18 +17,18 @@ export function Favicons() {
   });
 
   useEffect(() => {
-    if (!data?.icon_url) return;
+    if (!isFetched) return;
 
-    let link: HTMLLinkElement | null =
-      document.querySelector("link[rel~='icon']");
-    if (!link) {
-      link = document.createElement('link');
-      link.rel = 'icon';
-      document.head.appendChild(link);
-    }
+    const href = data?.icon_url || '/images/favicon/favicon.ico';
 
-    link.href = data.icon_url;
-  }, [data?.icon_url]);
+    document.querySelectorAll("link[rel~='icon']").forEach((el) => el.remove());
+
+    const link = document.createElement('link');
+    link.rel = 'icon';
+    link.type = 'image/x-icon';
+    link.href = href + `?v=${Date.now()}`;
+    document.head.appendChild(link);
+  }, [isFetched, data?.icon_url]);
 
   return null;
 }
