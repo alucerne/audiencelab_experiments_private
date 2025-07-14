@@ -4,7 +4,7 @@ import { writeFileSync } from 'node:fs';
 import { generator } from '../../utils';
 
 const DOCS_URL =
-  'https://audiencelab.io/docs/next-supabase-turbo/environment-variables';
+  'https://audiencelab.io/docs';
 
 export function createEnvironmentVariablesGenerator(
   plop: PlopTypes.NodePlopAPI,
