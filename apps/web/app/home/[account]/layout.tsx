@@ -13,6 +13,7 @@ import {
 import { SidebarProvider } from '@kit/ui/shadcn-sidebar';
 
 import { DynamicLogo } from '~/components/dynamic-logo';
+import appConfig from '~/config/app.config';
 import { getTeamAccountSidebarConfig } from '~/config/team-account-navigation.config';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
@@ -26,6 +27,15 @@ import { loadTeamWorkspace } from './_lib/server/team-account-workspace.loader';
 type TeamWorkspaceLayoutProps = React.PropsWithChildren<{
   params: Promise<{ account: string }>;
 }>;
+
+export const generateMetadata = async (props: TeamWorkspaceLayoutProps) => {
+  const params = await props.params;
+  const { account } = await loadTeamWorkspace(params.account);
+
+  return {
+    title: account.whitelabel_company_name ?? appConfig.title,
+  };
+};
 
 function TeamWorkspaceLayout({ children, params }: TeamWorkspaceLayoutProps) {
   const account = use(params).account;

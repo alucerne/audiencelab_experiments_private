@@ -2517,7 +2517,8 @@ returns table (
   permissions public.app_permissions[],
   restricted boolean,
   is_whitelabel_host boolean,
-  whitelabel_restricted boolean
+  whitelabel_restricted boolean,
+  whitelabel_company_name text
 )
 set search_path to ''
 as $$
@@ -2546,7 +2547,12 @@ begin
             where wc2.account_id = accounts.whitelabel_host_account_id
           ),
           false
-        ) as whitelabel_restricted
+        ) as whitelabel_restricted,
+        (
+          select wb.company_name
+          from public.whitelabel_branding wb
+          where wb.account_id = accounts.whitelabel_host_account_id
+        ) as whitelabel_company_name
     from
         public.accounts
         join public.accounts_memberships on accounts.id = accounts_memberships.account_id
