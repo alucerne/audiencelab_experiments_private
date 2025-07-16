@@ -35,3 +35,23 @@ export const createApiKeyAction = enhanceAction(
     }),
   },
 );
+
+export const disableApiKeyAction = enhanceAction(
+  async (data) => {
+    const client = getSupabaseServerClient();
+    const service = createApiKeysService(client);
+
+    const result = await service.revokeApiKey(data.apiKeyId);
+
+    revalidatePath('/home/[account]/api-keys', 'page');
+
+    if (!result) {
+      throw new Error('Failed to disable API key');
+    }
+  },
+  {
+    schema: z.object({
+      apiKeyId: z.string(),
+    }),
+  },
+);

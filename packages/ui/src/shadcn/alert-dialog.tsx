@@ -92,7 +92,7 @@ const AlertDialogAction: React.FC<
   React.ComponentPropsWithoutRef<typeof AlertDialogPrimitive.Action>
 > = ({ className, ...props }) => (
   <AlertDialogPrimitive.Action
-    className={cn(buttonVariants(), className)}
+    className={cn(buttonVariants({ size: 'sm' }), className)}
     {...props}
   />
 );
@@ -103,7 +103,7 @@ const AlertDialogCancel: React.FC<
 > = ({ className, ...props }) => (
   <AlertDialogPrimitive.Cancel
     className={cn(
-      buttonVariants({ variant: 'outline' }),
+      buttonVariants({ variant: 'outline', size: 'sm' }),
       'mt-2 sm:mt-0',
       className,
     )}

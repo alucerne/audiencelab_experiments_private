@@ -41,4 +41,30 @@ class ApiKeysService {
 
     return data;
   }
+
+  // Function to list all API keys for an account
+  async listApiKeys(accountId: string) {
+    const { data, error } = await this.client.rpc('list_api_keys', {
+      p_account_id: accountId,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
+
+  // Function to revoke an API key
+  async revokeApiKey(apiKeyId: string) {
+    const { data, error } = await this.client.rpc('revoke_api_key', {
+      p_api_key_id: apiKeyId,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  }
 }
