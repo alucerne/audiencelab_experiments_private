@@ -1909,6 +1909,7 @@ export type Database = {
           restricted: boolean;
           is_whitelabel_host: boolean;
           whitelabel_restricted: boolean;
+          whitelabel_company_name: string;
         }[];
       };
       transfer_team_account_ownership: {

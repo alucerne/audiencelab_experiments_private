@@ -114,12 +114,16 @@ class CreditsService {
   async incrementCurrentAudience({ accountId }: { accountId: string }) {
     const { data, error: selectError } = await this.client
       .from('credits')
-      .select('current_audience')
+      .select('current_audience, monthly_audience_limit')
       .eq('account_id', accountId)
       .single();
 
     if (selectError) {
       throw selectError;
+    }
+
+    if (data.current_audience >= data.monthly_audience_limit) {
+      throw new Error('Monthly audience limit reached');
     }
 
     const { error: updateError } = await this.client
