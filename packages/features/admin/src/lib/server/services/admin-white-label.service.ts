@@ -151,7 +151,7 @@ class AdminWhiteLabelService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: domain,
+          name: domain.toLowerCase(),
         }),
       },
     );
@@ -178,7 +178,7 @@ class AdminWhiteLabelService {
     domain: string;
   }) {
     const response = await fetch(
-      `https://api.vercel.com/v6/domains/${domain}/config?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
+      `https://api.vercel.com/v6/domains/${domain.toLowerCase()}/config?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
       {
         method: 'GET',
         headers: {
@@ -213,13 +213,13 @@ class AdminWhiteLabelService {
           domain.split('.').length > 2
             ? {
                 type: 'CNAME',
-                name: domain.split('.').slice(0, -2).join('.'),
-                value: verification.recommendedCNAME[0]!.value,
+                name: domain.split('.').slice(0, -2).join('.').trim(),
+                value: verification.recommendedCNAME[0]!.value.trim(),
               }
             : {
                 type: 'A',
-                name: domain,
-                value: verification.recommendedIPv4[0]!.value[0],
+                name: domain.trim(),
+                value: verification.recommendedIPv4[0]!.value[0]?.trim(),
               },
       };
     }

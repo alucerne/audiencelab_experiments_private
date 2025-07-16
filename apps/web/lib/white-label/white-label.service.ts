@@ -158,7 +158,7 @@ class WhiteLabelService {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: domain,
+          name: domain.toLowerCase(),
           gitBranch:
             process.env.NEXT_PUBLIC_VERCEL_TARGET_ENV === 'staging'
               ? 'staging'
@@ -189,7 +189,7 @@ class WhiteLabelService {
     domain: string;
   }) {
     const response = await fetch(
-      `https://api.vercel.com/v6/domains/${domain}/config?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
+      `https://api.vercel.com/v6/domains/${domain.toLowerCase()}/config?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
       {
         method: 'GET',
         headers: {
@@ -224,13 +224,13 @@ class WhiteLabelService {
           domain.split('.').length > 2
             ? {
                 type: 'CNAME',
-                name: domain.split('.').slice(0, -2).join('.'),
-                value: verification.recommendedCNAME[0]!.value,
+                name: domain.split('.').slice(0, -2).join('.').trim(),
+                value: verification.recommendedCNAME[0]!.value.trim(),
               }
             : {
                 type: 'A',
-                name: domain,
-                value: verification.recommendedIPv4[0]!.value[0],
+                name: domain.trim(),
+                value: verification.recommendedIPv4[0]!.value[0]?.trim(),
               },
       };
     }
@@ -257,7 +257,7 @@ class WhiteLabelService {
     domain: string;
   }) {
     const response = await fetch(
-      `https://api.vercel.com/v9/projects/prj_tknJjbjlQwDgSyq7ZMy9JPt6nDnV/domains/${domain}?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
+      `https://api.vercel.com/v9/projects/prj_tknJjbjlQwDgSyq7ZMy9JPt6nDnV/domains/${domain.toLowerCase()}?teamId=team_XERV41K7eo3NFYpTBXTexcZE`,
       {
         method: 'DELETE',
         headers: {
