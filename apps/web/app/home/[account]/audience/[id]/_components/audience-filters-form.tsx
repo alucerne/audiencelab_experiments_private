@@ -296,7 +296,7 @@ export default function AudienceFiltersForm({
 
     if (segmentList.length === 0 && currentValue !== null) {
       form.setValue('daysBack', null);
-    } else if (segmentList.length > 0 && currentValue !== 7) {
+    } else if (segmentList.length > 0 && currentValue === null) {
       form.setValue('daysBack', 7);
     }
   }, [segmentList]);
