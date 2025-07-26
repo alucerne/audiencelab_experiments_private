@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition } from 'react';
+import { useState, useTransition } from 'react';
 
 import { format, parseISO } from 'date-fns';
 import { toast } from 'sonner';
@@ -15,10 +15,28 @@ import {
   DialogTrigger,
 } from '@kit/ui/dialog';
 import { Label } from '@kit/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@kit/ui/select';
 import { cn } from '@kit/ui/utils';
 
 import { Pixel } from '~/lib/pixel/pixel.service';
 import { createPixelExportAction } from '~/lib/pixel/server-actions';
+
+const daysBackOptions = [
+  { value: '1', label: '1 day' },
+  { value: '3', label: '3 days' },
+  { value: '7', label: '7 days' },
+  { value: '15', label: '15 days' },
+  { value: '30', label: '30 days' },
+  { value: '60', label: '60 days' },
+  { value: '90', label: '90 days' },
+  { value: '180', label: '180 days' },
+] as const;
 
 export function PixelExportDialog({
   children,
@@ -28,17 +46,25 @@ export function PixelExportDialog({
   pixel: Pixel;
 }) {
   const [isPending, startTransition] = useTransition();
+  const [daysBack, setDaysBack] =
+    useState<(typeof daysBackOptions)[number]['value']>('30');
 
   function handleCreateExport() {
     startTransition(() => {
-      toast.promise(createPixelExportAction({ pixelId: pixel.id }), {
-        loading: 'Creating pixel export...',
-        success: (data) => {
-          handleDownload(data.csv_url);
-          return 'Pixel export created!';
+      toast.promise(
+        createPixelExportAction({
+          pixelId: pixel.id,
+          daysBack: daysBack,
+        }),
+        {
+          loading: 'Creating pixel export...',
+          success: (data) => {
+            handleDownload(data.csv_url);
+            return 'Pixel export created!';
+          },
+          error: 'Failed to create pixel export.',
         },
-        error: 'Failed to create pixel export.',
-      });
+      );
     });
   }
 
@@ -117,14 +143,33 @@ export function PixelExportDialog({
           )}
         </div>
         <div className="flex items-center justify-between px-6 pt-4">
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={isPending}
-            onClick={handleCreateExport}
-          >
-            {isPending ? 'Creating...' : 'Create Export'}
-          </Button>
+          <div className="flex items-center gap-2">
+            <Select
+              value={daysBack}
+              onValueChange={(val: (typeof daysBackOptions)[number]['value']) =>
+                setDaysBack(val)
+              }
+            >
+              <SelectTrigger className="h-8 w-24">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {daysBackOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
+              variant="secondary"
+              size="sm"
+              disabled={isPending}
+              onClick={handleCreateExport}
+            >
+              {isPending ? 'Creating...' : 'Create Export'}
+            </Button>
+          </div>
           <DialogClose asChild>
             <Button variant="outline" size="sm">
               Close

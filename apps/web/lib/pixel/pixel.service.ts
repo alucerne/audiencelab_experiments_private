@@ -300,7 +300,13 @@ class PixelService {
     }
   }
 
-  async createExport({ pixelId }: { pixelId: string }) {
+  async createExport({
+    pixelId,
+    daysBack,
+  }: {
+    pixelId: string;
+    daysBack: number;
+  }) {
     const { data: pixelData, error: pixelError } = await this.client
       .from('pixel')
       .select('account_id, delivr_id')
@@ -316,6 +322,7 @@ class PixelService {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         pixel_id: pixelData.delivr_id,
+        days_back: daysBack,
       }),
     });
 
