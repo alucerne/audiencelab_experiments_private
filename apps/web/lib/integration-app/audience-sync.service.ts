@@ -121,9 +121,17 @@ class AudienceSyncService {
 
     switch (integrationDetails.integrationKey) {
       case 'facebook-ads':
-        endpoint = '/facebook/enqueue';
+        endpoint = `${miscConfig.audienceSync.fbSyncApiUrl}/facebook/enqueue`;
         Object.assign(basePayload, {
           fb_audience_id: integrationDetails.fbAudienceId,
+        });
+        break;
+      case 'google-sheets':
+        endpoint = `${miscConfig.audienceSync.googleSheetsApiUrl}/googlesheets/enqueue`;
+        Object.assign(basePayload, {
+          googleSheetsSpreadsheetId:
+            integrationDetails.googleSheetsSpreadsheetId,
+          googleSheetsSheetId: integrationDetails.googleSheetsSheetId,
         });
         break;
       //! add other integrations and needed details for enqueue api here
@@ -138,7 +146,7 @@ class AudienceSyncService {
         throw new Error(`Unsupported integration: ${data.integration_key}`);
     }
 
-    const response = await fetch(`${miscConfig.syncApiUrl}${endpoint}`, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(basePayload),

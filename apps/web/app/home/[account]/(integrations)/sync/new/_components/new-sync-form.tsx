@@ -21,6 +21,7 @@ import {
 import { createSyncAction } from '../_lib/server-actions';
 import AudienceStep from './audience-step';
 import FacebookStep from './facebook-step';
+import GoogleSheetsStep from './google-sheets-step';
 import IntegrationStep from './integration-step';
 
 interface IntegrationKeyStep {
@@ -34,6 +35,11 @@ const integrationStepMap: Record<IntegrationKey, IntegrationKeyStep> = {
     component: <FacebookStep />,
     fields: ['integration'],
     title: '2. Set Up Facebook Connection',
+  },
+  'google-sheets': {
+    component: <GoogleSheetsStep />,
+    fields: ['integration'],
+    title: '2. Set Up Google Sheets Connection',
   },
   //! add integration form steps here
   // 'google-ads': {

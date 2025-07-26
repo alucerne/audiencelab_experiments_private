@@ -8,6 +8,14 @@ const FacebookSchema = z.object({
   fbAudienceName: z.string().min(1, 'Please select a custom audience'),
 });
 
+const GoogleSheetsSchema = z.object({
+  integrationKey: z.literal('google-sheets'),
+  googleSheetsSpreadsheetId: z.string().min(1, 'Please select a spreadsheet'),
+  googleSheetsSpreadsheetName: z.string().min(1, 'Please select a spreadsheet'),
+  googleSheetsSheetId: z.string().min(1, 'Please select a sheet'),
+  googleSheetsSheetName: z.string().min(1, 'Please select a sheet'),
+});
+
 //! add schemas here for new integrations
 // const GoogleSchema = z.object({
 //   integrationKey: z.literal('google-ads'),
@@ -20,6 +28,7 @@ const FacebookSchema = z.object({
 export const NewSyncFormSchema = z.object({
   integration: z.discriminatedUnion('integrationKey', [
     FacebookSchema,
+    GoogleSheetsSchema,
     //!add new integrations below
   ]),
   audienceId: z.string().min(1, 'Please select an audience'),
