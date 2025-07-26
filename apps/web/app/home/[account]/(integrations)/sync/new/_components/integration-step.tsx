@@ -10,7 +10,10 @@ import { z } from 'zod';
 
 import { Button } from '@kit/ui/button';
 
-import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
+import {
+  NewSyncFormSchema,
+  isIntegrationKey,
+} from '~/lib/integration-app/schema/new-sync-form.schema';
 
 export default function IntegrationStep({
   onConnect,
@@ -22,9 +25,7 @@ export default function IntegrationStep({
     refresh,
     loading: integrationsIsLoading,
     error,
-  } = useIntegrations({
-    search: 'facebook-ads',
-  });
+  } = useIntegrations();
 
   return (
     <div>
@@ -53,15 +54,17 @@ export default function IntegrationStep({
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          {integrations.map((integration) => (
-            <IntegrationListItem
-              key={integration.key}
-              integration={integration}
-              onRefresh={refresh}
-              onConnect={onConnect}
-            />
-          ))}
-          <div className="flex items-center justify-center rounded-lg border p-4">
+          {integrations
+            .filter((integration) => isIntegrationKey(integration.key))
+            .map((integration) => (
+              <IntegrationListItem
+                key={integration.key}
+                integration={integration}
+                onRefresh={refresh}
+                onConnect={onConnect}
+              />
+            ))}
+          <div className="flex items-center justify-center rounded-lg border px-4 py-6.5">
             <div className="text-muted-foreground text-sm">
               More integrations coming soon...
             </div>
@@ -91,7 +94,7 @@ export function IntegrationListItem({
         .integration(integration.key)
         .openNewConnection();
 
-      if (!connection.id) {
+      if (!connection.id || !isIntegrationKey(integration.key)) {
         toast.error('Please select a connection first');
         return;
       }
@@ -124,6 +127,10 @@ export function IntegrationListItem({
   return (
     <li
       onClick={() => {
+        if (!isIntegrationKey(integration.key)) {
+          return;
+        }
+
         if (!isConnected) {
           handleConnect();
         } else {

@@ -62,7 +62,6 @@ export default function AudienceStep() {
     enabled: Boolean(audienceId),
   });
 
-  // when refreshDetails arrives, seed the select field
   useEffect(() => {
     if (!refreshLoading && refreshDetails) {
       const result = NewSyncFormSchema.shape.refreshInterval.safeParse(

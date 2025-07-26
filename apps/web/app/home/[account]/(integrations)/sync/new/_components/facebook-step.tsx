@@ -34,8 +34,8 @@ import {
 import SingleSelect from '~/components/ui/single-select';
 import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
 
-import { useAdAccounts } from '../_lib/hooks/use-ad-accounts';
-import { useAudiences } from '../_lib/hooks/use-audiences';
+import { useAdAccounts } from '../_lib/hooks/facebook-ads/use-ad-accounts';
+import { useAudiences } from '../_lib/hooks/facebook-ads/use-audiences';
 
 export default function FacebookStep() {
   const [pending, setPending] = useState(false);
@@ -78,12 +78,10 @@ export default function FacebookStep() {
           });
         const newId = res.output.id as string;
 
-        // refresh audiences list
         await queryClient.invalidateQueries({
           queryKey: ['facebook-audiences', fbAdAccountId],
         });
 
-        // select the new audience in the form
         setValue('integration.fbAudienceId', newId, {
           shouldDirty: true,
           shouldValidate: true,
@@ -93,7 +91,6 @@ export default function FacebookStep() {
           shouldValidate: true,
         });
 
-        // reset dialog
         setOpen(false);
         setNewName('');
         setNewDesc('');
