@@ -5,7 +5,7 @@ import { useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm } from 'react-hook-form';
+import { Path, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
@@ -13,12 +13,41 @@ import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-accou
 import { Button } from '@kit/ui/button';
 import { Form } from '@kit/ui/form';
 
-import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
+import {
+  IntegrationKey,
+  NewSyncFormSchema,
+} from '~/lib/integration-app/schema/new-sync-form.schema';
 
 import { createSyncAction } from '../_lib/server-actions';
 import AudienceStep from './audience-step';
 import FacebookStep from './facebook-step';
+import GoogleSheetsStep from './google-sheets-step';
 import IntegrationStep from './integration-step';
+
+interface IntegrationKeyStep {
+  component: React.ReactNode;
+  fields: Path<z.infer<typeof NewSyncFormSchema>>[];
+  title: string;
+}
+
+const integrationStepMap: Record<IntegrationKey, IntegrationKeyStep> = {
+  'facebook-ads': {
+    component: <FacebookStep />,
+    fields: ['integration'],
+    title: '2. Set Up Facebook Connection',
+  },
+  'google-sheets': {
+    component: <GoogleSheetsStep />,
+    fields: ['integration'],
+    title: '2. Set Up Google Sheets Connection',
+  },
+  //! add integration form steps here
+  // 'google-ads': {
+  //   component: <GoogleStep />,
+  //   fields: ['integration'],
+  //   title: '2. Set Up Google Connection',
+  // },
+};
 
 export default function NewSyncForm() {
   const {
@@ -31,17 +60,9 @@ export default function NewSyncForm() {
 
   const form = useForm<z.infer<typeof NewSyncFormSchema>>({
     resolver: zodResolver(NewSyncFormSchema),
-    defaultValues: {
-      integration: {
-        integrationKey: '',
-        fbAdAccountId: '',
-        fbAdAccountName: '',
-        fbAudienceId: '',
-        fbAudienceName: '',
-      },
-      audienceId: '',
-    },
   });
+
+  const integrationKey = form.watch('integration.integrationKey');
 
   function onSubmit(values: z.infer<typeof NewSyncFormSchema>) {
     startTransition(() => {
@@ -63,7 +84,10 @@ export default function NewSyncForm() {
   }
 
   async function onNext() {
-    const isValid = await form.trigger(steps[step]?.fields);
+    const currentStep = getSteps(integrationKey)[step];
+    form.clearErrors();
+    const isValid = await form.trigger(currentStep?.fields);
+
     if (isValid) {
       setStep(step + 1);
     }
@@ -73,23 +97,23 @@ export default function NewSyncForm() {
     setStep(step - 1);
   }
 
-  const steps = [
-    {
-      component: <IntegrationStep onConnect={onNext} />,
-      fields: ['integration.integrationKey'],
-      title: '1. Select a Destination',
-    },
-    {
-      component: <FacebookStep />,
-      fields: ['integration.fbAdAccountId', 'integration.fbAudienceId'],
-      title: '2. Set Up Facebook Connection',
-    },
-    {
-      component: <AudienceStep />,
-      fields: ['audienceId'],
-      title: '3. Select Audience & Schedule Sync',
-    },
-  ] as const;
+  function getSteps(integrationKey: IntegrationKey): IntegrationKeyStep[] {
+    return [
+      {
+        component: <IntegrationStep onConnect={onNext} />,
+        fields: ['integration.integrationKey'],
+        title: '1. Select a Destination',
+      },
+      integrationStepMap[integrationKey],
+      {
+        component: <AudienceStep />,
+        fields: ['audienceId'],
+        title: '3. Select Audience & Schedule Sync',
+      },
+    ];
+  }
+
+  const steps = getSteps(integrationKey);
 
   return (
     <Form {...form}>

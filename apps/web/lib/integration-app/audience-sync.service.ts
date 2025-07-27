@@ -1,10 +1,11 @@
 import { SupabaseClient } from '@supabase/supabase-js';
 
-import { z } from 'zod';
+import { Json } from '@kit/supabase/database';
 
 import miscConfig from '~/config/misc.config';
 import { Database } from '~/lib/database.types';
 
+import { NewSyncFormSchema } from './schema/new-sync-form.schema';
 import { generateIntegrationToken } from './utils';
 
 export function createAudienceSyncService(client: SupabaseClient<Database>) {
@@ -32,21 +33,15 @@ class AudienceSyncService {
   }
 
   async createAudienceSync({
-    integrationKey,
-    fbAdAccountId,
-    fbAdAccountName,
-    fbAudienceId,
-    fbAudienceName,
     accountId,
     audienceId,
+    integrationKey,
+    integrationDetails,
   }: {
-    integrationKey: string;
-    fbAdAccountId: string;
-    fbAdAccountName: string;
-    fbAudienceId: string;
-    fbAudienceName: string;
     accountId: string;
     audienceId: string;
+    integrationKey: string;
+    integrationDetails: Json;
   }) {
     const { data, error } = await this.client
       .from('audience_sync')
@@ -54,12 +49,7 @@ class AudienceSyncService {
         account_id: accountId,
         audience_id: audienceId,
         integration_key: integrationKey,
-        integration_details: {
-          fb_ad_account_id: fbAdAccountId,
-          fb_ad_account_name: fbAdAccountName,
-          fb_audience_id: fbAudienceId,
-          fb_audience_name: fbAudienceName,
-        },
+        integration_details: integrationDetails,
       })
       .select()
       .single();
@@ -115,27 +105,51 @@ class AudienceSyncService {
       throw error;
     }
 
-    const integrationDetails = z
-      .object({
-        fb_ad_account_id: z.string(),
-        fb_ad_account_name: z.string(),
-        fb_audience_id: z.string(),
-        fb_audience_name: z.string(),
-      })
-      .parse(data.integration_details);
+    const integrationDetails = NewSyncFormSchema.shape.integration.parse(
+      data.integration_details,
+    );
 
-    const response = await fetch(`${miscConfig.syncApiUrl}/facebook/enqueue`, {
+    let endpoint: string;
+    const basePayload = {
+      audience_sync_id: syncId,
+      csv_url: csvUrl,
+      integration_jwt: generateIntegrationToken({
+        customerId: accountId,
+        customerName: accountId,
+      }),
+    };
+
+    switch (integrationDetails.integrationKey) {
+      case 'facebook-ads':
+        endpoint = `${miscConfig.audienceSync.fbSyncApiUrl}/facebook/enqueue`;
+        Object.assign(basePayload, {
+          fb_audience_id: integrationDetails.fbAudienceId,
+        });
+        break;
+      case 'google-sheets':
+        endpoint = `${miscConfig.audienceSync.googleSheetsApiUrl}/googlesheets/enqueue`;
+        Object.assign(basePayload, {
+          googleSheetsSpreadsheetId:
+            integrationDetails.googleSheetsSpreadsheetId,
+          googleSheetsSheetId: integrationDetails.googleSheetsSheetId,
+        });
+        break;
+      //! add other integrations and needed details for enqueue api here
+      // case 'google-ads':
+      //   endpoint = '/google/enqueue';
+      //   Object.assign(basePayload, {
+      //     google_audience_id: integrationDetails.googleAudienceId,
+      //   });
+      //   break;
+
+      default:
+        throw new Error(`Unsupported integration: ${data.integration_key}`);
+    }
+
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        audience_sync_id: syncId,
-        fb_audience_id: integrationDetails.fb_audience_id,
-        csv_url: csvUrl,
-        integration_jwt: generateIntegrationToken({
-          customerId: accountId,
-          customerName: accountId,
-        }),
-      }),
+      body: JSON.stringify(basePayload),
     });
 
     if (!response.ok) {

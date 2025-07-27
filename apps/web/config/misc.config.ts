@@ -18,11 +18,6 @@ const MiscConfigSchema = z.object({
     required_error:
       'Enrichment API URL is required. Please set the `ENRICH_API_URL` environment variable.',
   }),
-  syncApiUrl: z.string({
-    description: `Sync API URL.`,
-    required_error:
-      'Sync API URL is required. Please set the `SYNC_API_URL` environment variable.',
-  }),
   pixelApiUrl: z.string({
     description: `Pixel API URL.`,
     required_error:
@@ -77,13 +72,24 @@ const MiscConfigSchema = z.object({
         'Delivr Pixel Enterprise ID is required. Please set the `DELIVR_PIXEL_ENTERPRISE_ID` environment variable.',
     }),
   }),
+  audienceSync: z.object({
+    fbSyncApiUrl: z.string({
+      description: `Facebook Sync API URL.`,
+      required_error:
+        'Facebook Sync API URL is required. Please set the `FACEBOOK_SYNC_API_URL` environment variable.',
+    }),
+    googleSheetsApiUrl: z.string({
+      description: `Google Sheets API URL.`,
+      required_error:
+        'Google Sheets API URL is required. Please set the `GOOGLE_SHEETS_SYNC_API_URL` environment variable.',
+    }),
+  }),
 });
 
 const miscConfig = MiscConfigSchema.parse({
   typesenseApiKey: process.env.TYPESENSE_API_KEY,
   audienceApiUrl: process.env.AUDIENCE_API_URL,
   enrichmentApiUrl: process.env.ENRICH_API_URL,
-  syncApiUrl: process.env.SYNC_API_URL,
   pixelApiUrl: process.env.PIXEL_API_URL,
   googleCloud: {
     projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
@@ -101,6 +107,10 @@ const miscConfig = MiscConfigSchema.parse({
     appClientId: process.env.DELIVR_PIXEL_APP_CLIENT_ID,
     appClientSecret: process.env.DELIVR_PIXEL_APP_CLIENT_SECRET,
     enterpriseId: process.env.DELIVR_PIXEL_ENTERPRISE_ID,
+  },
+  audienceSync: {
+    fbSyncApiUrl: process.env.FACEBOOK_SYNC_API_URL,
+    googleSheetsApiUrl: process.env.GOOGLE_SHEETS_SYNC_API_URL,
   },
 });
 
