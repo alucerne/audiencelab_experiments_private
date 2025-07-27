@@ -92,7 +92,10 @@ export const createPixelExportAction = enhanceAction(
     const client = getSupabaseServerClient();
     const service = createPixelService(client);
 
-    const pixelExport = await service.createExport(data);
+    const pixelExport = await service.createExport({
+      pixelId: data.pixelId,
+      daysBack: parseInt(data.daysBack, 10),
+    });
 
     revalidatePath('/home/[account]/pixel', 'page');
 
@@ -101,6 +104,7 @@ export const createPixelExportAction = enhanceAction(
   {
     schema: z.object({
       pixelId: z.string(),
+      daysBack: z.enum(['1', '3', '7', '15', '30', '60', '90', '180']),
     }),
   },
 );

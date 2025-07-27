@@ -225,7 +225,8 @@ export default function CreditsUsage({
             <div className="bg-muted rounded-md p-3">
               <h4 className="mb-1 font-medium">Resolution Limit</h4>
               <p className="text-muted-foreground text-sm">
-                Maximum {pixel.sizeLimit.toLocaleString()} resolutions per pixel
+                Maximum {pixel.sizeLimit.toLocaleString()} resolutions for your
+                account
               </p>
             </div>
           </CardContent>

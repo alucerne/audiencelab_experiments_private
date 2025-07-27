@@ -1,7 +1,6 @@
 import { useIntegration } from '@integration-app/react';
 import { ColumnDef } from '@tanstack/react-table';
 import { format, parseISO } from 'date-fns';
-import { z } from 'zod';
 
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
 import {
@@ -12,7 +11,9 @@ import {
 } from '@kit/ui/tooltip';
 
 import StatusBadge from '~/components/ui/status-badge';
+import { Json } from '~/lib/database.types';
 import { AudienceSyncList } from '~/lib/integration-app/audience-sync.service';
+import { NewSyncFormSchema } from '~/lib/integration-app/schema/new-sync-form.schema';
 
 import SyncTableActions from './actions';
 
@@ -33,15 +34,6 @@ export const columns: ColumnDef<AudienceSyncList[number]>[] = [
     cell: ({ row: { original } }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const { integration } = useIntegration(original.integration_key);
-
-      const integrationDetails = z
-        .object({
-          fb_audience_id: z.string(),
-          fb_audience_name: z.string(),
-          fb_ad_account_id: z.string(),
-          fb_ad_account_name: z.string(),
-        })
-        .safeParse(original.integration_details);
 
       return (
         <TooltipProvider delayDuration={0}>
@@ -64,20 +56,9 @@ export const columns: ColumnDef<AudienceSyncList[number]>[] = [
               </div>
             </TooltipTrigger>
             <TooltipContent>
-              {integrationDetails.success ? (
-                <>
-                  <div>
-                    <span className="font-semibold">Ad Account:</span>{' '}
-                    {integrationDetails.data.fb_ad_account_name}
-                  </div>
-                  <div>
-                    <span className="font-semibold">Audience:</span>{' '}
-                    {integrationDetails.data.fb_audience_name}
-                  </div>
-                </>
-              ) : (
-                <div>Failed to get integration details</div>
-              )}
+              <IntegrationDetails
+                integrationDetails={original.integration_details}
+              />
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
@@ -121,4 +102,48 @@ export const columns: ColumnDef<AudienceSyncList[number]>[] = [
 
 function getDateString(date: Date) {
   return format(date, 'MMM d yyyy, h:mm a');
+}
+
+function IntegrationDetails({
+  integrationDetails,
+}: {
+  integrationDetails: Json;
+}) {
+  const parsedDetails =
+    NewSyncFormSchema.shape.integration.safeParse(integrationDetails);
+
+  if (!parsedDetails.success) {
+    return <div>Failed to get integration details</div>;
+  }
+
+  switch (parsedDetails.data.integrationKey) {
+    case 'facebook-ads':
+      return (
+        <>
+          <div>
+            <span className="font-semibold">Ad Account:</span>{' '}
+            {parsedDetails.data.fbAdAccountName}
+          </div>
+          <div>
+            <span className="font-semibold">Audience:</span>{' '}
+            {parsedDetails.data.fbAudienceName}
+          </div>
+        </>
+      );
+    case 'google-sheets':
+      return (
+        <>
+          <div>
+            <span className="font-semibold">Spreadsheet:</span>{' '}
+            {parsedDetails.data.googleSheetsSpreadsheetName}
+          </div>
+          <div>
+            <span className="font-semibold">Sheet (Tab):</span>{' '}
+            {parsedDetails.data.googleSheetsSheetName}
+          </div>
+        </>
+      );
+    default:
+      return <div>Failed to get integration details</div>;
+  }
 }

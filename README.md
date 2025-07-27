@@ -63,10 +63,12 @@
 
 4. and that's it, the web app will call the backend endpoint that exports the audience to the integration
 
-### dev tips
+### how to add integrations
 
-- the integrations/sync ui pages are in this folder: [`apps/web/app/home/[account]/(integrations)`](<apps/web/app/home/[account]/(integrations)>)
+1. add a details needed for the integration to [the new sync form schema here](/apps/web/lib/integration-app/schema/new-sync-form.schema.ts#L11-L25)
 
-- the core integration logic is in this folder: [`apps/web/lib/integration-app`](apps/web/lib/integration-app)
+2. create a form step component for the integration to get necessary details from the user and add it to [the new sync form here](</apps/web/app/home/[account]/(integrations)/sync/new/_components/new-sync-form.tsx#L38-L43>)
 
-- the database table for the integrations is here: [`20250513191256_audience_sync.sql`](apps/web/supabase/migrations/20250513191256_audience_sync.sql)
+3. the form will save the integration details for when the audience is synced via the backend enqueue api. to send the necessary integration details to the api, be sure to update [the endpoint call here](/apps/web/lib/integration-app/audience-sync.service.ts#L129-L135)
+
+4. [in this repo](https://github.com/AudienceLabV3/audience-sync), add an endpoint that handles parsing the audience and exporting it to the integration
