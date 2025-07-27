@@ -1705,6 +1705,15 @@ export type Database = {
         };
         Returns: boolean;
       };
+      create_api_key: {
+        Args: {
+          p_account_id: string;
+          p_name: string;
+          p_scopes: Json;
+          p_expires_at?: string;
+        };
+        Returns: Database['public']['CompositeTypes']['create_api_key_response'];
+      };
       create_audience_refresh_cron: {
         Args: {
           p_job_name: string;
@@ -1802,6 +1811,10 @@ export type Database = {
           updated_at: string;
         }[];
       };
+      get_api_key_account_id: {
+        Args: Record<PropertyKey, never>;
+        Returns: string;
+      };
       get_config: {
         Args: Record<PropertyKey, never>;
         Returns: Json;
@@ -1853,6 +1866,14 @@ export type Database = {
         };
         Returns: boolean;
       };
+      has_scope: {
+        Args: {
+          p_entity_type: string;
+          p_entity_id: string;
+          p_action: string;
+        };
+        Returns: boolean;
+      };
       is_account_owner: {
         Args: {
           account_id: string;
@@ -1878,12 +1899,45 @@ export type Database = {
         };
         Returns: boolean;
       };
+      list_api_keys: {
+        Args: {
+          p_account_id: string;
+        };
+        Returns: {
+          id: string;
+          name: string;
+          key_prefix: string;
+          scopes: Json;
+          expires_at: string;
+          created_at: string;
+          last_used_at: string;
+          is_active: boolean;
+          created_by: string;
+        }[];
+      };
+      log_api_key_usage: {
+        Args: {
+          p_api_key_id: string;
+          p_endpoint: string;
+          p_method: string;
+          p_status_code: number;
+          p_ip_address: string;
+          p_user_agent: string;
+        };
+        Returns: Database['public']['CompositeTypes']['api_key_usage_log_response'];
+      };
       remove_audience_cron_job: {
         Args: {
           p_job_name: string;
           p_audience_id: string;
         };
         Returns: undefined;
+      };
+      revoke_api_key: {
+        Args: {
+          p_api_key_id: string;
+        };
+        Returns: boolean;
       };
       revoke_nonce: {
         Args: {
@@ -1975,6 +2029,12 @@ export type Database = {
           updated_at: string;
         };
       };
+      verify_api_key: {
+        Args: {
+          p_api_key: string;
+        };
+        Returns: Database['public']['CompositeTypes']['verify_api_key_response'];
+      };
       verify_nonce: {
         Args: {
           p_token: string;
@@ -2012,9 +2072,32 @@ export type Database = {
         | 'paused';
     };
     CompositeTypes: {
+      api_key_usage_log_response: {
+        success: boolean | null;
+        log_id: string | null;
+        timestamp: string | null;
+        error: string | null;
+        error_code: string | null;
+      };
+      create_api_key_response: {
+        id: string | null;
+        name: string | null;
+        key: string | null;
+        key_prefix: string | null;
+        account_id: string | null;
+        scopes: Json | null;
+        expires_at: string | null;
+        created_at: string | null;
+      };
       invitation: {
         email: string | null;
         role: string | null;
+      };
+      verify_api_key_response: {
+        valid: boolean | null;
+        api_key_id: string | null;
+        account_id: string | null;
+        error: string | null;
       };
     };
   };

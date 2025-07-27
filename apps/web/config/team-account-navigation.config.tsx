@@ -5,6 +5,7 @@ import {
   CreditCard,
   FileChartColumn,
   House,
+  KeyRound,
   LayoutTemplate,
   Plug,
   Settings,
@@ -111,6 +112,11 @@ const getRoutes = (account: string, isWhiteLabelHost: boolean) => [
             Icon: <CreditCard className={iconClasses} />,
           }
         : undefined,
+      {
+        label: 'API Keys',
+        path: createPath(pathsConfig.app.accountApiKeys, account),
+        Icon: <KeyRound className={iconClasses} />,
+      },
     ].filter(Boolean),
   },
 ];
