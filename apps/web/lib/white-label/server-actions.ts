@@ -164,18 +164,3 @@ export const updateSignupLinkPermissionsAction = enhanceAction(
     schema: CreditsFormSchema,
   },
 );
-
-export const getLogosByDomainAction = enhanceAction(
-  async (data) => {
-    const client = getSupabaseServerClient();
-    const service = createWhiteLabelService(client);
-
-    return service.getLogosByDomain(data.domain);
-  },
-  {
-    schema: z.object({
-      domain: z.string(),
-    }),
-    auth: false,
-  },
-);

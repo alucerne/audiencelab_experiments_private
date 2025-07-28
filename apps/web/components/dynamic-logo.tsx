@@ -1,13 +1,12 @@
-'use client';
+'use server';
 
+import { headers } from 'next/headers';
 import Image from 'next/image';
 import Link from 'next/link';
 
-import { useQuery } from '@tanstack/react-query';
-
 import { cn } from '@kit/ui/utils';
 
-import { getLogosByDomainAction } from '~/lib/white-label/server-actions';
+import { loadBrandingDetails } from '~/lib/server/load-branding-details';
 import logo from '~/public/images/logo.png';
 
 function LogoImage({
@@ -41,7 +40,7 @@ function LogoImage({
   );
 }
 
-export function DynamicLogo({
+export async function DynamicLogo({
   href,
   label,
   className,
@@ -50,23 +49,14 @@ export function DynamicLogo({
   className?: string;
   label?: string;
 }) {
-  const domain = typeof window !== 'undefined' ? window.location.hostname : '';
+  const headersStore = await headers();
 
-  const { data, isLoading } = useQuery({
-    queryKey: ['logo', domain],
-    queryFn: () => getLogosByDomainAction({ domain }),
-    enabled: !!domain,
-    staleTime: 60 * 60 * 1000,
-  });
+  const branding = await loadBrandingDetails(headersStore.get('host') || '');
 
-  if (isLoading) {
-    return null;
-  }
-
-  const logoSrc = data?.logo_url || logo.src;
+  const logoSrc = branding?.logo_url || logo.src;
 
   const image = (
-    <LogoImage src={logoSrc} className={className} og={!data?.logo_url} />
+    <LogoImage src={logoSrc} className={className} og={!branding?.logo_url} />
   );
 
   if (href === null) return image;
