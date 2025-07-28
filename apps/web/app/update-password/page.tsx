@@ -15,7 +15,7 @@ export const generateMetadata = async () => {
   };
 };
 
-const Logo = () => <DynamicLogo href={''} />;
+const Logo = () => <DynamicLogo />;
 
 interface UpdatePasswordPageProps {
   searchParams: Promise<{

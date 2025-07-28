@@ -412,10 +412,10 @@ class WhiteLabelService {
     return data;
   }
 
-  async getLogosByDomain(domain: string) {
+  async getPublicBranding(domain: string) {
     const { data, error } = await this.client
       .from('whitelabel_branding')
-      .select('logo_url, icon_url')
+      .select('*')
       .eq('domain', domain)
       .eq('domain_verified', true)
       .maybeSingle();
