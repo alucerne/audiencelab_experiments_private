@@ -20,16 +20,14 @@ export const generateRootMetadata = async (): Promise<Metadata> => {
     title: branding?.company_name || appConfig.title,
     description: branding?.company_name || appConfig.description,
     metadataBase: branding?.domain
-      ? new URL(branding.domain)
+      ? new URL(normalizeUrl(branding.domain))
       : new URL(appConfig.url),
     applicationName: branding?.company_name || appConfig.name,
     other: {
       'csrf-token': csrfToken,
     },
     openGraph: {
-      url: branding?.domain
-        ? new URL(branding.domain).toString()
-        : appConfig.url,
+      url: branding?.domain ? normalizeUrl(branding.domain) : appConfig.url,
       siteName: branding?.company_name || appConfig.name,
       title: branding?.company_name || appConfig.title,
       description: branding?.company_name || appConfig.description,
@@ -41,3 +39,10 @@ export const generateRootMetadata = async (): Promise<Metadata> => {
     },
   };
 };
+
+function normalizeUrl(url: string): string {
+  if (!/^https?:\/\//i.test(url)) {
+    return `https://${url}`;
+  }
+  return url;
+}
