@@ -25,7 +25,9 @@ export default function IntegrationStep({
     refresh,
     loading: integrationsIsLoading,
     error,
-  } = useIntegrations();
+  } = useIntegrations({
+    search: 'facebook-ads',
+  });
 
   return (
     <div>
