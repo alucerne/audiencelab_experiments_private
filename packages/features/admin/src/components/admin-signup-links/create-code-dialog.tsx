@@ -4,19 +4,14 @@ import { useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { format } from 'date-fns';
-import {
-  CalendarIcon,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-} from 'lucide-react';
+import { CalendarIcon, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
 import { Button } from '@kit/ui/button';
 import { Calendar } from '@kit/ui/calendar';
+import CopyButton from '@kit/ui/copy-button';
 import {
   Dialog,
   DialogContent,
@@ -479,37 +474,5 @@ function Step2() {
         />
       </div>
     </>
-  );
-}
-
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <Button
-      onClick={handleCopy}
-      variant="ghost"
-      className="gap-2"
-      size="sm"
-      type="button"
-    >
-      {copied ? (
-        <>
-          <Check className="size-3.5" />
-          <span>Copied</span>
-        </>
-      ) : (
-        <>
-          <Copy className="size-3.5" />
-          <span>Copy</span>
-        </>
-      )}
-    </Button>
   );
 }

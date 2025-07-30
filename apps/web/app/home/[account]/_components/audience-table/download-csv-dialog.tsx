@@ -1,11 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-
 import { format, parseISO } from 'date-fns';
-import { Check, Copy } from 'lucide-react';
 
 import { Button } from '@kit/ui/button';
+import CopyButton from '@kit/ui/copy-button';
 import {
   Dialog,
   DialogClose,
@@ -113,27 +111,5 @@ export function DownloadCsvDialog({
         </div>
       </DialogContent>
     </Dialog>
-  );
-}
-
-function CopyButton({ value, label }: { value: string; label: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <Button
-      onClick={handleCopy}
-      variant="ghost"
-      className="h-fit gap-2 px-2 py-1"
-      size="sm"
-    >
-      <span>{label}</span>
-      {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-    </Button>
   );
 }
