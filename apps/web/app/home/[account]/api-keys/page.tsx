@@ -1,3 +1,5 @@
+import { ExternalLink } from 'lucide-react';
+
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 import { AppBreadcrumbs } from '@kit/ui/app-breadcrumbs';
 import {
@@ -7,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@kit/ui/card';
+import CopyButton from '@kit/ui/copy-button';
 import { PageBody } from '@kit/ui/page';
 
 import { createApiKeysService } from '~/lib/api-keys/api-keys.service';
@@ -50,12 +53,28 @@ async function TeamAccountApiKeysPage({ params }: TeamAccountApiKeysPageProps) {
                   Here you can manage your API keys. Use them to authenticate
                   requests to our public API.
                 </CardDescription>
+                <a
+                  href="https://audiencelab.mintlify.app/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-sm hover:underline"
+                >
+                  View the API documentation.
+                  <ExternalLink className="size-3.5" />
+                </a>
               </div>
-
               <CreateApiKeyDialog />
             </CardHeader>
-
-            <CardContent>
+            <CardContent className="flex flex-col gap-4">
+              <div className="flex flex-col gap-y-2">
+                <p className="text-sm font-medium">API Domain:</p>
+                <div className="flex items-center space-x-2">
+                  <div className="bg-muted w-fit rounded px-2.5 py-1 text-sm">
+                    https://v3-api-job-72802495918.us-east1.run.app
+                  </div>
+                  <CopyButton value="https://v3-api-job-72802495918.us-east1.run.app" />
+                </div>
+              </div>
               <ApiKeysTable apiKeys={apiKeys} />
             </CardContent>
           </Card>

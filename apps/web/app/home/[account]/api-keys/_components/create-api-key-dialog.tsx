@@ -4,13 +4,7 @@ import { useState, useTransition } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ExclamationTriangleIcon } from '@radix-ui/react-icons';
-import {
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Copy,
-  PlusCircle,
-} from 'lucide-react';
+import { ChevronLeft, ChevronRight, PlusCircle } from 'lucide-react';
 import { useForm, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
@@ -18,6 +12,7 @@ import { z } from 'zod';
 import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
 import { Alert, AlertDescription, AlertTitle } from '@kit/ui/alert';
 import { Button } from '@kit/ui/button';
+import CopyButton from '@kit/ui/copy-button';
 import {
   Dialog,
   DialogContent,
@@ -100,13 +95,14 @@ function CreateApiKeyForm() {
             />
             <CopyButton value={key} />
           </div>
-          <Alert variant={'destructive'} className='mt-8'>
+          <Alert variant={'destructive'} className="mt-8">
             <ExclamationTriangleIcon className={'h-4'} />
             <AlertTitle>
               Copy and store it securely now — it won&apos;t be shown again.
             </AlertTitle>
             <AlertDescription>
-              This key grants access to your account&apos;s data via our public API.
+              This key grants access to your account&apos;s data via our public
+              API.
             </AlertDescription>
           </Alert>
         </div>
@@ -214,37 +210,5 @@ function Step1() {
         </FormItem>
       )}
     />
-  );
-}
-
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <Button
-      onClick={handleCopy}
-      variant="ghost"
-      className="gap-2"
-      size="sm"
-      type="button"
-    >
-      {copied ? (
-        <>
-          <Check className="size-3.5" />
-          <span>Copied</span>
-        </>
-      ) : (
-        <>
-          <Copy className="size-3.5" />
-          <span>Copy</span>
-        </>
-      )}
-    </Button>
   );
 }

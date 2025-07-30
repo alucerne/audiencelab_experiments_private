@@ -1,11 +1,10 @@
-import { useState } from 'react';
-
 import { ColumnDef } from '@tanstack/react-table';
 import { format, isBefore, parseISO } from 'date-fns';
-import { Check, Copy, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 
 import { Badge } from '@kit/ui/badge';
 import { Button } from '@kit/ui/button';
+import CopyButton from '@kit/ui/copy-button';
 import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
 import {
   Tooltip,
@@ -131,34 +130,4 @@ export const getColumns = (signupUrl: string): ColumnDef<SignupLinkData>[] => [
 
 function getDateString(date: Date) {
   return format(date, 'MMM d yyyy, h:mm a');
-}
-
-function CopyButton({ value }: { value: string }) {
-  const [copied, setCopied] = useState(false);
-
-  function handleCopy() {
-    navigator.clipboard.writeText(value);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  }
-
-  return (
-    <TooltipProvider delayDuration={300}>
-      <Tooltip>
-        <TooltipTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="size-7"
-            onClick={handleCopy}
-          >
-            {copied ? <Check size={14} /> : <Copy size={14} />}
-          </Button>
-        </TooltipTrigger>
-        <TooltipContent>
-          <p>Copy Link</p>
-        </TooltipContent>
-      </Tooltip>
-    </TooltipProvider>
-  );
 }

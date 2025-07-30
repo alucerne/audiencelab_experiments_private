@@ -131,7 +131,8 @@
     "./toggle-group": "./src/shadcn/toggle-group.tsx",
     "./progress": "./src/shadcn/progress.tsx",
     "./slider": "./src/shadcn/slider.tsx",
-    "./data-table-utils": "./src/data-table/index.ts"
+    "./data-table-utils": "./src/data-table/index.ts",
+    "./copy-button": "./src/copy-button.tsx"
   },
   "typesVersions": {
     "*": {
