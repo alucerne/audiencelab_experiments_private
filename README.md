@@ -21,7 +21,9 @@
    pnpm run supabase:web:start
    ```
 
-3. start nextjs
+3. add necessary env values to `apps/web/.env.local`
+
+4. start nextjs
 
    ```bash
    pnpm dev
