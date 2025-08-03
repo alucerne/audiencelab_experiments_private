@@ -68,16 +68,22 @@ class WhiteLabelService {
       };
     }
 
-    const requiredFields: (keyof typeof data)[] = [
-      'company_name',
-      'logo_url',
-      'icon_url',
-      'domain',
-    ];
+    const requiredFields: (keyof typeof data)[] = process.env.NODE_ENV === 'development' 
+      ? [
+          'company_name',
+          'logo_url',
+          'icon_url',
+        ]
+      : [
+          'company_name',
+          'logo_url',
+          'icon_url',
+          'domain',
+        ];
 
     const missing = requiredFields.filter((field) => !data[field]);
 
-    if (!data.domain_verified) {
+    if (process.env.NODE_ENV !== 'development' && !data.domain_verified) {
       missing.push('domain_verified');
     }
 
@@ -313,7 +319,18 @@ class WhiteLabelService {
     accountId,
     signup,
     permissions,
-  }: z.infer<typeof SignupLinkFormSchema> & { accountId: string }) {
+    resellPrices,
+    totalAmountCents,
+  }: z.infer<typeof SignupLinkFormSchema> & { 
+    accountId: string;
+    resellPrices?: {
+      audience: number;
+      custom_model: number;
+      enrichment: number;
+      pixel: number;
+    };
+    totalAmountCents?: number;
+  }) {
     const { data: hostCredits, error: creditError } = await this.client
       .from('whitelabel_credits')
       .select('*')
@@ -361,6 +378,8 @@ class WhiteLabelService {
         max_usage: signup.max_usage,
         expires_at: signup.expires_at?.toISOString(),
         permissions,
+        resell_prices: resellPrices,
+        total_amount_cents: totalAmountCents,
       })
       .select()
       .single();

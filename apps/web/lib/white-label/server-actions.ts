@@ -131,6 +131,13 @@ export const createWhiteLabelSignupLinkAction = enhanceAction(
   {
     schema: SignupLinkFormSchema.extend({
       accountId: z.string(),
+      resellPrices: z.object({
+        audience: z.number().min(0),
+        custom_model: z.number().min(0),
+        enrichment: z.number().min(0),
+        pixel: z.number().min(0),
+      }).optional(),
+      totalAmountCents: z.number().min(0).optional(),
     }),
   },
 );

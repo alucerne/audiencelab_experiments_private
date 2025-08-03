@@ -75,6 +75,14 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
   const [pending, startTransition] = useTransition();
   const [step, setStep] = useState(0);
   const [generatedCode, setGeneratedCode] = useState<string | null>(null);
+  
+  // State for resell prices - moved to parent component
+  const [resellPrices, setResellPrices] = useState({
+    audience: 0,
+    custom_model: 0,
+    enrichment: 0,
+    pixel: 0,
+  });
 
   const form = useForm<z.infer<typeof SignupLinkFormSchema>>({
     resolver: zodResolver(SignupLinkFormSchema),
@@ -103,34 +111,72 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
       fields: ['signup'],
     },
     {
-      component: <Step2 />,
+      component: <Step2 resellPrices={resellPrices} setResellPrices={setResellPrices} />,
       fields: ['permissions'],
     },
     {
       component: generatedCode ? (
         <>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Signup Code:</p>
-            <div className="flex items-center space-x-2">
-              <input
-                className="w-full rounded border px-2 py-1 text-sm"
-                readOnly
-                value={generatedCode}
-              />
-              <CopyButton value={generatedCode} />
+          <div className="space-y-4">
+            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+              <h3 className="font-medium text-blue-800 mb-2">Magic Signup Link (Recommended)</h3>
+              <p className="text-sm text-blue-700 mb-3">
+                This link includes embedded payment processing. Clients can sign up and pay in one seamless flow.
+              </p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Magic Signup Link:</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    readOnly
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/signup-magic?agency_id=${accountId}&amount_cents=${Math.round(
+                      ((form.getValues('permissions')?.monthly_audience_limit || 0) * resellPrices.audience +
+                       (form.getValues('permissions')?.max_custom_interests || 0) * resellPrices.custom_model +
+                       (form.getValues('permissions')?.monthly_enrichment_limit || 0) * resellPrices.enrichment +
+                       (form.getValues('permissions')?.monthly_pixel_limit || 0) * resellPrices.pixel) * 100
+                    )}&plan_id=${generatedCode}`}
+                  />
+                  <CopyButton
+                    value={`${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/signup-magic?agency_id=${accountId}&amount_cents=${Math.round(
+                      ((form.getValues('permissions')?.monthly_audience_limit || 0) * resellPrices.audience +
+                       (form.getValues('permissions')?.max_custom_interests || 0) * resellPrices.custom_model +
+                       (form.getValues('permissions')?.monthly_enrichment_limit || 0) * resellPrices.enrichment +
+                       (form.getValues('permissions')?.monthly_pixel_limit || 0) * resellPrices.pixel) * 100
+                    )}&plan_id=${generatedCode}`}
+                  />
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="space-y-2">
-            <p className="text-sm font-medium">Signup Link:</p>
-            <div className="flex items-center space-x-2">
-              <input
-                className="w-full rounded border px-2 py-1 text-sm"
-                readOnly
-                value={`${signupUrl}?code=${encodeURIComponent(generatedCode)}`}
-              />
-              <CopyButton
-                value={`${signupUrl}?code=${encodeURIComponent(generatedCode)}`}
-              />
+
+            <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
+              <h3 className="font-medium text-gray-800 mb-2">Standard Signup Link</h3>
+              <p className="text-sm text-gray-600 mb-3">
+                Traditional signup link without payment processing.
+              </p>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Signup Code:</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    readOnly
+                    value={generatedCode}
+                  />
+                  <CopyButton value={generatedCode} />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <p className="text-sm font-medium">Signup Link:</p>
+                <div className="flex items-center space-x-2">
+                  <input
+                    className="w-full rounded border px-2 py-1 text-sm"
+                    readOnly
+                    value={`${signupUrl}?code=${encodeURIComponent(generatedCode)}`}
+                  />
+                  <CopyButton
+                    value={`${signupUrl}?code=${encodeURIComponent(generatedCode)}`}
+                  />
+                </div>
+              </div>
             </div>
           </div>
         </>
@@ -143,10 +189,23 @@ function CreateCodeForm({ signupUrl }: { signupUrl: string }) {
 
   function onSubmit(values: z.infer<typeof SignupLinkFormSchema>) {
     startTransition(() => {
+      // Get assigned credits from form values
+      const assignedCredits = values.permissions;
+      
+      // Calculate total amount from resell prices
+      const totalAmountCents = Math.round(
+        ((assignedCredits?.monthly_audience_limit || 0) * resellPrices.audience +
+         (assignedCredits?.max_custom_interests || 0) * resellPrices.custom_model +
+         (assignedCredits?.monthly_enrichment_limit || 0) * resellPrices.enrichment +
+         (assignedCredits?.monthly_pixel_limit || 0) * resellPrices.pixel) * 100
+      );
+
       toast.promise(
         createWhiteLabelSignupLinkAction({
           ...values,
           accountId,
+          resellPrices,
+          totalAmountCents,
         }),
         {
           loading: 'Creating signup link...',
@@ -325,8 +384,35 @@ function Step1() {
   );
 }
 
-function Step2() {
-  const { control } = useFormContext<z.infer<typeof SignupLinkFormSchema>>();
+function Step2({ 
+  resellPrices, 
+  setResellPrices 
+}: { 
+  resellPrices: { audience: number; custom_model: number; enrichment: number; pixel: number };
+  setResellPrices: (prices: { audience: number; custom_model: number; enrichment: number; pixel: number }) => void;
+}) {
+  const { control, watch } = useFormContext<z.infer<typeof SignupLinkFormSchema>>();
+  
+  // Watch the assigned credits to calculate totals
+  const assignedCredits = watch('permissions');
+
+  // Calculate totals
+  const calculateTotals = () => {
+    const audienceTotal = (assignedCredits?.monthly_audience_limit || 0) * resellPrices.audience;
+    const customModelTotal = (assignedCredits?.max_custom_interests || 0) * resellPrices.custom_model;
+    const enrichmentTotal = (assignedCredits?.monthly_enrichment_limit || 0) * resellPrices.enrichment;
+    const pixelTotal = (assignedCredits?.monthly_pixel_limit || 0) * resellPrices.pixel;
+    
+    return {
+      audienceTotal,
+      customModelTotal,
+      enrichmentTotal,
+      pixelTotal,
+      estimatedMonthlyBill: audienceTotal + customModelTotal + enrichmentTotal + pixelTotal,
+    };
+  };
+
+  const totals = calculateTotals();
 
   return (
     <>
@@ -334,6 +420,8 @@ function Step2() {
         When allocating permissions, ensure they do not exceed your
         white-label&apos;s total credits.
       </div>
+      
+      {/* Existing credit allocation form */}
       <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
         <FormField
           control={control}
@@ -429,63 +517,147 @@ function Step2() {
             </FormItem>
           )}
         />
-
         <FormField
           control={control}
           name="permissions.max_custom_interests"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Max Custom Intents</FormLabel>
+              <FormLabel>Max Custom Interests</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>
               <FormDescription>
-                Maximum number of custom intents allowed
+                Maximum custom interests allowed
               </FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
       </div>
-      <div className="grid gap-4 md:grid-cols-2">
-        <FormField
-          control={control}
-          name="permissions.b2b_access"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">B2B Access</FormLabel>
-                <FormDescription>Enable access to B2B features</FormDescription>
-              </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+
+      {/* Resell Credits Section */}
+      <div className="mt-8">
+        <div className="bg-card text-card-foreground rounded-xl border">
+          <div className="flex flex-col space-y-1.5 p-6">
+            <h3 className="leading-none font-semibold tracking-tight">Resell Credits</h3>
+          </div>
+          <div className="p-6 pt-0 space-y-6">
+            {/* Pricing Form */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Audience Credit Price ($)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={resellPrices.audience}
+                  onChange={(e) => setResellPrices(prev => ({
+                    ...prev,
+                    audience: parseFloat(e.target.value) || 0
+                  }))}
+                  placeholder="0.00"
                 />
-              </FormControl>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="permissions.intent_access"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
-              <div className="space-y-0.5">
-                <FormLabel className="text-base">Intent Access</FormLabel>
-                <FormDescription>
-                  Enable access to intent data features
-                </FormDescription>
               </div>
-              <FormControl>
-                <Switch
-                  checked={field.value}
-                  onCheckedChange={field.onChange}
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Custom Model Credit Price ($)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={resellPrices.custom_model}
+                  onChange={(e) => setResellPrices(prev => ({
+                    ...prev,
+                    custom_model: parseFloat(e.target.value) || 0
+                  }))}
+                  placeholder="0.00"
                 />
-              </FormControl>
-            </FormItem>
-          )}
-        />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Enrichment Credit Price ($)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={resellPrices.enrichment}
+                  onChange={(e) => setResellPrices(prev => ({
+                    ...prev,
+                    enrichment: parseFloat(e.target.value) || 0
+                  }))}
+                  placeholder="0.00"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <label className="text-sm font-medium">Pixel Credit Price ($)</label>
+                <Input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={resellPrices.pixel}
+                  onChange={(e) => setResellPrices(prev => ({
+                    ...prev,
+                    pixel: parseFloat(e.target.value) || 0
+                  }))}
+                  placeholder="0.00"
+                />
+              </div>
+            </div>
+
+            {/* Preview Box */}
+            <div className="bg-muted rounded-lg p-4 space-y-3">
+              <h4 className="font-medium">Monthly Bill Preview</h4>
+              
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>Monthly Credits Assigned:</span>
+                  <span className="font-medium">
+                    Audience: {assignedCredits?.monthly_audience_limit || 0} | 
+                    Custom Model: {assignedCredits?.max_custom_interests || 0} | 
+                    Enrichment: {assignedCredits?.monthly_enrichment_limit || 0} | 
+                    Pixel: {assignedCredits?.monthly_pixel_limit || 0}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span>Audience Credit Total:</span>
+                  <span className="font-medium">
+                    {(assignedCredits?.monthly_audience_limit || 0)} × ${resellPrices.audience.toFixed(2)} = ${totals.audienceTotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span>Custom Model Credit Total:</span>
+                  <span className="font-medium">
+                    {(assignedCredits?.max_custom_interests || 0)} × ${resellPrices.custom_model.toFixed(2)} = ${totals.customModelTotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span>Enrichment Credit Total:</span>
+                  <span className="font-medium">
+                    {(assignedCredits?.monthly_enrichment_limit || 0)} × ${resellPrices.enrichment.toFixed(2)} = ${totals.enrichmentTotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="flex justify-between">
+                  <span>Pixel Credit Total:</span>
+                  <span className="font-medium">
+                    {(assignedCredits?.monthly_pixel_limit || 0)} × ${resellPrices.pixel.toFixed(2)} = ${totals.pixelTotal.toFixed(2)}
+                  </span>
+                </div>
+                
+                <div className="border-t pt-2 mt-2">
+                  <div className="flex justify-between font-semibold">
+                    <span>Estimated Monthly Bill:</span>
+                    <span>${totals.estimatedMonthlyBill.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );

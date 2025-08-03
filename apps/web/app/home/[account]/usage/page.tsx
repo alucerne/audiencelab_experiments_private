@@ -9,6 +9,7 @@ import { createCreditsService } from '~/lib/credits/credits.service';
 import { TeamAccountLayoutPageHeader } from '../_components/team-account-layout-page-header';
 import { loadTeamWorkspace } from '../_lib/server/team-account-workspace.loader';
 import CreditsUsage from './_components/credits-usage';
+import AddCreditsPanel from './_components/add-credits-panel';
 
 export default function TeamAccountUsagePage({
   params,
@@ -36,6 +37,7 @@ export default function TeamAccountUsagePage({
       <PageBody>
         <div className={'flex w-full max-w-4xl flex-col space-y-4 pb-32'}>
           <CreditsUsage {...creditsData} />
+          <AddCreditsPanel clientId={id} agencyId={id} />
         </div>
       </PageBody>
     </>
