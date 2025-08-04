@@ -76,6 +76,33 @@ export const getColumns = (signupUrl: string): ColumnDef<SignupLinkData>[] => [
     },
   },
   {
+    accessorKey: 'permissions',
+    accessorFn: (row) => row.permissions,
+    header: ({ column }) => (
+      <DataTableColumnHeader column={column} title="Permissions" />
+    ),
+    cell({ row: { original } }) {
+      const permissions = original.permissions;
+      
+      return (
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium">B2B:</span>
+            <Badge variant={permissions.b2b_access ? "success" : "secondary"} className="text-xs">
+              {permissions.b2b_access ? "Enabled" : "Disabled"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-medium">Intent:</span>
+            <Badge variant={permissions.intent_access ? "success" : "secondary"} className="text-xs">
+              {permissions.intent_access ? "Enabled" : "Disabled"}
+            </Badge>
+          </div>
+        </div>
+      );
+    },
+  },
+  {
     accessorKey: 'usages',
     accessorFn: (row) => row.signup_code_usages.length,
     header: ({ column }) => (

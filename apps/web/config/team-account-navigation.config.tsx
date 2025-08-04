@@ -11,6 +11,7 @@ import {
   Settings,
   UserSearch,
   Users,
+  Palette,
 } from 'lucide-react';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -34,6 +35,11 @@ const getRoutes = (account: string, isWhiteLabelHost: boolean) => [
         label: 'Enrichment',
         path: pathsConfig.app.accountEnrichment.replace('[account]', account),
         Icon: <UserSearch className={iconClasses} />,
+      },
+      {
+        label: 'Studio',
+        path: pathsConfig.app.accountStudio.replace('[account]', account),
+        Icon: <Palette className={iconClasses} />,
       },
     ],
   },

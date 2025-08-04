@@ -1,0 +1,662 @@
+[
+  {
+    "domain": "perplexity.ai",
+    "enrich_company": "Perplexity",
+    "url": "https://linkedin.com/company/perplexity-ai"
+  },
+  {
+    "domain": "databricks.com",
+    "enrich_company": "Databricks",
+    "url": "https://linkedin.com/company/databricks"
+  },
+  {
+    "domain": "openai.com",
+    "enrich_company": "OpenAI",
+    "url": "https://linkedin.com/company/openai"
+  },
+  {
+    "domain": "anthropic.com",
+    "enrich_company": "Anthropic",
+    "url": "https://linkedin.com/company/anthropic-ai"
+  },
+  {
+    "domain": "cohere.ai",
+    "enrich_company": "Cohere",
+    "url": "https://linkedin.com/company/cohere-ai"
+  },
+  {
+    "domain": "huggingface.co",
+    "enrich_company": "Hugging Face",
+    "url": "https://linkedin.com/company/huggingface"
+  },
+  {
+    "domain": "stability.ai",
+    "enrich_company": "Stability AI",
+    "url": "https://linkedin.com/company/stability-ai"
+  },
+  {
+    "domain": "midjourney.com",
+    "enrich_company": "Midjourney",
+    "url": "https://linkedin.com/company/midjourney"
+  },
+  {
+    "domain": "runwayml.com",
+    "enrich_company": "Runway",
+    "url": "https://linkedin.com/company/runwayml"
+  },
+  {
+    "domain": "replicate.com",
+    "enrich_company": "Replicate",
+    "url": "https://linkedin.com/company/replicate-ai"
+  },
+  {
+    "domain": "scale.com",
+    "enrich_company": "Scale AI",
+    "url": "https://linkedin.com/company/scale-ai"
+  },
+  {
+    "domain": "tome.app",
+    "enrich_company": "Tome",
+    "url": "https://linkedin.com/company/tome-app"
+  },
+  {
+    "domain": "notion.so",
+    "enrich_company": "Notion",
+    "url": "https://linkedin.com/company/notion-so"
+  },
+  {
+    "domain": "figma.com",
+    "enrich_company": "Figma",
+    "url": "https://linkedin.com/company/figma"
+  },
+  {
+    "domain": "canva.com",
+    "enrich_company": "Canva",
+    "url": "https://linkedin.com/company/canva"
+  },
+  {
+    "domain": "slack.com",
+    "enrich_company": "Slack",
+    "url": "https://linkedin.com/company/slack"
+  },
+  {
+    "domain": "discord.com",
+    "enrich_company": "Discord",
+    "url": "https://linkedin.com/company/discord"
+  },
+  {
+    "domain": "zoom.us",
+    "enrich_company": "Zoom",
+    "url": "https://linkedin.com/company/zoom-video-communications"
+  },
+  {
+    "domain": "teams.microsoft.com",
+    "enrich_company": "Microsoft Teams",
+    "url": "https://linkedin.com/company/microsoft"
+  },
+  {
+    "domain": "asana.com",
+    "enrich_company": "Asana",
+    "url": "https://linkedin.com/company/asana"
+  },
+  {
+    "domain": "trello.com",
+    "enrich_company": "Trello",
+    "url": "https://linkedin.com/company/trello"
+  },
+  {
+    "domain": "monday.com",
+    "enrich_company": "Monday.com",
+    "url": "https://linkedin.com/company/monday-com"
+  },
+  {
+    "domain": "clickup.com",
+    "enrich_company": "ClickUp",
+    "url": "https://linkedin.com/company/clickup"
+  },
+  {
+    "domain": "airtable.com",
+    "enrich_company": "Airtable",
+    "url": "https://linkedin.com/company/airtable"
+  },
+  {
+    "domain": "roamresearch.com",
+    "enrich_company": "Roam Research",
+    "url": "https://linkedin.com/company/roam-research"
+  },
+  {
+    "domain": "obsidian.md",
+    "enrich_company": "Obsidian",
+    "url": "https://linkedin.com/company/obsidian"
+  },
+  {
+    "domain": "logseq.com",
+    "enrich_company": "Logseq",
+    "url": "https://linkedin.com/company/logseq"
+  },
+  {
+    "domain": "craft.do",
+    "enrich_company": "Craft",
+    "url": "https://linkedin.com/company/craft-do"
+  },
+  {
+    "domain": "bear.app",
+    "enrich_company": "Bear",
+    "url": "https://linkedin.com/company/bear-app"
+  },
+  {
+    "domain": "ulysses.app",
+    "enrich_company": "Ulysses",
+    "url": "https://linkedin.com/company/ulysses"
+  },
+  {
+    "domain": "scrivener.com",
+    "enrich_company": "Scrivener",
+    "url": "https://linkedin.com/company/scrivener"
+  },
+  {
+    "domain": "grammarly.com",
+    "enrich_company": "Grammarly",
+    "url": "https://linkedin.com/company/grammarly"
+  },
+  {
+    "domain": "hemingwayapp.com",
+    "enrich_company": "Hemingway Editor",
+    "url": "https://linkedin.com/company/hemingway-editor"
+  },
+  {
+    "domain": "prowritingaid.com",
+    "enrich_company": "ProWritingAid",
+    "url": "https://linkedin.com/company/prowritingaid"
+  },
+  {
+    "domain": "ginger.com",
+    "enrich_company": "Ginger",
+    "url": "https://linkedin.com/company/ginger-software"
+  },
+  {
+    "domain": "whitesmoke.com",
+    "enrich_company": "WhiteSmoke",
+    "url": "https://linkedin.com/company/whitesmoke"
+  },
+  {
+    "domain": "languagetool.org",
+    "enrich_company": "LanguageTool",
+    "url": "https://linkedin.com/company/languagetool"
+  },
+  {
+    "domain": "slickwrite.com",
+    "enrich_company": "Slick Write",
+    "url": "https://linkedin.com/company/slickwrite"
+  },
+  {
+    "domain": "paperrater.com",
+    "enrich_company": "PaperRater",
+    "url": "https://linkedin.com/company/paperrater"
+  },
+  {
+    "domain": "readable.com",
+    "enrich_company": "Readable",
+    "url": "https://linkedin.com/company/readable"
+  },
+  {
+    "domain": "copyscape.com",
+    "enrich_company": "Copyscape",
+    "url": "https://linkedin.com/company/copyscape"
+  },
+  {
+    "domain": "plagiarismchecker.com",
+    "enrich_company": "Plagiarism Checker",
+    "url": "https://linkedin.com/company/plagiarism-checker"
+  },
+  {
+    "domain": "turnitin.com",
+    "enrich_company": "Turnitin",
+    "url": "https://linkedin.com/company/turnitin"
+  },
+  {
+    "domain": "chatgpt.com",
+    "enrich_company": "ChatGPT",
+    "url": "https://linkedin.com/company/openai"
+  },
+  {
+    "domain": "bard.google.com",
+    "enrich_company": "Google Bard",
+    "url": "https://linkedin.com/company/google"
+  },
+  {
+    "domain": "claude.ai",
+    "enrich_company": "Claude",
+    "url": "https://linkedin.com/company/anthropic-ai"
+  },
+  {
+    "domain": "bing.com/chat",
+    "enrich_company": "Bing Chat",
+    "url": "https://linkedin.com/company/microsoft"
+  },
+  {
+    "domain": "duckduckgo.com",
+    "enrich_company": "DuckDuckGo",
+    "url": "https://linkedin.com/company/duckduckgo"
+  },
+  {
+    "domain": "brave.com",
+    "enrich_company": "Brave",
+    "url": "https://linkedin.com/company/brave-software"
+  },
+  {
+    "domain": "firefox.com",
+    "enrich_company": "Firefox",
+    "url": "https://linkedin.com/company/mozilla"
+  },
+  {
+    "domain": "chrome.google.com",
+    "enrich_company": "Chrome",
+    "url": "https://linkedin.com/company/google"
+  },
+  {
+    "domain": "safari.apple.com",
+    "enrich_company": "Safari",
+    "url": "https://linkedin.com/company/apple"
+  },
+  {
+    "domain": "edge.microsoft.com",
+    "enrich_company": "Edge",
+    "url": "https://linkedin.com/company/microsoft"
+  },
+  {
+    "domain": "opera.com",
+    "enrich_company": "Opera",
+    "url": "https://linkedin.com/company/opera-software"
+  },
+  {
+    "domain": "vivaldi.com",
+    "enrich_company": "Vivaldi",
+    "url": "https://linkedin.com/company/vivaldi-technologies"
+  },
+  {
+    "domain": "maxthon.com",
+    "enrich_company": "Maxthon",
+    "url": "https://linkedin.com/company/maxthon"
+  },
+  {
+    "domain": "sleipnir.com",
+    "enrich_company": "Sleipnir",
+    "url": "https://linkedin.com/company/fenrir-inc"
+  },
+  {
+    "domain": "yandex.com",
+    "enrich_company": "Yandex",
+    "url": "https://linkedin.com/company/yandex"
+  },
+  {
+    "domain": "baidu.com",
+    "enrich_company": "Baidu",
+    "url": "https://linkedin.com/company/baidu"
+  },
+  {
+    "domain": "sogou.com",
+    "enrich_company": "Sogou",
+    "url": "https://linkedin.com/company/sogou"
+  },
+  {
+    "domain": "360.cn",
+    "enrich_company": "360 Browser",
+    "url": "https://linkedin.com/company/360-security"
+  },
+  {
+    "domain": "qq.com",
+    "enrich_company": "QQ Browser",
+    "url": "https://linkedin.com/company/tencent"
+  },
+  {
+    "domain": "ucweb.com",
+    "enrich_company": "UC Browser",
+    "url": "https://linkedin.com/company/ucweb"
+  },
+  {
+    "domain": "samsung.com",
+    "enrich_company": "Samsung Internet",
+    "url": "https://linkedin.com/company/samsung"
+  },
+  {
+    "domain": "huawei.com",
+    "enrich_company": "Huawei Browser",
+    "url": "https://linkedin.com/company/huawei"
+  },
+  {
+    "domain": "xiaomi.com",
+    "enrich_company": "Mi Browser",
+    "url": "https://linkedin.com/company/xiaomi"
+  },
+  {
+    "domain": "oppo.com",
+    "enrich_company": "OPPO Browser",
+    "url": "https://linkedin.com/company/oppo"
+  },
+  {
+    "domain": "vivo.com",
+    "enrich_company": "vivo Browser",
+    "url": "https://linkedin.com/company/vivo"
+  },
+  {
+    "domain": "oneplus.com",
+    "enrich_company": "OnePlus Browser",
+    "url": "https://linkedin.com/company/oneplus"
+  },
+  {
+    "domain": "realme.com",
+    "enrich_company": "realme Browser",
+    "url": "https://linkedin.com/company/realme"
+  },
+  {
+    "domain": "honor.com",
+    "enrich_company": "Honor Browser",
+    "url": "https://linkedin.com/company/honor"
+  },
+  {
+    "domain": "nokia.com",
+    "enrich_company": "Nokia Browser",
+    "url": "https://linkedin.com/company/nokia"
+  },
+  {
+    "domain": "motorola.com",
+    "enrich_company": "Motorola Browser",
+    "url": "https://linkedin.com/company/motorola"
+  },
+  {
+    "domain": "lg.com",
+    "enrich_company": "LG Browser",
+    "url": "https://linkedin.com/company/lg-electronics"
+  },
+  {
+    "domain": "sony.com",
+    "enrich_company": "Sony Browser",
+    "url": "https://linkedin.com/company/sony"
+  },
+  {
+    "domain": "asus.com",
+    "enrich_company": "ASUS Browser",
+    "url": "https://linkedin.com/company/asus"
+  },
+  {
+    "domain": "acer.com",
+    "enrich_company": "Acer Browser",
+    "url": "https://linkedin.com/company/acer"
+  },
+  {
+    "domain": "lenovo.com",
+    "enrich_company": "Lenovo Browser",
+    "url": "https://linkedin.com/company/lenovo"
+  },
+  {
+    "domain": "dell.com",
+    "enrich_company": "Dell Browser",
+    "url": "https://linkedin.com/company/dell"
+  },
+  {
+    "domain": "hp.com",
+    "enrich_company": "HP Browser",
+    "url": "https://linkedin.com/company/hp"
+  },
+  {
+    "domain": "toshiba.com",
+    "enrich_company": "Toshiba Browser",
+    "url": "https://linkedin.com/company/toshiba"
+  },
+  {
+    "domain": "fujitsu.com",
+    "enrich_company": "Fujitsu Browser",
+    "url": "https://linkedin.com/company/fujitsu"
+  },
+  {
+    "domain": "panasonic.com",
+    "enrich_company": "Panasonic Browser",
+    "url": "https://linkedin.com/company/panasonic"
+  },
+  {
+    "domain": "sharp.com",
+    "enrich_company": "Sharp Browser",
+    "url": "https://linkedin.com/company/sharp"
+  },
+  {
+    "domain": "canon.com",
+    "enrich_company": "Canon Browser",
+    "url": "https://linkedin.com/company/canon"
+  },
+  {
+    "domain": "nikon.com",
+    "enrich_company": "Nikon Browser",
+    "url": "https://linkedin.com/company/nikon"
+  },
+  {
+    "domain": "sony.com",
+    "enrich_company": "Sony Camera",
+    "url": "https://linkedin.com/company/sony"
+  },
+  {
+    "domain": "gopro.com",
+    "enrich_company": "GoPro",
+    "url": "https://linkedin.com/company/gopro"
+  },
+  {
+    "domain": "dji.com",
+    "enrich_company": "DJI",
+    "url": "https://linkedin.com/company/dji"
+  },
+  {
+    "domain": "parrot.com",
+    "enrich_company": "Parrot",
+    "url": "https://linkedin.com/company/parrot"
+  },
+  {
+    "domain": "autel.com",
+    "enrich_company": "Autel",
+    "url": "https://linkedin.com/company/autel"
+  },
+  {
+    "domain": "skydio.com",
+    "enrich_company": "Skydio",
+    "url": "https://linkedin.com/company/skydio"
+  },
+  {
+    "domain": "yuneec.com",
+    "enrich_company": "Yuneec",
+    "url": "https://linkedin.com/company/yuneec"
+  },
+  {
+    "domain": "hubsan.com",
+    "enrich_company": "Hubsan",
+    "url": "https://linkedin.com/company/hubsan"
+  },
+  {
+    "domain": "syma.com",
+    "enrich_company": "Syma",
+    "url": "https://linkedin.com/company/syma"
+  },
+  {
+    "domain": "udrone.com",
+    "enrich_company": "UDI RC",
+    "url": "https://linkedin.com/company/udirc"
+  },
+  {
+    "domain": "holy-stone.com",
+    "enrich_company": "Holy Stone",
+    "url": "https://linkedin.com/company/holy-stone"
+  },
+  {
+    "domain": "potensic.com",
+    "enrich_company": "Potensic",
+    "url": "https://linkedin.com/company/potensic"
+  },
+  {
+    "domain": "snaptain.com",
+    "enrich_company": "Snaptain",
+    "url": "https://linkedin.com/company/snaptain"
+  },
+  {
+    "domain": "force1.com",
+    "enrich_company": "Force1",
+    "url": "https://linkedin.com/company/force1"
+  },
+  {
+    "domain": "altair.com",
+    "enrich_company": "Altair Aerial",
+    "url": "https://linkedin.com/company/altair-aerial"
+  },
+  {
+    "domain": "tello.com",
+    "enrich_company": "Tello",
+    "url": "https://linkedin.com/company/tello"
+  },
+  {
+    "domain": "ryze.com",
+    "enrich_company": "Ryze",
+    "url": "https://linkedin.com/company/ryze"
+  },
+  {
+    "domain": "fujifilm.com",
+    "enrich_company": "Fujifilm",
+    "url": "https://linkedin.com/company/fujifilm"
+  },
+  {
+    "domain": "leica.com",
+    "enrich_company": "Leica",
+    "url": "https://linkedin.com/company/leica"
+  },
+  {
+    "domain": "hasselblad.com",
+    "enrich_company": "Hasselblad",
+    "url": "https://linkedin.com/company/hasselblad"
+  },
+  {
+    "domain": "phaseone.com",
+    "enrich_company": "Phase One",
+    "url": "https://linkedin.com/company/phase-one"
+  },
+  {
+    "domain": "mamiya.com",
+    "enrich_company": "Mamiya",
+    "url": "https://linkedin.com/company/mamiya"
+  },
+  {
+    "domain": "pentax.com",
+    "enrich_company": "Pentax",
+    "url": "https://linkedin.com/company/pentax"
+  },
+  {
+    "domain": "olympus.com",
+    "enrich_company": "Olympus",
+    "url": "https://linkedin.com/company/olympus"
+  },
+  {
+    "domain": "samsung.com",
+    "enrich_company": "Samsung",
+    "url": "https://linkedin.com/company/samsung"
+  },
+  {
+    "domain": "lg.com",
+    "enrich_company": "LG",
+    "url": "https://linkedin.com/company/lg-electronics"
+  },
+  {
+    "domain": "sharp.com",
+    "enrich_company": "Sharp",
+    "url": "https://linkedin.com/company/sharp"
+  },
+  {
+    "domain": "toshiba.com",
+    "enrich_company": "Toshiba",
+    "url": "https://linkedin.com/company/toshiba"
+  },
+  {
+    "domain": "hitachi.com",
+    "enrich_company": "Hitachi",
+    "url": "https://linkedin.com/company/hitachi"
+  },
+  {
+    "domain": "mitsubishi.com",
+    "enrich_company": "Mitsubishi",
+    "url": "https://linkedin.com/company/mitsubishi"
+  },
+  {
+    "domain": "fujitsu.com",
+    "enrich_company": "Fujitsu",
+    "url": "https://linkedin.com/company/fujitsu"
+  },
+  {
+    "domain": "nec.com",
+    "enrich_company": "NEC",
+    "url": "https://linkedin.com/company/nec"
+  },
+  {
+    "domain": "ricoh.com",
+    "enrich_company": "Ricoh",
+    "url": "https://linkedin.com/company/ricoh"
+  },
+  {
+    "domain": "brother.com",
+    "enrich_company": "Brother",
+    "url": "https://linkedin.com/company/brother"
+  },
+  {
+    "domain": "epson.com",
+    "enrich_company": "Epson",
+    "url": "https://linkedin.com/company/epson"
+  },
+  {
+    "domain": "canon.com",
+    "enrich_company": "Canon",
+    "url": "https://linkedin.com/company/canon"
+  },
+  {
+    "domain": "xerox.com",
+    "enrich_company": "Xerox",
+    "url": "https://linkedin.com/company/xerox"
+  },
+  {
+    "domain": "lexmark.com",
+    "enrich_company": "Lexmark",
+    "url": "https://linkedin.com/company/lexmark"
+  },
+  {
+    "domain": "kyocera.com",
+    "enrich_company": "Kyocera",
+    "url": "https://linkedin.com/company/kyocera"
+  },
+  {
+    "domain": "okidata.com",
+    "enrich_company": "OKI",
+    "url": "https://linkedin.com/company/oki"
+  },
+  {
+    "domain": "dell.com",
+    "enrich_company": "Dell",
+    "url": "https://linkedin.com/company/dell"
+  },
+  {
+    "domain": "lenovo.com",
+    "enrich_company": "Lenovo",
+    "url": "https://linkedin.com/company/lenovo"
+  },
+  {
+    "domain": "acer.com",
+    "enrich_company": "Acer",
+    "url": "https://linkedin.com/company/acer"
+  },
+  {
+    "domain": "asus.com",
+    "enrich_company": "ASUS",
+    "url": "https://linkedin.com/company/asus"
+  },
+  {
+    "domain": "msi.com",
+    "enrich_company": "MSI",
+    "url": "https://linkedin.com/company/msi"
+  },
+  {
+    "domain": "gigabyte.com",
+    "enrich_company": "Gigabyte",
+    "url": "https://linkedin.com/company/gigabyte"
+  }
+] 

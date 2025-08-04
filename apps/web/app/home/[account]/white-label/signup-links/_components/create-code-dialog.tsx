@@ -535,6 +535,50 @@ function Step2({
         />
       </div>
 
+      {/* Access Toggles Section */}
+      <div className="mt-6">
+        <div className="grid gap-4 md:grid-cols-2">
+          <FormField
+            control={control}
+            name="permissions.b2b_access"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">B2B Access</FormLabel>
+                  <FormDescription>Enable access to B2B features</FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="permissions.intent_access"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <div className="space-y-0.5">
+                  <FormLabel className="text-base">Intent Access</FormLabel>
+                  <FormDescription>
+                    Enable access to intent data features
+                  </FormDescription>
+                </div>
+                <FormControl>
+                  <Switch
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+      </div>
+
       {/* Resell Credits Section */}
       <div className="mt-8">
         <div className="bg-card text-card-foreground rounded-xl border">

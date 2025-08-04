@@ -135,4 +135,106 @@ class CreditsService {
       throw updateError;
     }
   }
+
+  async getAgencyCreditPricing({ agencyId }: { agencyId: string }) {
+    const { data, error } = await this.client
+      .from('agency_credit_pricing')
+      .select('*')
+      .eq('agency_id', agencyId);
+
+    if (error) {
+      throw new Error('Error fetching agency credit pricing');
+    }
+
+    // Convert array to object for easier access
+    const pricing: Record<string, number> = {};
+    data.forEach(item => {
+      pricing[item.credit_type] = item.price_per_credit_cents;
+    });
+
+    return pricing;
+  }
+
+  async purchaseOverageCredits({
+    clientId,
+    agencyId,
+    purchases,
+  }: {
+    clientId: string;
+    agencyId: string;
+    purchases: Array<{
+      creditType: 'audience' | 'enrichment' | 'pixel' | 'custom_model';
+      credits: number;
+      pricePerCreditCents: number;
+      costPerCreditCents: number;
+    }>;
+  }) {
+    const adminClient = this.client;
+
+    try {
+      // 1. Insert into overage_credit_purchases table
+      const purchasePromises = purchases.map(purchase => 
+        adminClient
+          .from('overage_credit_purchases')
+          .insert({
+            client_id: clientId,
+            agency_id: agencyId,
+            credit_type: purchase.creditType,
+            credits: purchase.credits,
+            price_per_credit_cents: purchase.pricePerCreditCents,
+            cost_per_credit_cents: purchase.costPerCreditCents,
+            billed_to_client: false,
+            billed_to_agency: false,
+          })
+      );
+
+      // 2. Get current credit balances
+      const { data: currentCredits, error: selectError } = await adminClient
+        .from('credits')
+        .select('current_audience, current_enrichment, current_pixel, current_custom')
+        .eq('account_id', clientId)
+        .single();
+
+      if (selectError) {
+        throw new Error('Failed to fetch current credit balances');
+      }
+
+      // 3. Calculate new balances
+      const fieldMap = {
+        audience: 'current_audience',
+        enrichment: 'current_enrichment',
+        pixel: 'current_pixel',
+        custom_model: 'current_custom',
+      };
+
+      const updates: Record<string, number> = {};
+      purchases.forEach(purchase => {
+        const field = fieldMap[purchase.creditType];
+        updates[field] = (currentCredits[field] || 0) + purchase.credits;
+      });
+
+      // 4. Update credit balances
+      const { error: updateError } = await adminClient
+        .from('credits')
+        .update(updates)
+        .eq('account_id', clientId);
+
+      if (updateError) {
+        throw new Error('Failed to update credit balances');
+      }
+
+      // 5. Insert purchase records
+      await Promise.all(purchasePromises);
+
+      return {
+        success: true,
+        totalCredits: purchases.reduce((sum, p) => sum + p.credits, 0),
+        totalCost: purchases.reduce((sum, p) => sum + (p.credits * p.pricePerCreditCents), 0),
+      };
+
+    } catch (error) {
+      console.error('Failed to purchase overage credits:', error);
+      throw new Error('Failed to process credit purchase');
+    }
+  }
 }

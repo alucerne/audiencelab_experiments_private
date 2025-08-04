@@ -51,18 +51,27 @@ export default function AddCreditsPanel({ clientId, agencyId }: AddCreditsPanelP
 
   const loadAgencyPricing = async () => {
     try {
-      // For now, using mock pricing since the table doesn't exist yet
-      // In production, this would fetch from agency_credit_pricing table
-      const mockPricing = {
+      // Fetch real pricing from agency_credit_pricing table
+      const response = await fetch(`/api/agency-pricing?agencyId=${agencyId}`);
+      
+      if (!response.ok) {
+        throw new Error('Failed to fetch pricing');
+      }
+      
+      const pricingData = await response.json();
+      setPricing(pricingData);
+    } catch (error) {
+      console.error('Failed to load pricing:', error);
+      toast.error('Failed to load credit pricing');
+      
+      // Fallback to default pricing if API fails
+      const defaultPricing = {
         audience: 2500, // $25.00 per credit
         enrichment: 1500, // $15.00 per credit
         pixel: 1000, // $10.00 per credit
         custom_model: 5000, // $50.00 per credit
       };
-      setPricing(mockPricing);
-    } catch (error) {
-      console.error('Failed to load pricing:', error);
-      toast.error('Failed to load credit pricing');
+      setPricing(defaultPricing);
     } finally {
       setIsLoadingPricing(false);
     }

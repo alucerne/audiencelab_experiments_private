@@ -3,6 +3,7 @@
 import { z } from 'zod';
 import { getSupabaseServerAdminClient } from '@kit/supabase/server-admin-client';
 import { enhanceAction } from '@kit/next/actions';
+import { createCreditsService } from '~/lib/credits/credits.service';
 
 const PurchaseCreditsSchema = z.object({
   clientId: z.string().uuid(),
@@ -19,63 +20,19 @@ export const purchaseCreditsAction = enhanceAction(
   async (data) => {
     const { clientId, agencyId, purchases } = PurchaseCreditsSchema.parse(data);
     const adminClient = getSupabaseServerAdminClient();
+    const creditsService = createCreditsService(adminClient);
 
     try {
-      // For now, we'll simulate the purchase since the tables don't exist yet
-      // In production, this would:
-      
-      // 1. Insert into overage_credit_purchases table
-      // const purchasePromises = purchases.map(purchase => 
-      //   adminClient
-      //     .from('overage_credit_purchases')
-      //     .insert({
-      //       client_id: clientId,
-      //       agency_id: agencyId,
-      //       credit_type: purchase.creditType,
-      //       credits: purchase.credits,
-      //       price_per_credit_cents: purchase.pricePerCreditCents,
-      //       cost_per_credit_cents: purchase.costPerCreditCents,
-      //       billed_to_client: false,
-      //       billed_to_agency: false,
-      //     })
-      // );
-
-      // 2. Update client_credit_balances (credits table)
-      // const creditUpdates = purchases.map(purchase => {
-      //   const fieldMap = {
-      //     audience: 'current_audience',
-      //     enrichment: 'current_enrichment',
-      //     pixel: 'current_pixel',
-      //     custom_model: 'current_custom',
-      //   };
-      //   
-      //   return adminClient
-      //     .from('credits')
-      //     .update({
-      //       [fieldMap[purchase.creditType]]: 
-      //         adminClient.rpc('increment', { 
-      //           column: fieldMap[purchase.creditType], 
-      //           amount: purchase.credits 
-      //         })
-      //     })
-      //     .eq('account_id', clientId);
-      // });
-
-      // await Promise.all([...purchasePromises, ...creditUpdates]);
-
-      // For now, just log the purchase
-      console.log('Credit purchase:', {
+      const result = await creditsService.purchaseOverageCredits({
         clientId,
         agencyId,
         purchases,
-        totalCredits: purchases.reduce((sum, p) => sum + p.credits, 0),
-        totalCost: purchases.reduce((sum, p) => sum + (p.credits * p.pricePerCreditCents), 0),
       });
 
       return {
         success: true,
-        message: `Successfully added ${purchases.reduce((sum, p) => sum + p.credits, 0)} credits to your account.`,
-        totalCost: purchases.reduce((sum, p) => sum + (p.credits * p.pricePerCreditCents), 0),
+        message: `Successfully added ${result.totalCredits} credits to your account.`,
+        totalCost: result.totalCost,
       };
 
     } catch (error) {

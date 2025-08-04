@@ -1,0 +1,3 @@
+-- Add pgsodium extension for encryption features
+-- Uncomment the line below if you need pgsodium functionality
+-- create extension if not exists pgsodium; 
