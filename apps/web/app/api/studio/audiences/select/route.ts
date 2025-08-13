@@ -1,112 +1,103 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConn } from '../../../../../lib/duck';
-import { loadData, LoadOptions, createDuckDBServiceAdapter } from '../../../../../lib/unifiedDataLoader';
+import { PREDEFINED_SOURCES } from '~/lib/predefinedAudiences';
 
-// Helper function to convert BigInt to regular numbers for JSON serialization
-function convertBigInts(obj: any): any {
-  if (obj === null || obj === undefined) return obj;
-  if (typeof obj === 'bigint') return Number(obj);
-  if (Array.isArray(obj)) return obj.map(convertBigInts);
-  if (typeof obj === 'object') {
-    const result: any = {};
-    for (const key in obj) {
-      result[key] = convertBigInts(obj[key]);
+// Simple CSV parser for Vercel deployment (no native dependencies)
+async function parseCSV(url: string): Promise<any[]> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch CSV: ${response.statusText}`);
     }
-    return result;
+    
+    const text = await response.text();
+    const lines = text.split('\n').filter(line => line.trim());
+    
+    if (lines.length === 0) {
+      return [];
+    }
+    
+    // Parse headers
+    const headers = lines[0]?.split(',').map(h => h.trim().replace(/"/g, '')) || [];
+    
+    // Parse data rows
+    const rows = lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+      const row: any = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] || null;
+      });
+      return row;
+    });
+    
+    return rows;
+  } catch (error) {
+    console.error('CSV parsing error:', error);
+    throw error;
   }
-  return obj;
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    console.log('API received request body:', body);
-    
-    let url: string | undefined;
-    let format = 'csv';
-    
-    // Handle new format (url/format) - prioritize this over old format
-    if (body.url) {
-      url = body.url;
-      format = body.format || 'csv';
-    } else if (body.id && body.type) {
-      // Handle old format (id/type) - only if no URL is provided
-      // For now, just return an error asking for URL format
-      return NextResponse.json({ 
-        error: 'Please use the new format with url and format parameters',
-        details: 'Old format (id/type) is deprecated. Use { url: "gcs_url", format: "csv" }'
-      }, { status: 400 });
-    } else {
-      // No URL provided and no old format - return error
-      return NextResponse.json({ 
-        error: 'No URL provided for loading',
-        details: 'Please provide a url parameter to load data from GCS'
-      }, { status: 400 });
+    const { audienceId } = body;
+
+    if (!audienceId) {
+      return NextResponse.json(
+        { error: 'audienceId is required' },
+        { status: 400 }
+      );
     }
 
-    // Only proceed with URL loading if we have a URL
-    if (!url) {
-      return NextResponse.json({ error: 'No URL provided for loading' }, { status: 400 });
+    // Find the predefined audience
+    const audience = PREDEFINED_SOURCES.find(source => source.id === audienceId);
+    if (!audience) {
+      return NextResponse.json(
+        { error: `Audience with id ${audienceId} not found` },
+        { status: 404 }
+      );
     }
 
-    console.log(`Loading data from: ${url} (format: ${format})`);
+    // For Vercel deployment, only support CSV for now
+    if (audience.format !== 'csv') {
+      return NextResponse.json(
+        { error: 'Only CSV format is supported in this deployment' },
+        { status: 400 }
+      );
+    }
 
-    const con = getConn();
-    const duckDBService = createDuckDBServiceAdapter(con);
-
-    // Use the unified data loader
-    const loadOptions: LoadOptions = {
-      url,
-      format: format as 'csv' | 'parquet' | 'json',
-      audience_id: body.id
-    };
-
-    try {
-      const result = await loadData(duckDBService, loadOptions);
-
-      if (result.status === 'error') {
-        return NextResponse.json({ 
-          error: result.error || 'Failed to load data',
-          details: 'The unified data loader encountered an error'
-        }, { status: 500 });
-      }
-
-      console.log(`Successfully loaded ${result.loaded_rows} rows and created view with ${result.view_rows} rows`);
-
-      // Determine audience name based on URL
-      let audienceName = 'Custom Audience';
-      if (url.includes('Pixel_Local_Test')) {
-        audienceName = 'Pixel Local Test - Random Contacts';
-      }
-
+    // Parse CSV data to get field information
+    const rows = await parseCSV(audience.url);
+    
+    if (rows.length === 0) {
       return NextResponse.json({
-        status: 'ok',
-        loaded: body.id ? { id: body.id, type: body.type || 'audience' } : { 
-          name: audienceName,
-          url, 
-          format 
-        },
-        loaded_rows: result.loaded_rows,
-        view_rows: result.view_rows,
-        catalog: result.catalog,
-        duration_ms: result.duration_ms,
-        url_hash: result.url_hash,
-        message: `Successfully loaded ${result.loaded_rows} rows and created unified view with ${result.view_rows} rows`
+        fields: [],
+        message: 'No data found in the CSV file'
       });
-
-    } catch (error) {
-      console.error('Error in unified data loader:', error);
-      return NextResponse.json({ 
-        error: error instanceof Error ? error.message : 'Unknown error',
-        details: 'The unified data loader failed'
-      }, { status: 500 });
     }
 
-  } catch (e: any) {
-    console.error('Error loading data:', e);
-    return NextResponse.json({ 
-      error: e.message,
-      details: 'Failed to load data. The operation may have timed out or the URL may not be accessible.'
-    }, { status: 500 });
+    // Extract field names from the first row
+    const fields = Object.keys(rows[0]).map(fieldName => ({
+      name: fieldName,
+      type: 'string', // Simplified for Vercel deployment
+      expression: fieldName
+    }));
+
+    return NextResponse.json({
+      fields,
+      audience: {
+        id: audience.id,
+        name: audience.name,
+        url: audience.url,
+        format: audience.format,
+        kind: audience.kind
+      }
+    });
+
+  } catch (error: any) {
+    console.error('Audience select error:', error);
+    return NextResponse.json(
+      { error: `Audience select failed: ${error.message}` },
+      { status: 500 }
+    );
   }
 } 
