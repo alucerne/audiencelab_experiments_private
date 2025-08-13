@@ -36,7 +36,7 @@ const config = {
       fullUrl: true,
     },
   },
-  serverExternalPackages: [],
+  serverExternalPackages: ['duckdb'],
   // needed for supporting dynamic imports for local content
   outputFileTracingIncludes: {
     '/*': ['./content/**/*'],
@@ -65,6 +65,32 @@ const config = {
   /** We already do linting and typechecking as separate tasks in CI */
   eslint: { ignoreDuringBuilds: true },
   typescript: { ignoreBuildErrors: true },
+  webpack: (config, { isServer }) => {
+    if (isServer) {
+      // Handle native modules for server-side
+      config.externals = config.externals || [];
+      config.externals.push('duckdb');
+      
+      // Ignore problematic modules
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+        crypto: false,
+        stream: false,
+        url: false,
+        zlib: false,
+        http: false,
+        https: false,
+        assert: false,
+        os: false,
+        path: false,
+      };
+    }
+    
+    return config;
+  },
 };
 
 export default withBundleAnalyzer({
