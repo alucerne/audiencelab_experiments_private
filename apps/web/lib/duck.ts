@@ -26,4 +26,12 @@ export function getConn() {
 
 export function connectAndInit() {
   return getConn();
+}
+
+export function releaseConnection(con: duckdb.Connection) {
+  try {
+    con.close();
+  } catch (error) {
+    console.warn('Error closing connection:', error);
+  }
 } 
