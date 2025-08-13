@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { duckDBService, Segment } from '../../../../app/home/[account]/studio/utils/duckDBService';
 import { getSupabaseServerClient } from '@kit/supabase/server-client';
 
 export async function POST(request: NextRequest) {
@@ -13,16 +12,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Initialize DuckDB if not already done
-    await duckDBService.initialize();
-
-    // Create segment in DuckDB
-    const segmentId = await duckDBService.createSegment({
-      name,
-      selectedFields: selectedFields || [],
-      filters: filters || [],
-      account_id
-    });
+    // Generate a simple segment ID
+    const segmentId = `segment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
     // Save segment metadata to Supabase
     const supabase = getSupabaseServerClient();

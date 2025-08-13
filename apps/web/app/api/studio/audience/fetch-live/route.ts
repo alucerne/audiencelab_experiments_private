@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { connectAndInit, getDB, releaseConnection } from '../../../../../lib/duck';
 import miscConfig from '~/config/misc.config';
 
 // Live API configuration for audience
@@ -128,152 +127,21 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Connect to DuckDB
-    const con = connectAndInit();
-    console.log('DuckDB connection established');
-
-    // Drop existing table if it exists
-    await new Promise<void>((resolve, reject) => {
-      con.run(`DROP TABLE IF EXISTS audience_contacts`, (err: any) => {
-        if (err) {
-          console.log('Error dropping table (this is usually fine):', err);
-        }
-        resolve();
-      });
-    });
-
-    console.log('Creating audience_contacts table...');
-
-    // Create table for audience contacts
-    await new Promise<void>((resolve, reject) => {
-      con.run(`
-        CREATE TABLE audience_contacts (
-          first_name VARCHAR,
-          last_name VARCHAR,
-          email VARCHAR,
-          phone VARCHAR,
-          company_name VARCHAR,
-          company_domain VARCHAR,
-          job_title VARCHAR,
-          seniority VARCHAR,
-          department VARCHAR,
-          industry VARCHAR,
-          employee_count VARCHAR,
-          company_revenue VARCHAR,
-          city VARCHAR,
-          state VARCHAR,
-          zip VARCHAR,
-          country VARCHAR,
-          age VARCHAR,
-          gender VARCHAR,
-          income_range VARCHAR,
-          education VARCHAR,
-          linkedin_url VARCHAR,
-          twitter_url VARCHAR,
-          facebook_url VARCHAR,
-          source VARCHAR,
-          confidence_score DOUBLE,
-          last_updated TIMESTAMP
-        )
-      `, (err: any) => {
-        if (err) {
-          console.error('Error creating table:', err);
-          reject(err);
-        } else {
-          console.log('Table created successfully');
-          resolve();
-        }
-      });
-    });
-
-    console.log('Inserting live audience data...');
-
-    // Insert live data one by one to avoid race conditions
-    let insertedCount = 0;
-    for (const contact of liveData.result) {
-      await new Promise<void>((resolve, reject) => {
-        const sql = `
-          INSERT INTO audience_contacts (
-            first_name, last_name, email, phone, company_name, company_domain,
-            job_title, seniority, department, industry, employee_count, company_revenue,
-            city, state, zip, country, age, gender, income_range, education,
-            linkedin_url, twitter_url, facebook_url, source, confidence_score, last_updated
-          ) VALUES (
-            '${contact.first_name || ''}',
-            '${contact.last_name || ''}',
-            '${contact.email || ''}',
-            '${contact.phone || ''}',
-            '${contact.company_name || ''}',
-            '${contact.company_domain || ''}',
-            '${contact.job_title || ''}',
-            '${contact.seniority || ''}',
-            '${contact.department || ''}',
-            '${contact.industry || ''}',
-            '${contact.employee_count || ''}',
-            '${contact.company_revenue || ''}',
-            '${contact.city || ''}',
-            '${contact.state || ''}',
-            '${contact.zip || ''}',
-            '${contact.country || ''}',
-            '${contact.age || ''}',
-            '${contact.gender || ''}',
-            '${contact.income_range || ''}',
-            '${contact.education || ''}',
-            '${contact.linkedin_url || ''}',
-            '${contact.twitter_url || ''}',
-            '${contact.facebook_url || ''}',
-            '${contact.source || ''}',
-            ${contact.confidence_score || 0},
-            '${contact.last_updated || new Date().toISOString()}'
-          )
-        `;
-        
-        con.run(sql, (err: any) => {
-          if (err) {
-            console.error('Error inserting contact:', contact.email, err);
-            reject(err);
-          } else {
-            insertedCount++;
-            if (insertedCount % 10 === 0) {
-              console.log(`Inserted ${insertedCount} contacts...`);
-            }
-            resolve();
-          }
-        });
-      });
-    }
-
-    console.log(`Live audience data inserted successfully: ${insertedCount} contacts`);
-
-    // Get row count
-    const rowCount = await new Promise<number>((resolve, reject) => {
-      con.all('SELECT COUNT(*) as count FROM audience_contacts', (err: any, rows: any[]) => {
-        if (err) {
-          console.error('Error getting row count:', err);
-          reject(err);
-        } else {
-          const count = Number(rows?.[0]?.count || 0);
-          console.log('Row count result:', rows, 'Count:', count);
-          resolve(count);
-        }
-      });
-    });
-
-    console.log('Final row count:', rowCount);
-
-    // Release connection before returning
-    releaseConnection(con);
+    // For Vercel deployment, we'll return the data directly without DuckDB
+    // The data can be processed by the frontend or other API endpoints
+    console.log(`Live audience data processed successfully: ${liveData.result.length} contacts`);
 
     return NextResponse.json({
       success: true,
-      message: `Successfully imported ${rowCount} live audience contacts`,
-      rowCount,
-      note: 'Live audience API data imported. You can now use the preview functionality.',
+      message: `Successfully processed ${liveData.result.length} live audience contacts`,
+      rowCount: liveData.result.length,
+      note: 'Live audience API data processed. You can now use the preview functionality.',
       apiInfo: {
         audienceId,
         limit,
         totalRecords: liveData.count
-      }
+      },
+      data: liveData.result // Return the actual data for frontend use
     });
 
   } catch (error) {
