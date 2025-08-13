@@ -54,9 +54,18 @@ import {
   audienceFiltersFormSchema,
 } from '~/lib/audience/schema/audience-filters-form.schema';
 import {
+  FilterMode,
+  BooleanExpression,
+  defaultBooleanExpression,
+  zAudienceFilters,
+  zBooleanExpression,
+  AudienceFilters
+} from '~/lib/audience/schema/boolean-filters.schema';
+import {
   addAudienceFiltersAction,
   getPreviewAudienceAction,
 } from '~/lib/audience/server-actions';
+import { booleanToQueries } from '~/lib/audience/boolean-transform';
 import { Json } from '~/lib/database.types';
 
 import AudienceStep, { audienceFields } from './audience-step';
@@ -72,6 +81,8 @@ import LocationStep, { locationFields } from './location-step';
 import PersonalStep, { personalFields } from './personal-step';
 import PreviewAudienceTable from './preview-audience-table';
 import UpdateAudienceNameDialog from './update-audience-name-dialog';
+import { BuilderHeader } from './BuilderHeader';
+import { BooleanBuilder } from './boolean-builder';
 
 export default function AudienceFiltersForm({
   defaultValues,
@@ -91,6 +102,27 @@ export default function AudienceFiltersForm({
   const [pending, startTransition] = useTransition();
   const [currentDialog, setCurrentDialog] = useState<number | null>(null);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [builderMode, setBuilderMode] = useState<FilterMode>('simple');
+  const [booleanExpression, setBooleanExpression] = useState<BooleanExpression>(defaultBooleanExpression);
+
+  // Handle mode change
+  const handleModeChange = (newMode: FilterMode) => {
+    setBuilderMode(newMode);
+    // Clear form errors when switching modes
+    if (newMode === 'boolean') {
+      form.clearErrors();
+    }
+  };
+
+  // Validation function for boolean expression
+  const isBooleanExpressionValid = (expression: BooleanExpression): boolean => {
+    try {
+      zBooleanExpression.parse(expression);
+      return expression.children.length > 0;
+    } catch {
+      return false;
+    }
+  };
 
   const {
     account: { id: accountId },
@@ -238,12 +270,46 @@ export default function AudienceFiltersForm({
   }
 
   function onSubmit(values: z.infer<typeof audienceFiltersFormSchema>) {
+    console.log('Form submission - builderMode:', builderMode);
+    console.log('Form submission - values:', values);
+    console.log('Form submission - booleanExpression:', booleanExpression);
+    
     startTransition(() => {
+      // Prepare filters based on builder mode
+      let filters: AudienceFilters;
+      
+      if (builderMode === 'boolean') {
+        // Validate boolean expression
+        const booleanValidation = zAudienceFilters.safeParse({
+          mode: 'boolean',
+          boolean: { expression: booleanExpression }
+        });
+        
+        if (!booleanValidation.success) {
+          console.error('Boolean validation failed:', booleanValidation.error);
+          toast.error('Invalid boolean expression');
+          return;
+        }
+        
+        filters = {
+          mode: 'boolean',
+          boolean: { expression: booleanExpression },
+          simple: values // Keep simple filters for backward compatibility
+        };
+      } else {
+        // Simple mode - use existing structure
+        filters = {
+          mode: 'simple',
+          simple: values
+        };
+      }
+
+      console.log('Sending filters to server action:', filters);
       toast.promise(
         addAudienceFiltersAction({
           accountId,
           audienceId: id,
-          filters: values,
+          filters: filters as any, // Type assertion for backward compatibility
           hasSegmentChanged: isUpdate && hasSegmentChanged,
         }),
         {
@@ -267,8 +333,22 @@ export default function AudienceFiltersForm({
     isPending,
     isError,
   } = useMutation({
-    mutationFn: () =>
-      getPreviewAudienceAction({ accountId, id, filters: form.getValues() }),
+    mutationFn: () => {
+      const formValues = form.getValues();
+      let filters: any;
+      
+      if (builderMode === 'boolean') {
+        filters = {
+          mode: 'boolean',
+          boolean: { expression: booleanExpression },
+          simple: formValues
+        };
+      } else {
+        filters = formValues;
+      }
+      
+      return getPreviewAudienceAction({ accountId, id, filters });
+    },
   });
 
   function onError(errors: unknown) {
@@ -316,56 +396,52 @@ export default function AudienceFiltersForm({
   return (
     <>
       <div className="flex-none">
-        <div className="flex flex-col justify-between pb-6 min-[896px]:flex-row lg:pr-4 lg:pb-0">
-          <TeamAccountLayoutPageHeader
-            account={account}
-            title={
-              <div className="flex items-center gap-1.5">
-                {`${audienceName} Audience Filters`}
-                <UpdateAudienceNameDialog
-                  audienceId={id}
-                  audienceName={audienceName}
-                />
-              </div>
-            }
-            description={<AppBreadcrumbs uuidLabel="Filters" />}
-          />
-          <div className="flex flex-col-reverse items-center gap-4 md:flex-row">
-            <div className="flex items-center gap-4">
-              <Button
-                type="button"
-                disabled={pending}
-                className="px-3 py-1.5"
-                variant="secondary"
-                onClick={() =>
-                  form.trigger().then((isValid) => {
-                    if (isValid) {
-                      getPreview();
-                    } else {
-                      onError(form.formState.errors);
-                    }
-                  })
+        <BuilderHeader
+          mode={builderMode}
+          onModeChange={handleModeChange}
+          b2bAccess={limits.b2bAccess}
+          audienceName={audienceName}
+          onPreview={() => {
+            if (builderMode === 'boolean') {
+              // In boolean mode, validate the boolean expression
+              if (isBooleanExpressionValid(booleanExpression)) {
+                getPreview();
+              } else {
+                toast.error('Please add at least one valid rule to the Boolean Builder');
+              }
+            } else {
+              // In simple mode, validate the form
+              form.trigger().then((isValid) => {
+                if (isValid) {
+                  getPreview();
+                } else {
+                  onError(form.formState.errors);
                 }
-              >
-                <Search className="mr-2 size-4" />
-                Preview
-              </Button>
-              <Button
-                type="button"
-                disabled={pending || !form.formState.isValid}
-                className="px-3 py-1.5"
-                onClick={() => setShowConfirm(true)}
-              >
-                <Database className="mr-2 size-4" />
-                {isUpdate ? 'Update Audience' : 'Generate Audience'}
-              </Button>
-            </div>
-          </div>
-        </div>
+              });
+            }
+          }}
+          onGenerate={() => setShowConfirm(true)}
+          pending={pending}
+          isValid={builderMode === 'boolean' ? isBooleanExpressionValid(booleanExpression) : form.formState.isValid}
+          isUpdate={isUpdate}
+        />
         <Form {...form}>
           <form
             className="relative"
-            onSubmit={form.handleSubmit(onSubmit, onError)}
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (builderMode === 'boolean') {
+                // In boolean mode, handle submission directly
+                if (isBooleanExpressionValid(booleanExpression)) {
+                  onSubmit(form.getValues());
+                } else {
+                  toast.error('Please add at least one valid rule to the Boolean Builder');
+                }
+              } else {
+                // In simple mode, use the normal form submission
+                form.handleSubmit(onSubmit, onError)(e);
+              }
+            }}
           >
             <div className="border-muted-foreground/20 flex flex-wrap items-center gap-2 border-b-2 pb-3 lg:px-4">
               {steps.map((step, index) => {
@@ -450,6 +526,19 @@ export default function AudienceFiltersForm({
                 </DialogContent>
               </Dialog>
             ))}
+            
+            {/* Boolean Builder */}
+            {builderMode === 'boolean' && (
+              <div className="mt-6">
+                <BooleanBuilder
+                  expression={booleanExpression}
+                  onChange={setBooleanExpression}
+                  onReset={() => setBooleanExpression(defaultBooleanExpression)}
+                  simpleFilters={form.getValues()}
+                />
+              </div>
+            )}
+            
             <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
               <DialogContent className="max-w-md">
                 <DialogHeader>

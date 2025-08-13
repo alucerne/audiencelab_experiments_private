@@ -12,6 +12,7 @@ import {
   UserSearch,
   Users,
   Palette,
+  Layers,
 } from 'lucide-react';
 
 import { NavigationConfigSchema } from '@kit/ui/navigation-schema';
@@ -30,6 +31,11 @@ const getRoutes = (account: string, isWhiteLabelHost: boolean) => [
         path: pathsConfig.app.accountHome.replace('[account]', account),
         Icon: <BookUser className={iconClasses} />,
         end: true,
+      },
+      {
+        label: 'Sub-segments',
+        path: pathsConfig.app.accountSubSegments.replace('[account]', account),
+        Icon: <Layers className={iconClasses} />,
       },
       {
         label: 'Enrichment',

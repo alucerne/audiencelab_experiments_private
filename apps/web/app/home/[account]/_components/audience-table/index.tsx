@@ -32,11 +32,12 @@ import {
 import { AudienceList } from '~/lib/audience/audience.service';
 import { getAudienceByIdAction } from '~/lib/audience/server-actions';
 import { Database } from '~/lib/database.types';
+import { Segment } from '~/lib/segments/segment.service';
 
 import AddAudienceDialog from '../add-audience-dialog';
-import { columns } from './columns';
+import { columns, type AudienceOrSegment } from './columns';
 
-const nameIdFilterFn: FilterFn<AudienceList> = (
+const nameIdFilterFn: FilterFn<AudienceOrSegment> = (
   row,
   _,
   filterValue: string,
@@ -49,12 +50,21 @@ const nameIdFilterFn: FilterFn<AudienceList> = (
 
 export default function AudienceTable({
   audience: initialAudience,
+  segments: initialSegments,
   canCreate,
 }: {
   audience: AudienceList[];
+  segments: Segment[];
   canCreate: boolean;
 }) {
   const [audience, setAudience] = useState(initialAudience || []);
+  const [segments, setSegments] = useState(initialSegments || []);
+  
+  // Combine audiences and segments for display
+  const combinedData: AudienceOrSegment[] = [
+    ...audience.map(aud => ({ ...aud, type: 'audience' as const })),
+    ...segments.map(seg => ({ ...seg, type: 'segment' as const }))
+  ];
   const {
     account: { id: accountId },
   } = useTeamAccountWorkspace();
@@ -63,6 +73,9 @@ export default function AudienceTable({
   useEffect(() => {
     if (initialAudience) {
       setAudience(initialAudience);
+    }
+    if (initialSegments) {
+      setSegments(initialSegments);
     }
 
     const subscription = client
@@ -112,8 +125,8 @@ export default function AudienceTable({
     };
   }, [initialAudience, client, accountId]);
 
-  const table = useReactTable<AudienceList>({
-    data: audience,
+  const table = useReactTable<AudienceOrSegment>({
+    data: combinedData,
     columns: columns,
     initialState: {
       sorting: [{ id: 'created_at', desc: true }],

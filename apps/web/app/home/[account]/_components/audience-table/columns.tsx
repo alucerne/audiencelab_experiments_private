@@ -5,10 +5,16 @@ import { DataTableColumnHeader } from '@kit/ui/data-table-utils';
 
 import StatusBadge from '~/components/ui/status-badge';
 import { AudienceList } from '~/lib/audience/audience.service';
+import { Segment } from '~/lib/segments/segment.service';
 
-import AudienceTableActions from './actions';
+import CombinedTableActions from './combined-actions';
 
-export const columns: ColumnDef<AudienceList>[] = [
+// Combined type for audiences and segments
+export type AudienceOrSegment = 
+  | (AudienceList & { type: 'audience' })
+  | (Segment & { type: 'segment' });
+
+export const columns: ColumnDef<AudienceOrSegment>[] = [
   {
     accessorKey: 'name',
     accessorFn: (audience) => audience.name,
@@ -17,10 +23,14 @@ export const columns: ColumnDef<AudienceList>[] = [
     ),
   },
   {
-    header: 'Status',
-    accessorFn: (audience) => audience.latest_job.status,
+    header: 'Type',
+    accessorFn: (item) => item.type,
     cell: ({ row: { original } }) => {
-      return <StatusBadge status={original.latest_job.status} />;
+      if (original.type === 'audience') {
+        return <StatusBadge status={original.latest_job.status} />;
+      } else {
+        return <span className="inline-flex items-center rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Segment</span>;
+      }
     },
   },
   {
@@ -35,26 +45,40 @@ export const columns: ColumnDef<AudienceList>[] = [
   },
   {
     accessorKey: 'refreshed_at',
-    accessorFn: (audience) => audience.latest_job.created_at,
+    accessorFn: (item) => item.type === 'audience' ? item.latest_job.created_at : item.updated_at,
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Last Refreshed" />
+      <DataTableColumnHeader column={column} title="Last Updated" />
     ),
     cell({ row: { original } }) {
-      return getDateString(parseISO(original.latest_job.created_at));
+      if (original.type === 'audience') {
+        return getDateString(parseISO(original.latest_job.created_at));
+      } else {
+        return getDateString(parseISO(original.updated_at));
+      }
     },
   },
   {
     accessorKey: 'audience_size',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title="Audience Size" />
+      <DataTableColumnHeader column={column} title="Size" />
     ),
-    cell: ({ row: { original } }) => original.latest_job.current,
+    cell: ({ row: { original } }) => {
+      if (original.type === 'audience') {
+        return original.latest_job.current;
+      } else {
+        return 'Dynamic'; // Segments are dynamic and don't have a fixed size
+      }
+    },
   },
   {
     accessorKey: 'refresh_count',
-    accessorFn: (audience) => {
-      const length = audience.enqueue_jobs.length ?? 0;
-      return Math.max(length - 1, 0);
+    accessorFn: (item) => {
+      if (item.type === 'audience') {
+        const length = item.enqueue_jobs.length ?? 0;
+        return Math.max(length - 1, 0);
+      } else {
+        return 0; // Segments don't have refresh counts
+      }
     },
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Refresh Count" />
@@ -66,20 +90,24 @@ export const columns: ColumnDef<AudienceList>[] = [
   },
   {
     accessorKey: 'next_scheduled_refresh',
-    accessorFn: (audience) => audience.next_scheduled_refresh,
+    accessorFn: (item) => item.type === 'audience' ? item.next_scheduled_refresh : null,
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Next Refresh" />
     ),
     cell({ row: { original } }) {
-      return original.next_scheduled_refresh
-        ? getDateString(parseISO(original.next_scheduled_refresh))
-        : null;
+      if (original.type === 'audience') {
+        return original.next_scheduled_refresh
+          ? getDateString(parseISO(original.next_scheduled_refresh))
+          : null;
+      } else {
+        return 'N/A'; // Segments don't have scheduled refreshes
+      }
     },
   },
   {
     id: 'actions',
     cell: ({ row: { original } }) => (
-      <AudienceTableActions audience={original} />
+      <CombinedTableActions item={original} />
     ),
   },
 ];

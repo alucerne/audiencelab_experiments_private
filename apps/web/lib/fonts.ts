@@ -11,7 +11,7 @@ const sans = SansFont({
   subsets: ['latin'],
   variable: '--font-sans',
   fallback: ['system-ui', 'Helvetica Neue', 'Helvetica', 'Arial'],
-  preload: true,
+  preload: false,
   weight: ['300', '400', '500', '600', '700'],
 });
 

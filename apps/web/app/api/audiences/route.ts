@@ -17,6 +17,12 @@ export async function GET(request: NextRequest) {
     // Temporary mock data for testing
     const mockAudiences = [
       {
+        id: 'test-contacts-audience',
+        name: 'Test Contacts Data - 78K+ Real Contacts',
+        created_at: '2024-08-04T12:00:00Z',
+        account_id: accountId,
+      },
+      {
         id: 'studio-test-audience-001',
         name: 'Studio Test Audience - Tech Companies',
         created_at: '2024-08-04T10:00:00Z',

@@ -166,6 +166,7 @@ export default function Table({ filters, previewData, loading, customColumns = [
   };
 
   const baseColumns: ColumnDef<DataRow>[] = [
+    // Business Fields
     {
       accessorKey: 'domain',
       header: () => (
@@ -184,23 +185,6 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'enrich_company',
-      header: () => (
-        <div className="flex items-center justify-between">
-          <span>Company</span>
-          {onDeleteField && (
-            <button
-              onClick={() => onDeleteField('enrich_company')}
-              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Company"
-            >
-              <X className="h-3 w-3" />
-            </button>
-          )}
-        </div>
-      ),
-    },
-    {
       accessorKey: 'company_name',
       header: () => (
         <div className="flex items-center justify-between">
@@ -210,6 +194,40 @@ export default function Table({ filters, previewData, loading, customColumns = [
               onClick={() => onDeleteField('company_name')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
               title="Delete Company Name"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_domain',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Domain</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_domain')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Domain"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'industry',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Industry</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('industry')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Industry"
             >
               <X className="h-3 w-3" />
             </button>
@@ -269,15 +287,15 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'industry',
+      accessorKey: 'employee_count',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>Industry</span>
+          <span>Employee Count</span>
           {onDeleteField && (
             <button
-              onClick={() => onDeleteField('industry')}
+              onClick={() => onDeleteField('employee_count')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Industry"
+              title="Delete Employee Count"
             >
               <X className="h-3 w-3" />
             </button>
@@ -285,6 +303,977 @@ export default function Table({ filters, previewData, loading, customColumns = [
         </div>
       ),
     },
+    {
+      accessorKey: 'company_revenue',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Revenue</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_revenue')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Revenue"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_address',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Address</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_address')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Address"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_linkedin_url',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company LinkedIn URL</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_linkedin_url')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company LinkedIn URL"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_description',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Description</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_description')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Description"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'sic',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SIC Code</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('sic')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SIC Code"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_naics',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company NAICS</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_naics')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company NAICS"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_name_history',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Name History</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_name_history')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Name History"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'job_title_history',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Job Title History</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('job_title_history')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Job Title History"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'social_connections',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Social Connections</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('social_connections')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Social Connections"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_city',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company City</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_city')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company City"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_state',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company State</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_state')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company State"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'company_zip',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company Zip</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('company_zip')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company Zip"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'headline',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Professional Headline</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('headline')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Professional Headline"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'years_experience',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Years of Experience</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('years_experience')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Years of Experience"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'linkedin_url',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>LinkedIn URL</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('linkedin_url')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete LinkedIn URL"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={value} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: 'twitter_url',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Twitter URL</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('twitter_url')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Twitter URL"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={value} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: 'facebook_url',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Facebook URL</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('facebook_url')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Facebook URL"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={value} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: 'skills',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Skills</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skills')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Skills"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'interests',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Interests</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('interests')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Interests"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Personal Fields
+    {
+      accessorKey: 'first_name',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>First Name</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('first_name')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete First Name"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'last_name',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Last Name</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('last_name')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Last Name"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'business_email',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Business Email</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('business_email')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Business Email"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={`mailto:${value}`}
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: 'personal_email',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Email</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_email')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Email"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={`mailto:${value}`}
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
+    },
+    {
+      accessorKey: 'age',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Age</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('age')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Age"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'age_range',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Age Range</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('age_range')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Age Range"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'gender',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Gender</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('gender')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Gender"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'children',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Children</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('children')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Children"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'education',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Education</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('education')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Education"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'education_history',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Education History</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('education_history')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Education History"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Financial Fields
+    {
+      accessorKey: 'income_range',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Income Range</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('income_range')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Income Range"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'net_worth',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Net Worth</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('net_worth')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Net Worth"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'credit_rating',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Credit Rating</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('credit_rating')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Credit Rating"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'credit_range_new_credit',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>New Credit Range</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('credit_range_new_credit')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete New Credit Range"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'credit_card_user',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Credit Card User</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('credit_card_user')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Credit Card User"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'investment',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Investment</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('investment')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Investment"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'mortgage_amount',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Mortgage Amount</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('mortgage_amount')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Mortgage Amount"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'occupation_group',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Occupation Group</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('occupation_group')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Occupation Group"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'occupation_type',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Occupation Type</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('occupation_type')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Occupation Type"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'cra_code',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>CRA Code</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('cra_code')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete CRA Code"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'skiptrace_credit_rating',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace Credit Rating</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_credit_rating')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace Credit Rating"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Family Fields
+    {
+      accessorKey: 'homeowner',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Homeowner</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('homeowner')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Homeowner"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'married',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Married</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('married')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Married"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'ethnic_code',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Ethnicity</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('ethnic_code')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Ethnicity"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'language_code',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Language</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('language_code')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Language"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'smoker',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Smoker</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('smoker')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Smoker"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_children',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Children</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_children')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Children"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_headline',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Headline</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_headline')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Headline"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'inferred_years_experience',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Inferred Years Experience</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('inferred_years_experience')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Inferred Years Experience"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'family_children',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Family Children</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('family_children')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Family Children"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'single_parent',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Single Parent</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('single_parent')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Single Parent"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'marital_status',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Marital Status</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('marital_status')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Marital Status"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'generations_in_household',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Generations in Household</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('generations_in_household')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Generations in Household"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Location Fields
     {
       accessorKey: 'city',
       header: () => (
@@ -320,15 +1309,15 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'age',
+      accessorKey: 'zip',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>Age</span>
+          <span>Zip Code</span>
           {onDeleteField && (
             <button
-              onClick={() => onDeleteField('age')}
+              onClick={() => onDeleteField('zip')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Age"
+              title="Delete Zip Code"
             >
               <X className="h-3 w-3" />
             </button>
@@ -337,15 +1326,15 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'gender',
+      accessorKey: 'personal_address',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>Gender</span>
+          <span>Personal Address</span>
           {onDeleteField && (
             <button
-              onClick={() => onDeleteField('gender')}
+              onClick={() => onDeleteField('personal_address')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Gender"
+              title="Delete Personal Address"
             >
               <X className="h-3 w-3" />
             </button>
@@ -354,15 +1343,15 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'income_range',
+      accessorKey: 'personal_city',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>Income Range</span>
+          <span>Personal City</span>
           {onDeleteField && (
             <button
-              onClick={() => onDeleteField('income_range')}
+              onClick={() => onDeleteField('personal_city')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Income Range"
+              title="Delete Personal City"
             >
               <X className="h-3 w-3" />
             </button>
@@ -371,15 +1360,496 @@ export default function Table({ filters, previewData, loading, customColumns = [
       ),
     },
     {
-      accessorKey: 'education',
+      accessorKey: 'personal_state',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>Education</span>
+          <span>Personal State</span>
           {onDeleteField && (
             <button
-              onClick={() => onDeleteField('education')}
+              onClick={() => onDeleteField('personal_state')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete Education"
+              title="Delete Personal State"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_zip',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Zip</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_zip')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Zip"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Housing Fields
+    {
+      accessorKey: 'home_year_built',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Home Year Built</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('home_year_built')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Home Year Built"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'home_value',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Home Value</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('home_value')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Home Value"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'home_square_footage',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Home Square Footage</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('home_square_footage')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Home Square Footage"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'home_ownership_type',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Home Ownership Type</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('home_ownership_type')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Home Ownership Type"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Contact Fields
+    {
+      accessorKey: 'uuid',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Contact UUID</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('uuid')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Contact UUID"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'mobile_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Mobile Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('mobile_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Mobile Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'direct_number',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Direct Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('direct_number')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Direct Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'deep_verified_emails',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Deep Verified Emails</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('deep_verified_emails')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Deep Verified Emails"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // SkipTrace Fields
+    {
+      accessorKey: 'skiptrace_match_score',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace Match Score</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_match_score')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace Match Score"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'skiptrace_exact_age',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace Exact Age</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_exact_age')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace Exact Age"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Contact Fields
+    {
+      accessorKey: 'uuid',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Contact UUID</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('uuid')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Contact UUID"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'direct_number',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Direct Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('direct_number')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Direct Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'direct_number_dnc',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Direct Phone DNC</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('direct_number_dnc')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Direct Phone DNC"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'mobile_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Mobile Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('mobile_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Mobile Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'mobile_phone_dnc',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Mobile Phone DNC</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('mobile_phone_dnc')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Mobile Phone DNC"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_phone_dnc',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Phone DNC</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_phone_dnc')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Phone DNC"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'personal_emails',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Personal Emails</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('personal_emails')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Personal Emails"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'deep_verified_emails',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Deep Verified Emails</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('deep_verified_emails')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Deep Verified Emails"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'sha256_personal_email',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SHA256 Personal Email</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('sha256_personal_email')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SHA256 Personal Email"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'sha256_business_email',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SHA256 Business Email</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('sha256_business_email')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SHA256 Business Email"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'valid_phones',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Valid Phones</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('valid_phones')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Valid Phones"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'skiptrace_landline_numbers',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace Landline Numbers</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_landline_numbers')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace Landline Numbers"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'skiptrace_wireless_numbers',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace Wireless Numbers</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_wireless_numbers')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace Wireless Numbers"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    {
+      accessorKey: 'skiptrace_b2b_phone',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>SkipTrace B2B Phone</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('skiptrace_b2b_phone')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete SkipTrace B2B Phone"
+            >
+              <X className="h-3 w-3" />
+            </button>
+          )}
+        </div>
+      ),
+    },
+    // Legacy fields for backward compatibility
+    {
+      accessorKey: 'enrich_company',
+      header: () => (
+        <div className="flex items-center justify-between">
+          <span>Company (Legacy)</span>
+          {onDeleteField && (
+            <button
+              onClick={() => onDeleteField('enrich_company')}
+              className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
+              title="Delete Company (Legacy)"
             >
               <X className="h-3 w-3" />
             </button>
@@ -391,33 +1861,61 @@ export default function Table({ filters, previewData, loading, customColumns = [
       accessorKey: 'url',
       header: () => (
         <div className="flex items-center justify-between">
-          <span>URL</span>
+          <span>URL (Legacy)</span>
           {onDeleteField && (
             <button
               onClick={() => onDeleteField('url')}
               className="ml-2 p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors"
-              title="Delete URL"
+              title="Delete URL (Legacy)"
             >
               <X className="h-3 w-3" />
             </button>
           )}
         </div>
       ),
-      cell: ({ getValue }) => (
-        <a 
-          href={getValue() as string} 
-          target="_blank" 
-          rel="noopener noreferrer"
-          className="text-blue-600 hover:text-blue-800 underline"
-        >
-          {getValue() as string}
-        </a>
-      ),
+      cell: ({ getValue }) => {
+        const value = getValue() as string;
+        if (!value) return <span>-</span>;
+        return (
+          <a 
+            href={value} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-blue-600 hover:text-blue-800 underline"
+          >
+            {value}
+          </a>
+        );
+      },
     },
   ];
 
-  // Convert custom columns to table columns
-  const customTableColumns: ColumnDef<DataRow>[] = customColumns.map(col => ({
+  // Get base column field names to avoid duplicates in custom columns
+  const baseColumnFields = new Set(
+    baseColumns
+      .map(col => 'accessorKey' in col ? col.accessorKey as string : null)
+      .filter(Boolean)
+  );
+
+  // Convert custom columns to table columns, filtering out duplicates
+  const customTableColumns: ColumnDef<DataRow>[] = customColumns
+    .filter(col => {
+      // Allow enriched fields to override base columns if they contain data
+      const hasData = rowData.some(row => row[col.field] && row[col.field] !== '');
+      const isBaseColumn = baseColumnFields.has(col.field);
+      
+      if (isBaseColumn && hasData) {
+        console.log(`Allowing enriched field "${col.field}" to override base column (has data: ${hasData})`);
+        return true;
+      } else if (isBaseColumn && !hasData) {
+        console.log(`Filtering out custom column "${col.field}" as it conflicts with base column and has no data`);
+        return false;
+      } else {
+        console.log(`Including custom column "${col.field}" (not in base columns)`);
+        return true;
+      }
+    })
+    .map(col => ({
     accessorKey: col.field,
     header: () => (
       <div className="flex items-center justify-between">
@@ -478,12 +1976,54 @@ export default function Table({ filters, previewData, loading, customColumns = [
   }));
 
   // Filter out hidden fields from base columns
-  const visibleBaseColumns = baseColumns.filter(col => 
-    'accessorKey' in col && !hiddenFields.has(col.accessorKey as string)
-  );
+  const visibleBaseColumns = baseColumns.filter(col => {
+    if (!('accessorKey' in col)) return true;
+    
+    const fieldName = col.accessorKey as string;
+    const isHidden = hiddenFields.has(fieldName);
+    
+    // Check if this field has enriched data and should be overridden
+    const hasEnrichedData = rowData.some(row => row[fieldName] && row[fieldName] !== '');
+    const isEnrichedField = customColumns.some(customCol => customCol.field === fieldName);
+    
+    if (isHidden) {
+      console.log(`Hiding base column "${fieldName}" (in hiddenFields)`);
+      return false;
+    }
+    
+    if (isEnrichedField && hasEnrichedData) {
+      console.log(`Hiding base column "${fieldName}" (will be overridden by enriched column)`);
+      return false;
+    }
+    
+    return true;
+  });
 
-  // Combine base, dynamic, and custom columns
-  const columns = [...visibleBaseColumns, ...dynamicColumns, ...customTableColumns];
+  // Combine base, dynamic, and custom columns, ensuring unique accessorKeys
+  const allColumns = [...visibleBaseColumns, ...dynamicColumns, ...customTableColumns];
+  
+  // Ensure unique accessorKeys by keeping the first occurrence of each key
+  const seenKeys = new Set<string>();
+  const columns = allColumns.filter(col => {
+    if ('accessorKey' in col) {
+      const key = col.accessorKey as string;
+      if (seenKeys.has(key)) {
+        console.warn(`Duplicate column key detected and filtered: ${key}`);
+        return false;
+      }
+      seenKeys.add(key);
+    }
+    return true;
+  });
+
+  // Debug logging for column conflicts (remove in production)
+  if (process.env.NODE_ENV === 'development') {
+    const columnKeys = columns.map(col => 'accessorKey' in col ? col.accessorKey : 'no-key');
+    const duplicates = columnKeys.filter((key, index) => columnKeys.indexOf(key) !== index);
+    if (duplicates.length > 0) {
+      console.warn('Duplicate column keys detected:', duplicates);
+    }
+  }
 
 
 
@@ -502,14 +2042,17 @@ export default function Table({ filters, previewData, loading, customColumns = [
     loadData();
   }, []);
 
-  // Generate dynamic columns for webhook data
+  // Generate dynamic columns for webhook data and pixel data
   useEffect(() => {
     if (previewData && previewData.length > 0) {
       // Check if this looks like webhook data (has _webhook_id field)
       const isWebhookData = previewData.some(row => row._webhook_id);
       
-      if (isWebhookData) {
-        // Get all unique field names from webhook data
+      // Check if this looks like pixel data (has resolution fields)
+      const isPixelData = previewData.some(row => Object.keys(row).some(key => key.startsWith('resolution.')));
+      
+      if (isWebhookData || isPixelData) {
+        // Get all unique field names from the data
         const allFields = new Set<string>();
         previewData.forEach(row => {
           Object.keys(row).forEach(key => {
@@ -519,12 +2062,15 @@ export default function Table({ filters, previewData, loading, customColumns = [
           });
         });
 
-        // Create dynamic columns for webhook fields
-        const webhookColumns: ColumnDef<DataRow>[] = Array.from(allFields).map(field => ({
+        // Filter out fields that already exist in base columns
+        const uniqueFields = Array.from(allFields).filter(field => !baseColumnFields.has(field));
+
+        // Create dynamic columns for the fields
+        const dynamicColumns: ColumnDef<DataRow>[] = uniqueFields.map(field => ({
           accessorKey: field,
           header: () => (
             <div className="flex items-center justify-between">
-              <span>{field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ')}</span>
+              <span>{field.charAt(0).toUpperCase() + field.slice(1).replace(/_/g, ' ').replace(/\./g, ' ')}</span>
               {onDeleteField && (
                 <button
                   onClick={() => onDeleteField(field)}
@@ -542,7 +2088,8 @@ export default function Table({ filters, previewData, loading, customColumns = [
           }
         }));
 
-        setDynamicColumns(webhookColumns);
+        setDynamicColumns(dynamicColumns);
+        console.log(`Generated ${dynamicColumns.length} dynamic columns for ${isWebhookData ? 'webhook' : 'pixel'} data`);
       } else {
         setDynamicColumns([]);
       }

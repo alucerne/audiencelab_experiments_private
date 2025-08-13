@@ -1,473 +1,726 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { useTeamAccountWorkspace } from '@kit/team-accounts/hooks/use-team-account-workspace';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kit/ui/select';
-import { Button } from '@kit/ui/button';
-import { Play, Loader2, Plus, Code, X, Webhook } from 'lucide-react';
-import { toast } from 'sonner';
-import Table from './Table';
-import Filters from './Filters';
-import WebhookManager from './WebhookManager';
-import { FIELD_TYPES, CustomColumn } from '../utils/fieldOptions';
-import { WebhookSegment } from '../utils/createWebhook';
+import * as React from 'react';
+import { PREDEFINED_SOURCES, PredefinedSource } from '~/lib/predefinedAudiences';
 
-interface Filter {
+type FieldItem = { key: string; label: string; type: string; group: string };
+type ApiFieldResponse = { fields: FieldItem[] };
+type PreviewRow = Record<string, any>;
+
+interface FilterRule {
   id: string;
-  category: string;
   field: string;
-  operator: string;
-  value: string;
+  op: string;
+  value: string | number | boolean;
 }
 
-interface Audience {
-  id: string;
-  name: string;
-  created_at: string;
-  account_id: string;
+const operators = [
+  { value: '=', label: '=' },
+  { value: '!=', label: '≠' },
+  { value: '>', label: '>' },
+  { value: '<', label: '<' },
+  { value: '>=', label: '≥' },
+  { value: '<=', label: '≤' },
+  { value: 'contains', label: 'contains' },
+  { value: 'starts_with', label: 'starts with' },
+  { value: 'ends_with', label: 'ends with' },
+  { value: 'exists', label: 'exists' }
+];
+
+function FilterRuleComponent({ 
+  rule, 
+  fields, 
+  onUpdate, 
+  onDelete 
+}: { 
+  rule: FilterRule; 
+  fields: FieldItem[]; 
+  onUpdate: (rule: FilterRule) => void; 
+  onDelete: () => void; 
+}) {
+  return (
+    <div className="flex items-center gap-2 p-2 border rounded bg-gray-50">
+      <select
+        value={rule.field}
+        onChange={(e) => onUpdate({ ...rule, field: e.target.value })}
+        className="border rounded px-2 py-1 text-sm"
+      >
+        <option value="">Select field...</option>
+        {fields.map(field => (
+          <option key={field.key} value={field.key}>
+            {field.group === 'pixel_event' ? 'Pixel' : 'Contact'} • {field.label}
+          </option>
+        ))}
+      </select>
+      
+      <select
+        value={rule.op}
+        onChange={(e) => onUpdate({ ...rule, op: e.target.value })}
+        className="border rounded px-2 py-1 text-sm"
+      >
+        <option value="">Select operator...</option>
+        {operators.map(op => (
+          <option key={op.value} value={op.value}>{op.label}</option>
+        ))}
+      </select>
+      
+      {rule.op !== 'exists' && (
+        <input
+          type="text"
+          value={rule.value as string}
+          onChange={(e) => onUpdate({ ...rule, value: e.target.value })}
+          placeholder="Value"
+          className="border rounded px-2 py-1 text-sm flex-1"
+        />
+      )}
+      
+      <button
+        onClick={onDelete}
+        className="px-2 py-1 text-red-600 hover:bg-red-50 rounded text-sm"
+      >
+        ✕
+      </button>
+    </div>
+  );
 }
 
 export default function Studio() {
-  const { account } = useTeamAccountWorkspace();
-  const [filters, setFilters] = useState<Filter[]>([]);
-  const [previewRows, setPreviewRows] = useState<any[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [audiences, setAudiences] = useState<Audience[]>([]);
-  const [selectedAudienceId, setSelectedAudienceId] = useState<string>('');
-  const [loadingAudiences, setLoadingAudiences] = useState(true);
-  const [customColumns, setCustomColumns] = useState<CustomColumn[]>([]);
-  const [hiddenFields, setHiddenFields] = useState<Set<string>>(new Set());
-  const [selectKey, setSelectKey] = useState(0);
-  const [codeEditorVisible, setCodeEditorVisible] = useState(false);
-  const [codeField, setCodeField] = useState<{ field: string; code: string; sourceField: string } | null>(null);
-  const [dataSource, setDataSource] = useState<'audience' | 'webhook'>('audience');
-  const [webhookData, setWebhookData] = useState<any[]>([]);
+  // Dataset selection
+  const [sourceId, setSourceId] = React.useState<'pixel_1'|'audience_1'>('pixel_1');
+  const selectedSource = React.useMemo(
+    () => PREDEFINED_SOURCES.find(s => s.id === sourceId)!,
+    [sourceId]
+  );
 
-  // Fetch user's audiences
-  useEffect(() => {
-    async function fetchAudiences() {
-      if (!account?.id) return;
-      
-      try {
-        setLoadingAudiences(true);
-        const response = await fetch(`/api/audiences?accountId=${account.id}`);
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch audiences');
-        }
-        
-        const data = await response.json();
-        setAudiences(data.audiences || []);
-        
-        // Auto-select the first audience if available
-        if (data.audiences && data.audiences.length > 0) {
-          setSelectedAudienceId(data.audiences[0].id);
-        }
-      } catch (error) {
-        console.error('Error fetching audiences:', error);
-        setError('Failed to load audiences');
-      } finally {
-        setLoadingAudiences(false);
-      }
+  // Fields + filters
+  const [fields, setFields] = React.useState<FieldItem[]>([]);
+  const [loading, setLoading] = React.useState(false);
+  const [filterTree, setFilterTree] = React.useState<{
+    combinator: 'and' | 'or';
+    rules: FilterRule[];
+  }>({
+    combinator: 'and',
+    rules: []
+  });
+
+  // Column picker
+  const [search, setSearch] = React.useState('');
+  const [selectedKeys, setSelectedKeys] = React.useState<string[]>([]);
+
+  // Preview
+  const [rows, setRows] = React.useState<PreviewRow[]>([]);
+  const [previewLoading, setPreviewLoading] = React.useState(false);
+  const [lastLoadInfo, setLastLoadInfo] = React.useState<{rows:number; name:string; loaded_source?: string}|null>(null);
+
+  // NEW: pagination state (server-driven)
+  const [pageSize, setPageSize] = React.useState(50); // allow up to 300
+  const [page, setPage] = React.useState(1);          // 1-based page counter
+
+  // NEW: selection state (page-scoped)
+  const [selectedRowIdx, setSelectedRowIdx] = React.useState<Set<number>>(new Set());
+
+  // NEW: actions menu state
+  const [actionKey, setActionKey] = React.useState<'extract_first' | ''>('');
+
+  // Save segment
+  const [savingSegment, setSavingSegment] = React.useState(false);
+
+  // Track if component has mounted to avoid hydration issues
+  const [hasMounted, setHasMounted] = React.useState(false);
+
+  // Set mounted flag on client side
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+
+  // when page changes, clear page selections
+  React.useEffect(() => {
+    setSelectedRowIdx(new Set());
+  }, [page, pageSize]);
+
+  // derive limit/offset for API
+  const limit = Math.min(300, Math.max(1, pageSize));
+  const offset = (Math.max(1, page) - 1) * limit;
+
+  // Load field catalog on mount (static, no data loading)
+  React.useEffect(() => {
+    if (hasMounted) {
+      loadFieldCatalog();
     }
+  }, [hasMounted]); // eslint-disable-next-line react-hooks/exhaustive-deps
 
-    fetchAudiences();
-  }, [account?.id]);
-
-  async function fetchPreview(filters: Filter[]) {
-    if (!selectedAudienceId) {
-      setError('Please select an audience first');
-      return;
-    }
-
+  // Helper to load field catalog (static, no data loading)
+  const loadFieldCatalog = async () => {
     setLoading(true);
-    setError(null);
-    
     try {
-      const res = await fetch('/api/preview-subsegment', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          user_id: account?.id || '',
-          audience_id: selectedAudienceId,
-          filters,
-          page: 1,
-          limit: 100,
-        })
-      });
-
-      if (!res.ok) {
-        throw new Error(`API error: ${res.status}`);
-      }
-
-      const data = await res.json();
-      setPreviewRows(data.rows || []);
-    } catch (err) {
-      console.error('Error fetching preview:', err);
-      setError(err instanceof Error ? err.message : 'Unknown error');
+      // Refresh field catalog from server (always the same unified list)
+      const rf = await fetch('/api/studio/filters/fields');
+      const df = await rf.json();
+      setFields(df.fields || []);
+    } catch (error) {
+      console.error('Failed to load field catalog:', error);
+      alert(`Failed to load field catalog: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       setLoading(false);
     }
+  };
+
+  // Filter available fields based on search and selected state
+  const available = React.useMemo(() => {
+    const q = search.trim().toLowerCase();
+    return fields
+      .filter(f => !selectedKeys.includes(f.key))
+      .filter(f => !q || f.label.toLowerCase().includes(q) || f.key.toLowerCase().includes(q));
+  }, [fields, selectedKeys, search]);
+
+  // Get selected field objects
+  const selected = React.useMemo(
+    () => selectedKeys.map(k => fields.find(f => f.key === k)).filter(Boolean) as FieldItem[],
+    [selectedKeys, fields]
+  );
+
+  // Column picker actions
+  const addAll = () => setSelectedKeys(fields.map(f => f.key));
+  const clearAll = () => setSelectedKeys([]);
+  const addKey = (k: string) => setSelectedKeys(prev => prev.includes(k) ? prev : [...prev, k]);
+  const removeKey = (k: string) => setSelectedKeys(prev => prev.filter(x => x !== k));
+
+  // Boolean builder actions
+  const addRule = () => {
+    const newRule: FilterRule = {
+      id: Math.random().toString(36).substr(2, 9),
+      field: '',
+      op: '',
+      value: ''
+    };
+    setFilterTree({
+      ...filterTree,
+      rules: [...filterTree.rules, newRule]
+    });
+  };
+
+  const updateRule = (ruleId: string, updatedRule: FilterRule) => {
+    setFilterTree({
+      ...filterTree,
+      rules: filterTree.rules.map(r => r.id === ruleId ? updatedRule : r)
+    });
+  };
+
+  const deleteRule = (ruleId: string) => {
+    setFilterTree({
+      ...filterTree,
+      rules: filterTree.rules.filter(r => r.id !== ruleId)
+    });
+  };
+
+  // ---- Utility: extract first value from multi-value strings ----
+  function firstOfMulti(val: any): any {
+    if (val == null) return val;
+
+    // If looks like a JSON array string: ["x","y"]
+    if (typeof val === 'string') {
+      const t = val.trim();
+
+      // Try JSON array parse safely
+      if ((t.startsWith('[') && t.endsWith(']')) || (t.startsWith('"[') || t.endsWith(']"'))) {
+        try {
+          const parsed = JSON.parse(t.replace(/^"|"$/g, ''));
+          if (Array.isArray(parsed) && parsed.length) {
+            const first = parsed[0];
+            return typeof first === 'string' ? first.trim() : first;
+          }
+        } catch {/* fall through */}
+      }
+
+      // Split by common delimiters , ; |
+      if (t.includes(',') || t.includes(';') || t.includes('|')) {
+        const parts = t.split(/[;,|]/).map(s => s.trim()).filter(Boolean);
+        if (parts.length) return parts[0];
+      }
+    }
+
+    // default: unchanged
+    return val;
   }
 
-  const handleFiltersChange = (newFilters: Filter[]) => {
-    setFilters(newFilters);
-  };
+  // ---- Action runner ----
+  function extractFirstValuesOnSelectedRows() {
+    if (!selectedRowIdx.size) return;
 
-  const handlePreviewClick = () => {
-    fetchPreview(filters);
-  };
+    setRows(prev => {
+      const next = [...prev];
+      selectedRowIdx.forEach(i => {
+        const row = next[i];
+        if (!row) return;
+        const updated: PreviewRow = {};
+        for (const k of Object.keys(row)) {
+          updated[k] = firstOfMulti(row[k]);
+        }
+        next[i] = updated;
+      });
+      return next;
+    });
+  }
 
-  const handleAddField = (field: CustomColumn) => {
-    setCustomColumns(prev => [...prev, field]);
-  };
+  function runSelectedAction() {
+    if (actionKey === 'extract_first') {
+      extractFirstValuesOnSelectedRows();
+    }
+    // reset action selection (optional)
+    setActionKey('');
+  }
 
-  const handleDeleteField = (fieldToDelete: string) => {
-    // If it's a custom field, remove it from customColumns
-    if (fieldToDelete.startsWith('custom_') || fieldToDelete.startsWith('code_')) {
-      setCustomColumns(prev => prev.filter(col => col.field !== fieldToDelete));
+  // header checkbox logic (select all on page)
+  const allOnPageSelected = rows.length > 0 && rows.every((_, i) => selectedRowIdx.has(i));
+  const someOnPageSelected = rows.some((_, i) => selectedRowIdx.has(i)) && !allOnPageSelected;
+
+  const toggleHeaderCheckbox = () => {
+    if (allOnPageSelected) {
+      // unselect all on page
+      setSelectedRowIdx(prev => {
+        const next = new Set(prev);
+        rows.forEach((_, i) => next.delete(i));
+        return next;
+      });
     } else {
-      // For base fields, add them to hidden fields
-      setHiddenFields(prev => new Set([...prev, fieldToDelete]));
+      // select all on page
+      setSelectedRowIdx(prev => {
+        const next = new Set(prev);
+        rows.forEach((_, i) => next.add(i));
+        return next;
+      });
     }
   };
 
-  const handleAddCodeField = () => {
-    const codeFields = customColumns.filter(col => col.type === 'code');
-    const fieldId = `code_${codeFields.length}`;
-    const newColumn: CustomColumn = {
-      field: fieldId,
-      headerName: `Code Transform ${codeFields.length + 1}`,
-      type: 'code',
-      transform: '',
-      sourceField: 'domain' // default source field
-    };
-    
-    setCustomColumns(prev => [...prev, newColumn]);
-    setCodeField({ field: fieldId, code: '', sourceField: 'domain' });
-    setCodeEditorVisible(true);
+  const toggleRow = (i: number) => {
+    setSelectedRowIdx(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i); else next.add(i);
+      return next;
+    });
   };
 
-  const selectedAudience = audiences.find(aud => aud.id === selectedAudienceId);
+  const handlePreview = async () => {
+    setPreviewLoading(true);
+    try {
+      // Convert our internal format to API format
+      const apiFilterTree = {
+        combinator: filterTree.combinator,
+        rules: filterTree.rules.map(rule => ({
+          field: rule.field,
+          op: rule.op,
+          value: rule.value
+        })).filter(rule => rule.field && rule.op) // Only include complete rules
+      };
 
-  const handleWebhookDataChange = (data: any[]) => {
-    setWebhookData(data);
-    setPreviewRows(data);
+      const payload = {
+        audience: { 
+          url: selectedSource.url, 
+          format: selectedSource.format 
+        },
+        filterTree: apiFilterTree,
+        select: selectedKeys, // Send selected columns
+        limit,
+        offset
+      };
+
+      console.log('Sending payload to unified preview:', payload);
+
+      const r = await fetch('/api/preview', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await r.json();
+      
+      if (r.ok) {
+        setRows(data.rows || []);
+        setLastLoadInfo({ 
+          rows: data.total_rows || data.rows?.length || 0, 
+          name: selectedSource.name,
+          loaded_source: data.loaded
+        });
+      } else {
+        console.error('Preview failed:', data);
+        alert(`Preview failed: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Preview error:', error);
+      alert('Preview failed: Network error');
+    } finally {
+      setPreviewLoading(false);
+    }
   };
 
-  const handleSaveWebhookSegment = (segment: WebhookSegment) => {
-    // In a real implementation, save to database
-    console.log('Saving webhook segment:', segment);
-    
-    // Validate segment data
-    if (!segment.name || segment.name.trim() === '') {
-      toast.error('Segment name is required');
+  // Save segment functionality
+  const saveSegment = async () => {
+    const name = window.prompt('Segment name? (e.g., "High Intent")');
+    if (!name) return;
+
+    // Check if we have any rules
+    const validRules = filterTree.rules.filter(rule => rule.field && rule.op);
+    if (validRules.length === 0) {
+      alert('Please add at least one filter rule before saving a segment.');
       return;
     }
-    
-    if (!segment.data || segment.data.length === 0) {
-      toast.error('No data to save');
-      return;
+
+    setSavingSegment(true);
+    try {
+      // Convert our internal format to API format
+      const apiFilterTree = {
+        combinator: filterTree.combinator,
+        rules: validRules.map(rule => ({
+          field: rule.field,
+          op: rule.op,
+          value: rule.value
+        }))
+      };
+
+      const payload = {
+        name,
+        parent_audience_id: sourceId, // Use the current source ID
+        source_url: selectedSource.url,
+        format: selectedSource.format,
+        filterTree: apiFilterTree,
+        selectedFields: selectedKeys
+      };
+
+      console.log('Saving segment with payload:', payload);
+
+      const r = await fetch('/api/studio/segments/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      
+      console.log('Response status:', r.status);
+      const data = await r.json();
+      console.log('Response data:', data);
+      
+      if (r.ok) {
+        alert(`Saved: ${data.segment.name}`);
+      } else {
+        console.error('Save failed:', data);
+        alert(`Failed to save: ${data.error || 'Unknown error'}`);
+      }
+    } catch (error) {
+      console.error('Save segment error:', error);
+      alert(`Failed to save segment: ${error instanceof Error ? error.message : 'Network error'}`);
+    } finally {
+      setSavingSegment(false);
     }
-    
-    // Show preview of what will be saved
-    const fields = segment.data.length > 0 ? Object.keys(segment.data[0]).filter(f => !f.startsWith('_webhook_')) : [];
-    
-    toast.success(`Segment "${segment.name}" saved successfully with ${segment.data.length} records!`, {
-      description: `Fields: ${fields.join(', ')}`
-    });
-    
-    // Log the segment data for debugging
-    console.log('Segment data:', {
-      name: segment.name,
-      recordCount: segment.data.length,
-      fields: fields,
-      sampleRecord: segment.data[0]
-    });
-    
-    // TODO: In production, save to database
-    // await saveSegmentToDatabase(segment);
   };
+
+  // Show loading state until component has mounted
+  if (!hasMounted) {
+    return <div className="p-6">Loading...</div>;
+  }
+
+  if (loading && fields.length === 0) return <div className="p-6">Loading field catalog…</div>;
+
+  // columns (as before)
+  const cols = rows.length && rows[0] ? Object.keys(rows[0]) : (selected.length ? selected.map(s => s.key) : []);
 
   return (
-    <div>
-      {/* Data Source Selector */}
-      <div className="bg-white p-4 border rounded-lg shadow-sm mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Data Source</h2>
-          <div className="flex items-center gap-2">
-            <Button
-              variant={dataSource === 'audience' ? 'default' : 'outline'}
-              onClick={() => setDataSource('audience')}
-              className="flex items-center gap-2"
-            >
-              <Play className="h-4 w-4" />
-              Audience Data
-            </Button>
-            <Button
-              variant={dataSource === 'webhook' ? 'default' : 'outline'}
-              onClick={() => setDataSource('webhook')}
-              className="flex items-center gap-2"
-            >
-              <Webhook className="h-4 w-4" />
-              Webhook Data
-            </Button>
-          </div>
-        </div>
-
-        {dataSource === 'audience' ? (
-          /* Audience Selector */
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">
-                Select Audience
-              </label>
-              <Select 
-                value={selectedAudienceId} 
-                onValueChange={setSelectedAudienceId}
-                disabled={loadingAudiences}
-              >
-                <SelectTrigger className="w-80">
-                  <SelectValue placeholder={
-                    loadingAudiences ? 'Loading audiences...' : 'Choose an audience'
-                  } />
-                </SelectTrigger>
-                <SelectContent>
-                  {loadingAudiences ? (
-                    <SelectItem value="loading" disabled>
-                      <div className="flex items-center gap-2">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Loading audiences...
-                      </div>
-                    </SelectItem>
-                  ) : audiences.length > 0 ? (
-                    audiences.map((audience) => (
-                      <SelectItem key={audience.id} value={audience.id}>
-                        <div className="flex flex-col">
-                          <span className="font-medium">{audience.name}</span>
-                          <span className="text-xs text-gray-500">
-                            Created {new Date(audience.created_at).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem value="no-audiences" disabled>
-                      No audiences found
-                    </SelectItem>
-                  )}
-                </SelectContent>
-              </Select>
-            </div>
-            
-            {selectedAudience && (
-              <div className="text-sm text-gray-600">
-                <span className="font-medium">Selected:</span> {selectedAudience.name}
-              </div>
-            )}
-          </div>
-          
-          <Button 
-            onClick={handlePreviewClick}
-            disabled={loading || filters.length === 0 || !selectedAudienceId}
-            className="flex items-center gap-2"
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Dataset • Filters • Visible Fields</h1>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => window.location.href = '/home/test/studio/audiences'}
+            className="px-3 py-2 rounded border hover:bg-gray-50 text-sm"
           >
-            <Play className="h-4 w-4" />
-            {loading ? 'Loading Preview...' : 'Preview Sub-Segment'}
-          </Button>
+            View Saved Segments
+          </button>
         </div>
-        ) : (
-          /* Webhook Manager */
-          <WebhookManager
-            accountId={account?.id || ''}
-            onWebhookDataChange={handleWebhookDataChange}
-            onSaveSegment={handleSaveWebhookSegment}
-          />
-        )}
       </div>
 
-      {/* Filters - Only show for audience data */}
-      {dataSource === 'audience' && (
-        <>
-          <Filters onChange={handleFiltersChange} />
+      {/* 0) Choose dataset (no Load button) */}
+      <div className="rounded-lg border p-4 space-y-3">
+        <h2 className="font-medium">0) Choose Dataset</h2>
+        <div className="flex items-center gap-3">
+          <select
+            value={sourceId}
+            onChange={e => setSourceId(e.target.value as 'pixel_1'|'audience_1')}
+            className="border rounded px-3 py-2"
+          >
+            {PREDEFINED_SOURCES.map(s => (
+              <option key={s.id} value={s.id}>
+                {s.name} ({s.kind})
+              </option>
+            ))}
+          </select>
+          {lastLoadInfo && (
+            <div className="text-sm text-gray-600">
+              Loaded: <b>{lastLoadInfo.name}</b> • Rows: <b>{lastLoadInfo.rows}</b>
+              {lastLoadInfo.loaded_source && (
+                <span className="ml-2 text-blue-600">
+                  • Cached: {lastLoadInfo.loaded_source.substring(0, 20)}...
+                </span>
+              )}
+            </div>
+          )}
+        </div>
+        <p className="text-xs text-gray-500">
+          Data will only be loaded when you click Preview. Pixel 1 has fields Audience 1 does not. Missing fields appear as empty cells; filters remain stable (unified catalog).
+        </p>
+      </div>
+
+      {/* 1) Boolean editor */}
+      <div className="rounded-lg border p-4">
+        <h2 className="font-medium mb-3">1) Build Filters</h2>
+        <div className="flex items-center gap-2 mb-4">
+          <select
+            value={filterTree.combinator}
+            onChange={(e) => setFilterTree({ ...filterTree, combinator: e.target.value as 'and' | 'or' })}
+            className="border rounded px-2 py-1 text-sm font-medium"
+          >
+            <option value="and">AND</option>
+            <option value="or">OR</option>
+          </select>
           
-          <div className="mt-4 flex items-center gap-4">
-            {filters.length > 0 && (
-              <span className="text-sm text-gray-600">
-                {filters.length} filter{filters.length !== 1 ? 's' : ''} applied
-              </span>
-            )}
-          </div>
-        </>
-      )}
-
-      {error && (
-        <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-          <p className="text-red-800 text-sm">Error: {error}</p>
+          <button
+            onClick={addRule}
+            className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700"
+          >
+            Add Rule
+          </button>
         </div>
-      )}
 
-      <div className="mt-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-bold">
-            {dataSource === 'audience' ? 'Sub-Segment Table' : 'Webhook Data Table'}
-          </h2>
-          <div className="flex items-center gap-2">
-            <Select 
-              key={selectKey}
-              onValueChange={(value) => {
-                if (value && value !== 'placeholder') {
-                  if (value === 'code') {
-                    handleAddCodeField();
-                  } else {
-                    const newCol: CustomColumn = {
-                      field: `custom_${customColumns.length}`,
-                      headerName: `${value.charAt(0).toUpperCase() + value.slice(1)} Field`,
-                      type: value,
-                    };
-                    handleAddField(newCol);
-                  }
-                  setSelectKey(prev => prev + 1); // Force re-render to reset select
-                }
-              }}
-            >
-              <SelectTrigger className="w-40">
-                <SelectValue placeholder="➕ Add Field" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="placeholder" disabled>➕ Add Field</SelectItem>
-                {FIELD_TYPES.map(ft => (
-                  <SelectItem key={ft.key} value={ft.key}>
-                    {ft.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        <div className="space-y-2">
+          {filterTree.rules.map(rule => (
+            <FilterRuleComponent
+              key={rule.id}
+              rule={rule}
+              fields={fields}
+              onUpdate={(updatedRule) => updateRule(rule.id, updatedRule)}
+              onDelete={() => deleteRule(rule.id)}
+            />
+          ))}
+          
+          {filterTree.rules.length === 0 && (
+            <div className="text-gray-500 text-sm p-4 text-center">
+              No rules added yet. Click "Add Rule" to get started.
+            </div>
+          )}
         </div>
-        <Table 
-          filters={dataSource === 'audience' ? filters : []} 
-          previewData={dataSource === 'webhook' ? webhookData : previewRows}
-          loading={loading}
-          customColumns={customColumns}
-          hiddenFields={hiddenFields}
-          onAddField={handleAddField}
-          onDeleteField={handleDeleteField}
-        />
       </div>
 
-      {/* Code Editor Modal */}
-      {codeEditorVisible && codeField && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-2xl max-h-[80vh] overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-bold">🧠 Custom Code Transform</h3>
-              <button
-                onClick={() => setCodeEditorVisible(false)}
-                className="text-gray-500 hover:text-gray-700"
+      {/* 2) Column picker */}
+      <div className="rounded-lg border p-4">
+        <h2 className="font-medium mb-3">2) Choose Visible Fields</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="border rounded p-3">
+            <div className="flex items-center gap-2 mb-2">
+              <input
+                placeholder="Search fields…"
+                className="border rounded px-2 py-1 w-full"
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+              />
+              <button 
+                className="px-2 py-1 border rounded text-sm hover:bg-gray-50" 
+                onClick={addAll}
               >
-                <X className="h-5 w-5" />
+                Select All
               </button>
             </div>
-            
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Source Field
-                </label>
-                <Select 
-                  value={codeField.sourceField} 
-                  onValueChange={(value) => setCodeField(prev => prev ? { ...prev, sourceField: value } : null)}
+            <div className="h-64 overflow-auto text-sm">
+              {available.map(f => (
+                <button
+                  key={f.key}
+                  onClick={() => addKey(f.key)}
+                  className="w-full text-left px-2 py-1 hover:bg-gray-50 border-b"
+                  title={f.key}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="domain">Domain</SelectItem>
-                    <SelectItem value="enrich_company">Company</SelectItem>
-                    <SelectItem value="company_name">Company Name</SelectItem>
-                    <SelectItem value="job_title">Job Title</SelectItem>
-                    <SelectItem value="seniority">Seniority</SelectItem>
-                    <SelectItem value="department">Department</SelectItem>
-                    <SelectItem value="industry">Industry</SelectItem>
-                    <SelectItem value="city">City</SelectItem>
-                    <SelectItem value="state">State</SelectItem>
-                    <SelectItem value="age">Age</SelectItem>
-                    <SelectItem value="gender">Gender</SelectItem>
-                    <SelectItem value="income_range">Income Range</SelectItem>
-                    <SelectItem value="education">Education</SelectItem>
-                    <SelectItem value="url">URL</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  JavaScript Transform Function
-                </label>
-                <div className="text-xs text-gray-500 mb-2">
-                  Write a function that takes an input and returns the transformed value. Use 'input' as the parameter name.
-                </div>
-                <textarea
-                  className="w-full h-40 border border-gray-300 rounded-md p-3 font-mono text-sm"
-                  value={codeField.code}
-                  onChange={(e) => setCodeField(prev => prev ? { ...prev, code: e.target.value } : null)}
-                  placeholder="// Example: return input.split(',')[0].trim();"
-                />
-                
-                {/* Real-time Preview */}
-                {codeField.code && (
-                  <div className="mt-3 p-3 bg-gray-50 rounded-md">
-                    <div className="text-xs font-medium text-gray-700 mb-2">Preview:</div>
-                    <div className="text-xs text-gray-600 font-mono">
-                      {(() => {
-                        try {
-                          const testInput = "example@company.com, test@company.com";
-                          const transformFn = new Function('input', codeField.code);
-                          const result = transformFn(testInput);
-                          return `Input: "${testInput}" → Output: "${result}"`;
-                        } catch (error) {
-                          return `Error: ${error instanceof Error ? error.message : 'Unknown error'}`;
-                        }
-                      })()}
-                    </div>
+                  {f.group === 'pixel_event' ? 'Pixel' : 'Contact'} • {f.label}
+                </button>
+              ))}
+              {!available.length && (
+                <div className="text-gray-500 px-2 py-6 text-center">No fields</div>
+              )}
+            </div>
+          </div>
+          <div className="border rounded p-3">
+            <div className="flex items-center justify-between mb-2">
+              <div className="font-medium text-sm">Selected ({selected.length})</div>
+              <button 
+                className="px-2 py-1 border rounded text-sm hover:bg-gray-50" 
+                onClick={clearAll}
+              >
+                Clear
+              </button>
+            </div>
+            <div className="h-64 overflow-auto text-sm">
+              {selected.map(f => (
+                <div key={f.key} className="flex items-center justify-between px-2 py-1 border-b">
+                  <div title={f.key} className="flex-1">
+                    {f.group === 'pixel_event' ? 'Pixel' : 'Contact'} • {f.label}
                   </div>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <Button
-                  onClick={() => {
-                    if (codeField) {
-                      // Update the custom column with the code
-                      setCustomColumns(prev => 
-                        prev.map(col => 
-                          col.field === codeField.field 
-                            ? { ...col, transform: codeField.code, sourceField: codeField.sourceField }
-                            : col
-                        )
-                      );
-                      setCodeEditorVisible(false);
-                    }
-                  }}
-                  className="flex items-center gap-2"
-                >
-                  <Code className="h-4 w-4" />
-                  Save & Apply
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => setCodeEditorVisible(false)}
-                >
-                  Cancel
-                </Button>
-              </div>
+                  <button 
+                    className="text-red-600 text-xs hover:bg-red-50 px-1 rounded" 
+                    onClick={() => removeKey(f.key)}
+                  >
+                    remove
+                  </button>
+                </div>
+              ))}
+              {!selected.length && (
+                <div className="text-gray-500 px-2 py-6 text-center">
+                  No fields selected — Preview shows all.
+                </div>
+              )}
             </div>
           </div>
         </div>
-      )}
+
+        <div className="mt-4 flex items-center gap-3">
+          <button 
+            onClick={saveSegment}
+            disabled={savingSegment || filterTree.rules.filter(r => r.field && r.op).length === 0}
+            className="px-3 py-2 rounded border hover:bg-gray-50 disabled:opacity-60"
+            title={`savingSegment: ${savingSegment}, validRules: ${filterTree.rules.filter(r => r.field && r.op).length}`}
+          >
+            {savingSegment ? 'Saving...' : 'Save Segment'}
+          </button>
+        </div>
+      </div>
+
+      {/* Controls above preview */}
+      <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <label className="text-sm">Rows per page</label>
+          <select
+            className="border rounded px-2 py-1"
+            value={pageSize}
+            onChange={e => { setPageSize(Number(e.target.value)); setPage(1); }}
+          >
+            {[25,50,100,200,300].map(n => <option key={n} value={n}>{n}</option>)}
+          </select>
+        </div>
+
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            className="px-2 py-1 border rounded disabled:opacity-50"
+            onClick={() => { if (page > 1) { setPage(p => p-1); handlePreview(); } }}
+            disabled={page <= 1}
+          >
+            Prev
+          </button>
+          <div className="text-sm">Page {page}</div>
+          <button
+            className="px-2 py-1 border rounded"
+            onClick={() => { setPage(p => p+1); handlePreview(); }}
+          >
+            Next
+          </button>
+          <button
+            className="px-3 py-2 rounded bg-black text-white"
+            onClick={handlePreview}
+            disabled={previewLoading}
+          >
+            {previewLoading ? 'Loading...' : 'Preview'}
+          </button>
+        </div>
+      </div>
+
+      {/* Preview table with selector column */}
+      <div className="rounded border">
+        <div className="px-4 py-2 text-sm text-gray-600 flex items-center gap-3">
+          Preview ({rows.length} rows on this page)
+          <span className="text-gray-400">•</span>
+          Selected on page: <b>{selectedRowIdx.size}</b>
+
+          {/* Existing "Unselect all" */}
+          <button
+            className="ml-2 text-xs underline text-gray-600"
+            onClick={() => setSelectedRowIdx(new Set())}
+          >
+            Unselect all on page
+          </button>
+
+          {/* NEW: Actions dropdown & Run button (visible only if selection exists) */}
+          {selectedRowIdx.size > 0 && (
+            <>
+              <span className="text-gray-400">•</span>
+              <div className="flex items-center gap-2">
+                <label className="text-sm">Actions</label>
+                <select
+                  className="border rounded px-2 py-1"
+                  value={actionKey}
+                  onChange={e => setActionKey(e.target.value as any)}
+                >
+                  <option value="">Choose…</option>
+                  <option value="extract_first">Extract Values (first item only)</option>
+                </select>
+                <button
+                  className="px-2 py-1 border rounded disabled:opacity-50"
+                  onClick={runSelectedAction}
+                  disabled={!actionKey}
+                >
+                  Run
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+        <div className="overflow-auto">
+          <table className="min-w-full text-sm">
+            <thead>
+              <tr className="bg-gray-50">
+                {/* selector header */}
+                <th className="px-2 py-2 w-8">
+                  <input
+                    type="checkbox"
+                    aria-label="Select all on page"
+                    checked={allOnPageSelected}
+                    ref={el => { if (el) el.indeterminate = someOnPageSelected; }}
+                    onChange={toggleHeaderCheckbox}
+                  />
+                </th>
+                {cols.map(c => (
+                  <th key={c} className="px-3 py-2 text-left font-medium text-gray-700 whitespace-nowrap">{c}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.length ? rows.map((r, i) => (
+                <tr key={i} className="border-t">
+                  <td className="px-2 py-2">
+                    <input
+                      type="checkbox"
+                      checked={selectedRowIdx.has(i)}
+                      onChange={() => toggleRow(i)}
+                      aria-label={`Select row ${i+1}`}
+                    />
+                  </td>
+                  {cols.map(c => (
+                    <td key={c} className="px-3 py-2 whitespace-nowrap">
+                      {(() => {
+                        const value = r[c];
+                        if (value === null || value === undefined) return '';
+                        if (typeof value === 'object') return JSON.stringify(value);
+                        return String(value);
+                      })()}
+                    </td>
+                  ))}
+                </tr>
+              )) : (
+                <tr><td className="px-3 py-6 text-gray-500" colSpan={cols.length + 1}>No rows. Click Preview.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <details className="rounded border p-3">
+        <summary className="cursor-pointer text-sm text-gray-700">
+          Debug: current filterTree JSON
+        </summary>
+        <pre className="text-xs overflow-auto mt-2 bg-gray-50 p-2 rounded">
+          {JSON.stringify({ filterTree, selectedKeys, sourceId, page, pageSize, selectedRowCount: selectedRowIdx.size }, null, 2)}
+        </pre>
+      </details>
     </div>
   );
-} 
+}

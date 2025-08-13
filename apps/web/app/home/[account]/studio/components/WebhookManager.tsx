@@ -3,44 +3,67 @@ import { Button } from '@kit/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@kit/ui/card';
 import { Input } from '@kit/ui/input';
 import { Badge } from '@kit/ui/badge';
-import { Copy, ExternalLink, Trash2, Save, Plus } from 'lucide-react';
+import { Copy, ExternalLink, Trash2, Save, Plus, RefreshCw } from 'lucide-react';
 import { toast } from 'sonner';
 import { WebhookSegment, createWebhookSegment, getWebhookUrl } from '../utils/createWebhook';
 
 interface WebhookManagerProps {
   accountId: string;
-  onWebhookDataChange: (data: any[]) => void;
+  onWebhookDataChange: (data: any[], webhookId?: string) => void;
   onSaveSegment: (segment: WebhookSegment) => void;
+  onResetMapping?: (webhookId: string) => void;
 }
 
 export default function WebhookManager({ 
   accountId, 
   onWebhookDataChange, 
-  onSaveSegment 
+  onSaveSegment,
+  onResetMapping
 }: WebhookManagerProps) {
   const [webhookSegments, setWebhookSegments] = useState<WebhookSegment[]>([]);
   const [selectedWebhook, setSelectedWebhook] = useState<WebhookSegment | null>(null);
   const [webhookData, setWebhookData] = useState<any[]>([]);
   const [segmentName, setSegmentName] = useState('');
+  const [isPolling, setIsPolling] = useState(false);
+  const [lastPollTime, setLastPollTime] = useState<Date | null>(null);
 
   // Poll for new webhook data every 3 seconds
   useEffect(() => {
     if (!selectedWebhook) return;
 
+    console.log('Starting polling for webhook:', selectedWebhook.id);
+
     const interval = setInterval(async () => {
       try {
+        setIsPolling(true);
+        console.log('Polling webhook data for:', selectedWebhook.id);
         const response = await fetch(`/api/webhook/${selectedWebhook.id}`);
         if (response.ok) {
           const result = await response.json();
+          console.log('Webhook polling result:', {
+            webhookId: selectedWebhook.id,
+            dataCount: result.dataCount,
+            dataLength: result.data?.length || 0,
+            sampleData: result.data?.[0]
+          });
+          
           setWebhookData(result.data || []);
-          onWebhookDataChange(result.data || []);
+          onWebhookDataChange(result.data || [], selectedWebhook.id);
+          setLastPollTime(new Date());
+        } else {
+          console.error('Webhook polling failed:', response.status, response.statusText);
         }
       } catch (error) {
         console.error('Error fetching webhook data:', error);
+      } finally {
+        setIsPolling(false);
       }
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      console.log('Stopping polling for webhook:', selectedWebhook.id);
+      clearInterval(interval);
+    };
   }, [selectedWebhook, onWebhookDataChange]);
 
   const handleCreateWebhook = () => {
@@ -48,7 +71,7 @@ export default function WebhookManager({
     setWebhookSegments(prev => [...prev, newWebhook]);
     setSelectedWebhook(newWebhook);
     setWebhookData([]);
-    onWebhookDataChange([]);
+    onWebhookDataChange([], newWebhook.id);
     toast.success('Webhook created successfully!');
   };
 
@@ -90,19 +113,56 @@ export default function WebhookManager({
   };
 
   const handleSelectWebhook = (webhook: WebhookSegment) => {
+    console.log('Selecting webhook:', webhook.id);
     setSelectedWebhook(webhook);
     // Fetch current data immediately
     fetch(`/api/webhook/${webhook.id}`)
       .then(res => res.json())
       .then(result => {
+        console.log('Initial webhook data fetch:', {
+          webhookId: webhook.id,
+          dataCount: result.dataCount,
+          dataLength: result.data?.length || 0,
+          sampleData: result.data?.[0]
+        });
+        
         setWebhookData(result.data || []);
-        onWebhookDataChange(result.data || []);
+        onWebhookDataChange(result.data || [], webhook.id);
       })
       .catch(error => {
         console.error('Error fetching webhook data:', error);
         setWebhookData([]);
         onWebhookDataChange([]);
       });
+  };
+
+  const handleRefreshWebhookData = async () => {
+    if (!selectedWebhook) return;
+    
+    try {
+      setIsPolling(true);
+      console.log('Manual refresh for webhook:', selectedWebhook.id);
+      const response = await fetch(`/api/webhook/${selectedWebhook.id}`);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Manual refresh result:', {
+          webhookId: selectedWebhook.id,
+          dataCount: result.dataCount,
+          dataLength: result.data?.length || 0,
+          sampleData: result.data?.[0]
+        });
+        
+        setWebhookData(result.data || []);
+        onWebhookDataChange(result.data || [], selectedWebhook.id);
+        setLastPollTime(new Date());
+        toast.success(`Refreshed: ${result.dataCount} records`);
+      }
+    } catch (error) {
+      console.error('Error refreshing webhook data:', error);
+      toast.error('Failed to refresh webhook data');
+    } finally {
+      setIsPolling(false);
+    }
   };
 
   return (
@@ -217,6 +277,35 @@ export default function WebhookManager({
                   {new Date(selectedWebhook.createdAt).toLocaleString()}
                 </span>
               </div>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-600">Status:</span>
+                <div className="flex items-center gap-1">
+                  <div className={`w-2 h-2 rounded-full ${isPolling ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+                  <span className="text-xs font-medium">
+                    {isPolling ? 'Polling...' : 'Active'}
+                  </span>
+                </div>
+              </div>
+            </div>
+            
+            {lastPollTime && (
+              <div className="text-xs text-gray-500">
+                Last poll: {lastPollTime.toLocaleTimeString()}
+              </div>
+            )}
+
+            {/* Manual Refresh */}
+            <div className="flex justify-end">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleRefreshWebhookData}
+                disabled={isPolling}
+                className="flex items-center gap-2"
+              >
+                <RefreshCw className={`h-4 w-4 ${isPolling ? 'animate-spin' : ''}`} />
+                Refresh Data
+              </Button>
             </div>
 
             {/* Save as Segment */}

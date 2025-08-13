@@ -16,6 +16,9 @@ import { createCreditsService } from '../credits/credits.service';
 import { get4EyesIntentIds } from '../typesense/intents/queries';
 import { createAudienceService } from './audience.service';
 import { audienceFiltersFormSchema } from './schema/audience-filters-form.schema';
+import { zAudienceFilters, AudienceFilters } from './schema/boolean-filters.schema';
+import { booleanToQueries } from './boolean-transform';
+import { mapFilters } from './utils';
 
 export const createAudienceAction = enhanceAction(
   async (data) => {
@@ -52,25 +55,75 @@ export const createAudienceAction = enhanceAction(
 
 export const addAudienceFiltersAction = enhanceAction(
   async (data) => {
+    console.log('Server action received data:', data);
     const client = getSupabaseServerClient();
     const credits = createCreditsService(client);
+
+    // Handle both simple and boolean filter modes
+    let processedFilters: any;
+    let isBooleanMode = false;
+
+    // Check if this is a boolean filter structure
+    if (data.filters && typeof data.filters === 'object' && 'mode' in data.filters) {
+      console.log('Processing boolean filter structure');
+      // This is the new boolean filter format
+      const booleanValidation = zAudienceFilters.safeParse(data.filters);
+      if (booleanValidation.success) {
+        const audienceFilters = booleanValidation.data;
+        console.log('Boolean validation successful:', audienceFilters);
+        
+        if (audienceFilters.mode === 'boolean' && audienceFilters.boolean?.expression) {
+          console.log('Processing boolean expression:', audienceFilters.boolean.expression);
+          // Process boolean expression
+          const queries = booleanToQueries(audienceFilters.boolean.expression);
+          console.log('Boolean queries generated:', queries);
+          processedFilters = {
+            ...audienceFilters.simple, // Keep simple filters for backward compatibility
+            _booleanQueries: queries // Store the processed queries
+          };
+          isBooleanMode = true;
+        } else {
+          console.log('Falling back to simple mode');
+          // Fall back to simple mode
+          processedFilters = audienceFilters.simple || data.filters;
+        }
+      } else {
+        console.error('Boolean validation failed:', booleanValidation.error);
+        throw new Error('Invalid boolean filter format');
+      }
+    } else {
+      console.log('Processing simple filter structure');
+      // This is the old simple filter format
+      processedFilters = data.filters;
+    }
 
     const limits = await credits.getAudienceLimits({
       accountId: data.accountId,
     });
 
-    if (!limits.b2bAccess && data.filters.audience.b2b) {
-      throw new Error('You do not have access to B2B audiences.');
-    } else if (!limits.intentAccess && data.filters.segment.length > 0) {
+    // Check B2B access for boolean mode
+    if (isBooleanMode) {
+      if (!limits.b2bAccess) {
+        throw new Error('You do not have access to B2B audiences.');
+      }
+    } else {
+      // Check B2B access for simple mode if B2B filters are used
+      if (!limits.b2bAccess && processedFilters.audience.b2b) {
+        throw new Error('You do not have access to B2B audiences.');
+      }
+    }
+
+    if (!limits.intentAccess && processedFilters.segment.length > 0) {
       throw new Error('You do not have access to intent audiences.');
     }
 
+    console.log('Calling audience service with processedFilters:', processedFilters);
     const service = createAudienceService(client);
 
     await service.generateAudience({
       accountId: data.accountId,
       audienceId: data.audienceId,
-      filters: data.filters,
+      filters: processedFilters,
       limit: limits.audienceSizeLimit,
     });
 
@@ -90,7 +143,7 @@ export const addAudienceFiltersAction = enhanceAction(
     schema: z.object({
       accountId: z.string(),
       audienceId: z.string(),
-      filters: audienceFiltersFormSchema,
+      filters: z.any(), // Allow both simple and boolean formats
       hasSegmentChanged: z.boolean().optional(),
     }),
   },
@@ -162,9 +215,40 @@ export const getPreviewAudienceAction = enhanceAction(
     };
     logger.info(ctx, 'Starting preview audience generation');
 
+    // Handle both simple and boolean filter modes
+    let processedFilters: any;
+    let isBooleanMode = false;
+
+    // Check if this is a boolean filter structure
+    if (filters && typeof filters === 'object' && 'mode' in filters) {
+      // This is the new boolean filter format
+      const booleanValidation = zAudienceFilters.safeParse(filters);
+      if (booleanValidation.success) {
+        const audienceFilters = booleanValidation.data;
+        
+        if (audienceFilters.mode === 'boolean' && audienceFilters.boolean?.expression) {
+          // Process boolean expression
+          const queries = booleanToQueries(audienceFilters.boolean.expression);
+          processedFilters = {
+            ...audienceFilters.simple, // Keep simple filters for backward compatibility
+            _booleanQueries: queries // Store the processed queries
+          };
+          isBooleanMode = true;
+        } else {
+          // Fall back to simple mode
+          processedFilters = audienceFilters.simple || filters;
+        }
+      } else {
+        throw new Error('Invalid boolean filter format');
+      }
+    } else {
+      // This is the old simple filter format
+      processedFilters = filters;
+    }
+
     const intentIds = await get4EyesIntentIds({
-      keywords: filters.segment,
-      audienceType: filters.audience.type,
+      keywords: processedFilters.segment,
+      audienceType: processedFilters.audience.type,
     });
     logger.info({ ...ctx, intentIds }, 'Got audience segments/intents');
 
@@ -173,7 +257,7 @@ export const getPreviewAudienceAction = enhanceAction(
     const credits = createCreditsService(client);
 
     const [audienceFilters, limits] = await Promise.all([
-      service.getAudienceFiltersApiBody({ filters, intentIds }),
+      service.getAudienceFiltersApiBody({ filters: processedFilters, intentIds }),
       credits.getAudienceLimits({ accountId }),
     ]);
 
@@ -218,7 +302,7 @@ export const getPreviewAudienceAction = enhanceAction(
     schema: z.object({
       accountId: z.string(),
       id: z.string(),
-      filters: audienceFiltersFormSchema,
+      filters: z.any(), // Allow both simple and boolean formats
     }),
   },
 );

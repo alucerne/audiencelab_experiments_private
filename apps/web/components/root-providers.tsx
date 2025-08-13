@@ -63,6 +63,7 @@ export function RootProviders({
                     disableTransitionOnChange
                     defaultTheme={theme}
                     enableColorScheme={false}
+                    suppressHydrationWarning={true}
                   >
                     {children}
                   </ThemeProvider>

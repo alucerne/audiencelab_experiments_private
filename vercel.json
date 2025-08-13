@@ -1,17 +1,15 @@
 {
-  "buildCommand": "pnpm build",
+  "buildCommand": "pnpm run build",
   "outputDirectory": "apps/web/.next",
   "installCommand": "pnpm install",
   "framework": "nextjs",
-  "functions": {
-    "apps/web/.next/server/**/*.js": {
-      "maxDuration": 30
-    }
-  },
   "rewrites": [
     {
       "source": "/(.*)",
       "destination": "/apps/web/$1"
     }
-  ]
+  ],
+  "env": {
+    "NEXT_TELEMETRY_DISABLED": "1"
+  }
 } 

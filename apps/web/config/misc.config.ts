@@ -1,117 +1,35 @@
-import { z } from 'zod';
+// Simple configuration without Zod validation for development
+const isDevelopment = process.env.NODE_ENV === 'development';
 
-const MiscConfigSchema = z.object({
-  typesenseApiKey: z
-    .string({
-      description: `Typesense API key.`,
-      required_error:
-        'Typesense API key is required. Please set the `TYPESENSE_API_KEY` environment variable.',
-    })
-    .min(1),
-  audienceApiUrl: z.string({
-    description: `Audience API URL.`,
-    required_error:
-      'Audience API URL is required. Please set the `AUDIENCE_API_URL` environment variable.',
-  }),
-  enrichmentApiUrl: z.string({
-    description: `Enrichment API URL.`,
-    required_error:
-      'Enrichment API URL is required. Please set the `ENRICH_API_URL` environment variable.',
-  }),
-  pixelApiUrl: z.string({
-    description: `Pixel API URL.`,
-    required_error:
-      'Pixel API URL is required. Please set the `PIXEL_API_URL` environment variable.',
-  }),
-  googleCloud: z.object({
-    projectId: z.string(),
-    clientEmail: z.string(),
-    privateKey: z.string(),
-    enrichmentBucket: z.string({
-      description: `Google Cloud Storage bucket name for enrichment.`,
-      required_error:
-        'Google Cloud Storage bucket name is required. Please set the `GOOGLE_CLOUD_ENRICHMENT_BUCKET` environment variable.',
-    }),
-  }),
-  interestsApi: z.object({
-    url: z.string({
-      description: `Interests API URL.`,
-      required_error:
-        'Interests API URL is required. Please set the `INTERESTS_API_URL` environment variable.',
-    }),
-    key: z.string({
-      description: `Interests API key.`,
-      required_error:
-        'Interests API key is required. Please set the `INTERESTS_API_KEY` environment variable.',
-    }),
-  }),
-  delivrPixel: z.object({
-    apiUrl: z.string({
-      description: `Delivr Pixel API URL.`,
-      required_error:
-        'Delivr Pixel API URL is required. Please set the `DELIVR_PIXEL_API_URL` environment variable.',
-    }),
-    jwt: z.string({
-      description: `Delivr Pixel JWT.`,
-      required_error:
-        'Delivr Pixel JWT is required. Please set the `DELIVR_PIXEL_JWT` environment variable.',
-    }),
-    appClientId: z.string({
-      description: `Delivr Pixel App Client ID.`,
-      required_error:
-        'Delivr Pixel App Client ID is required. Please set the `DELIVR_PIXEL_APP_CLIENT_ID` environment variable.',
-    }),
-    appClientSecret: z.string({
-      description: `Delivr Pixel App Client Secret.`,
-      required_error:
-        'Delivr Pixel App Client Secret is required. Please set the `DELIVR_PIXEL_APP_CLIENT_SECRET` environment variable.',
-    }),
-    enterpriseId: z.string({
-      description: `Delivr Pixel Enterprise ID.`,
-      required_error:
-        'Delivr Pixel Enterprise ID is required. Please set the `DELIVR_PIXEL_ENTERPRISE_ID` environment variable.',
-    }),
-  }),
-  audienceSync: z.object({
-    fbSyncApiUrl: z.string({
-      description: `Facebook Sync API URL.`,
-      required_error:
-        'Facebook Sync API URL is required. Please set the `FACEBOOK_SYNC_API_URL` environment variable.',
-    }),
-    googleSheetsApiUrl: z.string({
-      description: `Google Sheets API URL.`,
-      required_error:
-        'Google Sheets API URL is required. Please set the `GOOGLE_SHEETS_SYNC_API_URL` environment variable.',
-    }),
-  }),
-});
-
-const miscConfig = MiscConfigSchema.parse({
-  typesenseApiKey: process.env.TYPESENSE_API_KEY,
-  audienceApiUrl: process.env.AUDIENCE_API_URL,
-  enrichmentApiUrl: process.env.ENRICH_API_URL,
-  pixelApiUrl: process.env.PIXEL_API_URL,
+const miscConfig = {
+  typesenseApiKey: process.env.TYPESENSE_API_KEY || 'development-key',
+  audienceApiUrl: process.env.AUDIENCE_API_URL || 'http://localhost:3000',
+  enrichmentApiUrl: process.env.ENRICH_API_URL || 'https://v3-stg-enrich-job-72802495918.us-east1.run.app',
+  pixelApiUrl: process.env.PIXEL_API_URL || 'http://localhost:3000',
   googleCloud: {
-    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID,
-    clientEmail: process.env.GOOGLE_CLOUD_CLIENT_EMAIL,
-    privateKey: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n'),
-    enrichmentBucket: process.env.GOOGLE_CLOUD_ENRICHMENT_BUCKET,
+    projectId: process.env.GOOGLE_CLOUD_PROJECT_ID || 'development-project',
+    clientEmail: process.env.GOOGLE_CLOUD_CLIENT_EMAIL || 'development@example.com',
+    privateKey: process.env.GOOGLE_CLOUD_PRIVATE_KEY?.replace(/\\n/g, '\n') || 'development-key',
+    enrichmentBucket: process.env.GOOGLE_CLOUD_ENRICHMENT_BUCKET || 'development-bucket',
   },
   interestsApi: {
-    url: process.env.INTERESTS_API_URL,
-    key: process.env.INTERESTS_API_KEY,
+    url: process.env.INTERESTS_API_URL || 'http://localhost:3000',
+    key: process.env.INTERESTS_API_KEY || 'development-key',
   },
   delivrPixel: {
-    apiUrl: process.env.DELIVR_PIXEL_API_URL,
-    jwt: process.env.DELIVR_PIXEL_JWT,
-    appClientId: process.env.DELIVR_PIXEL_APP_CLIENT_ID,
-    appClientSecret: process.env.DELIVR_PIXEL_APP_CLIENT_SECRET,
-    enterpriseId: process.env.DELIVR_PIXEL_ENTERPRISE_ID,
+    apiUrl: process.env.DELIVR_PIXEL_API_URL || 'http://localhost:3000',
+    jwt: process.env.DELIVR_PIXEL_JWT || 'development-jwt',
+    appClientId: process.env.DELIVR_PIXEL_APP_CLIENT_ID || 'development-client-id',
+    appClientSecret: process.env.DELIVR_PIXEL_APP_CLIENT_SECRET || 'development-client-secret',
+    enterpriseId: process.env.DELIVR_PIXEL_ENTERPRISE_ID || 'development-enterprise-id',
   },
   audienceSync: {
-    fbSyncApiUrl: process.env.FACEBOOK_SYNC_API_URL,
-    googleSheetsApiUrl: process.env.GOOGLE_SHEETS_SYNC_API_URL,
+    fbSyncApiUrl: process.env.FACEBOOK_SYNC_API_URL || 'http://localhost:3000',
+    googleSheetsApiUrl: process.env.GOOGLE_SHEETS_SYNC_API_URL || 'http://localhost:3000',
   },
-});
+  // Scraping Agent Configuration
+  firecrawlApiKey: process.env.FIRECRAWL_API_KEY,
+  openaiApiKey: process.env.OPENAI_API_KEY,
+};
 
 export default miscConfig;

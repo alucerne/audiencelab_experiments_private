@@ -45,10 +45,8 @@ const config = {
   experimental: {
     mdxRs: true,
     reactCompiler: ENABLE_REACT_COMPILER,
-    turbo: {
-      resolveExtensions: ['.ts', '.tsx', '.js', '.jsx'],
-      resolveAlias: getModulesAliases(),
-    },
+    // Explicitly disable turbo to fix API route build issues
+    // turbo: false, // This causes config validation errors
     optimizePackageImports: [
       'recharts',
       'lucide-react',

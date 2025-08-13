@@ -6,6 +6,7 @@ import { PageBody } from '@kit/ui/page';
 
 import { createAudienceService } from '~/lib/audience/audience.service';
 import { createCreditsService } from '~/lib/credits/credits.service';
+import { createSegmentService } from '~/lib/segments/segment.service';
 import { createI18nServerInstance } from '~/lib/i18n/i18n.server';
 import { withI18n } from '~/lib/i18n/with-i18n';
 
@@ -33,9 +34,13 @@ function TeamAccountHomePage({ params }: TeamAccountHomePageProps) {
   const client = getSupabaseServerClient();
   const service = createAudienceService(client);
   const credits = createCreditsService(client);
+  const segmentService = createSegmentService(client);
 
   const { data: audience } = use(
     service.getAudience({ accountId: workspace.account.id }),
+  );
+  const segments = use(
+    segmentService.getSegments({ accountId: workspace.account.id }),
   );
   const limits = use(
     credits.getAudienceLimits({ accountId: workspace.account.id }),
@@ -50,7 +55,11 @@ function TeamAccountHomePage({ params }: TeamAccountHomePageProps) {
       />
 
       <PageBody>
-        <AudienceTable audience={audience} canCreate={limits.canCreate} />
+        <AudienceTable 
+          audience={audience} 
+          segments={segments || []}
+          canCreate={limits.canCreate} 
+        />
       </PageBody>
     </>
   );

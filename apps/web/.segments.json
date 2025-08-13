@@ -1,0 +1,144 @@
+{
+  "seg_000001": {
+    "id": "seg_000001",
+    "created_at": "2025-08-12T07:46:55.972Z",
+    "name": "File Test – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "event_type",
+          "op": "=",
+          "value": "page_view"
+        }
+      ]
+    },
+    "selectedFields": [
+      "event_type",
+      "url"
+    ]
+  },
+  "seg_000002": {
+    "id": "seg_000002",
+    "created_at": "2025-08-12T07:48:08.406Z",
+    "name": "test – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "pixel_id",
+          "op": "exists",
+          "value": ""
+        }
+      ]
+    },
+    "selectedFields": [
+      "pixel_id",
+      "event_timestamp",
+      "hem_sha256",
+      "activity_start_date"
+    ]
+  },
+  "seg_000003": {
+    "id": "seg_000003",
+    "created_at": "2025-08-12T08:11:22.111Z",
+    "name": "Test Segment – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "event_type",
+          "op": "=",
+          "value": "page_view"
+        }
+      ]
+    },
+    "selectedFields": [
+      "event_type",
+      "url"
+    ]
+  },
+  "seg_000004": {
+    "id": "seg_000004",
+    "created_at": "2025-08-12T08:13:07.621Z",
+    "name": "test – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "pixel_id",
+          "op": "exists",
+          "value": ""
+        }
+      ]
+    },
+    "selectedFields": [
+      "pixel_id",
+      "ip_address",
+      "activity_end_date",
+      "event_timestamp",
+      "referrer_url",
+      "event_type",
+      "hem_sha256"
+    ]
+  },
+  "seg_000005": {
+    "id": "seg_000005",
+    "created_at": "2025-08-12T09:54:09.676Z",
+    "name": "test – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "pixel_id",
+          "op": "exists",
+          "value": ""
+        }
+      ]
+    },
+    "selectedFields": []
+  },
+  "seg_000006": {
+    "id": "seg_000006",
+    "created_at": "2025-08-12T10:04:17.545Z",
+    "name": "test123 – segment",
+    "parent_audience_id": "pixel_1",
+    "source_url": "https://storage.googleapis.com/staging_tests_main/Pixel_Local_Test%20-%20random_contacts.csv",
+    "format": "csv",
+    "filterTree": {
+      "combinator": "and",
+      "rules": [
+        {
+          "field": "pixel_id",
+          "op": "exists",
+          "value": ""
+        }
+      ]
+    },
+    "selectedFields": [
+      "COMPANY_DOMAIN",
+      "COMPANY_ADDRESS",
+      "class",
+      "id",
+      "href",
+      "text",
+      "classes",
+      "tag"
+    ]
+  }
+}

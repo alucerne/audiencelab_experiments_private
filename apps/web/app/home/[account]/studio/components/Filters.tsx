@@ -1,157 +1,124 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Button } from '@kit/ui/button';
 import { Input } from '@kit/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@kit/ui/select';
-import { Plus, X, Building2, User, Wallet, MapPin, Home, Users } from 'lucide-react';
+import { X, MousePointer, User, Plus } from 'lucide-react';
+import {
+  ColumnDef,
+  flexRender,
+  getCoreRowModel,
+  getPaginationRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@kit/ui/table';
+import { cn } from '@kit/ui/utils';
 
 interface Filter {
   id: string;
-  category: string;
+  group: "pixel_event" | "contact";
   field: string;
   operator: string;
   value: string;
 }
 
-interface FiltersProps {
-  onChange: (filters: Filter[]) => void;
+interface Field {
+  key: string;
+  label: string;
+  group?: "pixel_event" | "contact";
+  category?: string;
 }
 
-// Business Profile Fields
-const businessFields = [
-  { name: 'company_description', label: 'Company Description' },
-  { name: 'job_title', label: 'Job Title' },
-  { name: 'seniority', label: 'Seniority' },
-  { name: 'department', label: 'Department' },
-  { name: 'company_name', label: 'Company Name' },
-  { name: 'company_domain', label: 'Company Domain' },
-  { name: 'industry', label: 'Industry' },
-  { name: 'sic', label: 'SIC Code' },
-  { name: 'employee_count', label: 'Employee Count' },
-  { name: 'company_revenue', label: 'Company Revenue' },
-  { name: 'company_naics', label: 'Company NAICS' },
-];
+interface FiltersProps {
+  filters: Filter[];
+  onChange: (filters: Filter[]) => void;
+  fields: Field[];
+  loading?: boolean;
+  previewData?: any[];
+  previewLoading?: boolean;
+  onAddField?: (field: Field) => void;
+  onRemoveField?: (fieldKey: string) => void;
+  visibleFields?: Set<string>;
+  onToggleField?: (fieldKey: string) => void;
+}
 
-// Personal Fields
-const personalFields = [
-  { name: 'age', label: 'Age' },
-  { name: 'gender', label: 'Gender' },
-  { name: 'ethnic_code', label: 'Ethnicity' },
-  { name: 'language_code', label: 'Language' },
-  { name: 'education', label: 'Education' },
-  { name: 'smoker', label: 'Smoker' },
-];
-
-// Financial Fields
-const financialFields = [
-  { name: 'income_range', label: 'Income Range' },
-  { name: 'net_worth', label: 'Net Worth' },
-  { name: 'credit_rating', label: 'Credit Rating' },
-  { name: 'credit_range_new_credit', label: 'New Credit Range' },
-  { name: 'credit_card_user', label: 'Credit Card User' },
-  { name: 'investment', label: 'Investment' },
-  { name: 'mortgage_amount', label: 'Mortgage Amount' },
-  { name: 'occupation_group', label: 'Occupation Group' },
-  { name: 'occupation_type', label: 'Occupation Type' },
-  { name: 'cra_code', label: 'CRA Code' },
-];
-
-// Family Fields
-const familyFields = [
-  { name: 'homeowner', label: 'Homeowner' },
-  { name: 'married', label: 'Married' },
-  { name: 'children', label: 'Children' },
-  { name: 'single_parent', label: 'Single Parent' },
-  { name: 'marital_status', label: 'Marital Status' },
-  { name: 'generations_in_household', label: 'Generations in Household' },
-];
-
-// Housing Fields
-const housingFields = [
-  { name: 'home_year_built', label: 'Home Year Built' },
-  { name: 'dwelling_type', label: 'Dwelling Type' },
-  { name: 'home_purchase_price', label: 'Home Purchase Price' },
-  { name: 'home_purchase_year', label: 'Home Purchase Year' },
-  { name: 'estimated_home_value', label: 'Estimated Home Value' },
-];
-
-// Location Fields
-const locationFields = [
-  { name: 'city', label: 'City' },
-  { name: 'state', label: 'State' },
-  { name: 'zip', label: 'Zip Code' },
-];
-
-// All fields combined
-const allFields = [
-  ...businessFields,
-  ...personalFields,
-  ...financialFields,
-  ...familyFields,
-  ...housingFields,
-  ...locationFields,
-];
+interface FieldDefinition {
+  key: string;
+  label: string;
+  type: string;
+  group: "pixel_event" | "contact";
+}
 
 const operators = [
-  { value: 'equals', label: 'Equals' },
+  { value: '=', label: 'Equals' },
+  { value: '!=', label: 'Does not equal' },
+  { value: '>', label: 'Greater than' },
+  { value: '<', label: 'Less than' },
+  { value: '>=', label: 'Greater than or equal' },
+  { value: '<=', label: 'Less than or equal' },
   { value: 'contains', label: 'Contains' },
   { value: 'starts_with', label: 'Starts with' },
   { value: 'ends_with', label: 'Ends with' },
-  { value: 'greater_than', label: 'Greater than' },
-  { value: 'less_than', label: 'Less than' },
-  { value: 'in', label: 'In (comma separated)' },
+  { value: 'exists', label: 'Exists' },
 ];
 
-const categories = [
-  { value: 'business', label: 'Business', icon: Building2 },
-  { value: 'personal', label: 'Personal', icon: User },
-  { value: 'financial', label: 'Financial', icon: Wallet },
-  { value: 'family', label: 'Family', icon: Users },
-  { value: 'housing', label: 'Housing', icon: Home },
-  { value: 'location', label: 'Location', icon: MapPin },
+const groups = [
+  { value: 'pixel_event', label: 'Pixel Events', icon: MousePointer },
+  { value: 'contact', label: 'Contact Data', icon: User },
 ];
 
-export default function Filters({ onChange }: FiltersProps) {
-  const [filters, setFilters] = useState<Filter[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState<string>('business');
+export default function Filters({ 
+  filters, 
+  onChange, 
+  fields, 
+  loading = false,
+  previewData = [],
+  previewLoading = false,
+  onAddField,
+  onRemoveField,
+  visibleFields = new Set(),
+  onToggleField
+}: FiltersProps) {
+  const [selectedGroup, setSelectedGroup] = useState<"pixel_event" | "contact">('pixel_event');
 
-  const getFieldsForCategory = (category: string) => {
-    switch (category) {
-      case 'business':
-        return businessFields;
-      case 'personal':
-        return personalFields;
-      case 'financial':
-        return financialFields;
-      case 'family':
-        return familyFields;
-      case 'housing':
-        return housingFields;
-      case 'location':
-        return locationFields;
-      default:
-        return businessFields;
-    }
+  const getFieldsForGroup = (group: "pixel_event" | "contact") => {
+    return fields.filter(field => {
+      if (field.group) return field.group === group;
+      if (field.category) {
+        // Map categories to groups
+        if (group === 'pixel_event') {
+          return field.category.toLowerCase().includes('pixel') || field.category.toLowerCase().includes('event');
+        } else {
+          return field.category.toLowerCase().includes('contact') || field.category.toLowerCase().includes('personal') || field.category.toLowerCase().includes('company');
+        }
+      }
+      return false;
+    });
   };
 
   const addFilter = () => {
-    const fields = getFieldsForCategory(selectedCategory);
+    const availableFields = getFieldsForGroup(selectedGroup);
     const newFilter: Filter = {
       id: Math.random().toString(36).substr(2, 9),
-      category: selectedCategory,
-      field: fields[0]?.name || 'company_name',
-      operator: 'equals',
+      group: selectedGroup,
+      field: availableFields[0]?.key || fields[0]?.key || '',
+      operator: '=',
       value: '',
     };
     const updatedFilters = [...filters, newFilter];
-    setFilters(updatedFilters);
     onChange(updatedFilters);
   };
 
   const removeFilter = (id: string) => {
     const updatedFilters = filters.filter(filter => filter.id !== id);
-    setFilters(updatedFilters);
     onChange(updatedFilters);
   };
 
@@ -159,53 +126,72 @@ export default function Filters({ onChange }: FiltersProps) {
     const updatedFilters = filters.map(filter =>
       filter.id === id ? { ...filter, [field]: value } : filter
     );
-    setFilters(updatedFilters);
     onChange(updatedFilters);
   };
 
-  const getCategoryIcon = (category: string) => {
-    const categoryData = categories.find(c => c.value === category);
-    return categoryData ? React.createElement(categoryData.icon, { className: "h-4 w-4" }) : null;
+  const getGroupIcon = (group: "pixel_event" | "contact") => {
+    const groupData = groups.find(g => g.value === group);
+    return groupData ? React.createElement(groupData.icon, { className: "h-4 w-4" }) : null;
   };
+
+  const getFieldLabel = (fieldKey: string) => {
+    const field = fields.find(f => f.key === fieldKey);
+    return field?.label || fieldKey;
+  };
+
+  const getGroupLabel = (group: "pixel_event" | "contact") => {
+    const groupData = groups.find(g => g.value === group);
+    return groupData?.label || group;
+  };
+
+  if (loading) {
+    return (
+      <div className="bg-white p-4 border rounded-lg shadow-sm">
+        <div className="text-center py-8 text-gray-500">
+          <p>Loading fields...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white p-4 border rounded-lg shadow-sm">
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-lg font-semibold">Sub-Segment Filters</h2>
         <div className="flex items-center gap-2">
-          <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+          <Select value={selectedGroup} onValueChange={(value: "pixel_event" | "contact") => setSelectedGroup(value)}>
             <SelectTrigger className="w-40">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {categories.map((category) => (
-                <SelectItem key={category.value} value={category.value}>
+              {groups.map((group) => (
+                <SelectItem key={group.value} value={group.value}>
                   <div className="flex items-center gap-2">
-                    {React.createElement(category.icon, { className: "h-4 w-4" })}
-                    {category.label}
+                    {React.createElement(group.icon, { className: "h-4 w-4" })}
+                    {group.label}
                   </div>
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
-          <Button onClick={addFilter} size="sm" className="flex items-center gap-2">
-            <Plus className="h-4 w-4" />
-            Add Filter
-          </Button>
+                      <Button onClick={addFilter} size="sm" className="flex items-center gap-2">
+              <Plus className="h-4 w-4" />
+              Add Filter
+            </Button>
         </div>
       </div>
 
       {filters.length === 0 ? (
         <div className="text-center py-8 text-gray-500">
-          <p>No filters applied. Select a category and click "Add Filter" to create a sub-segment.</p>
+          <p>No filters applied. Select a group and click "Add Filter" to create a sub-segment.</p>
         </div>
       ) : (
         <div className="space-y-3">
           {filters.map((filter) => (
             <div key={filter.id} className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                {getCategoryIcon(filter.category)}
-                <span className="capitalize">{filter.category}</span>
+                {getGroupIcon(filter.group)}
+                <span className="capitalize">{getGroupLabel(filter.group)}</span>
               </div>
               
               <Select
@@ -216,8 +202,8 @@ export default function Filters({ onChange }: FiltersProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {getFieldsForCategory(filter.category).map((field) => (
-                    <SelectItem key={field.name} value={field.name}>
+                  {getFieldsForGroup(filter.group).map((field) => (
+                    <SelectItem key={field.key} value={field.key}>
                       {field.label}
                     </SelectItem>
                   ))}
@@ -240,12 +226,14 @@ export default function Filters({ onChange }: FiltersProps) {
                 </SelectContent>
               </Select>
 
-              <Input
-                value={filter.value}
-                onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
-                placeholder="Enter value..."
-                className="flex-1"
-              />
+              {filter.operator !== 'exists' && (
+                <Input
+                  value={filter.value}
+                  onChange={(e) => updateFilter(filter.id, 'value', e.target.value)}
+                  placeholder="Enter value..."
+                  className="flex-1"
+                />
+              )}
 
               <Button
                 onClick={() => removeFilter(filter.id)}
@@ -264,21 +252,310 @@ export default function Filters({ onChange }: FiltersProps) {
         <div className="mt-4 p-3 bg-blue-50 rounded-lg">
           <h3 className="text-sm font-medium text-blue-800 mb-2">Active Filters:</h3>
           <div className="text-sm text-blue-700 space-y-1">
-            {filters.map((filter) => {
-              const fieldData = allFields.find(f => f.name === filter.field);
-              const categoryData = categories.find(c => c.value === filter.category);
-              return (
-                <div key={filter.id} className="flex items-center gap-2">
-                  <span className="capitalize">{categoryData?.label}:</span>
-                  <span>{fieldData?.label}</span>
-                  <span>{filter.operator}</span>
+            {filters.map((filter) => (
+              <div key={filter.id} className="flex items-center gap-2">
+                <span className="capitalize">{getGroupLabel(filter.group)}:</span>
+                <span>{getFieldLabel(filter.field)}</span>
+                <span>{filter.operator}</span>
+                {filter.operator !== 'exists' && (
                   <span className="font-medium">"{filter.value}"</span>
-                </div>
-              );
-            })}
+                )}
+              </div>
+            ))}
           </div>
         </div>
       )}
+
+      {/* Field Management Section */}
+      {previewData.length > 0 && (
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-medium text-blue-800">Field Management</h3>
+            <div className="flex items-center gap-2">
+              <Select value={selectedGroup} onValueChange={(value: "pixel_event" | "contact") => setSelectedGroup(value)}>
+                <SelectTrigger className="w-32">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((group) => (
+                    <SelectItem key={group.value} value={group.value}>
+                      <div className="flex items-center gap-2">
+                        {React.createElement(group.icon, { className: "h-4 w-4" })}
+                        {group.label}
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {/* Field Selector Dropdown */}
+              <Select 
+                onValueChange={(fieldKey) => {
+                  if (fieldKey === 'show_all') {
+                    // Show all fields in a modal or expand the list
+                    console.log('Show all fields requested');
+                    return;
+                  }
+                  
+                  const selectedField = fields.find(f => f.key === fieldKey);
+                  if (selectedField && onAddField) {
+                    onAddField({
+                      key: selectedField.key,
+                      label: selectedField.label,
+                      group: selectedField.group || selectedGroup
+                    });
+                  }
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Select field to add..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="placeholder" disabled>
+                    Select field to add...
+                  </SelectItem>
+                  
+                  {/* Popular/Important Fields First */}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">
+                    Popular Fields
+                  </div>
+                  {getFieldsForGroup(selectedGroup)
+                    .filter(field => 
+                      ['pixel_id', 'event_type', 'event_timestamp', 'FIRST_NAME', 'LAST_NAME', 'BUSINESS_EMAIL', 'COMPANY_NAME'].includes(field.key)
+                    )
+                    .map((field) => (
+                      <SelectItem key={field.key} value={field.key}>
+                        {field.label}
+                      </SelectItem>
+                    ))}
+                  
+                  {/* Other Fields */}
+                  <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 bg-gray-50">
+                    Other Fields
+                  </div>
+                  {getFieldsForGroup(selectedGroup)
+                    .filter(field => 
+                      !['pixel_id', 'event_type', 'event_timestamp', 'FIRST_NAME', 'LAST_NAME', 'BUSINESS_EMAIL', 'COMPANY_NAME'].includes(field.key)
+                    )
+                    .slice(0, 20) // Limit to first 20 to prevent long dropdowns
+                    .map((field) => (
+                      <SelectItem key={field.key} value={field.key}>
+                        {field.label}
+                      </SelectItem>
+                    ))}
+                  
+                  {getFieldsForGroup(selectedGroup).length > 21 && (
+                    <SelectItem value="show_all" className="text-blue-600">
+                      Show all {getFieldsForGroup(selectedGroup).length} fields...
+                    </SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          {/* Currently Visible Fields */}
+          <div className="space-y-2">
+            <h4 className="text-xs font-medium text-blue-700">Currently Visible Fields:</h4>
+            <div className="flex flex-wrap gap-2">
+              {fields
+                .filter(field => visibleFields.has(field.key))
+                .slice(0, 10) // Show first 10 visible fields
+                .map((field) => (
+                  <div key={field.key} className="flex items-center gap-1 px-2 py-1 bg-white rounded border text-xs">
+                    <span className="truncate max-w-24">{field.label}</span>
+                    {onRemoveField && (
+                      <button
+                        onClick={() => onRemoveField(field.key)}
+                        className="text-red-500 hover:text-red-700 ml-1"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+              {fields.filter(field => visibleFields.has(field.key)).length > 10 && (
+                <div className="text-xs text-blue-600 px-2 py-1">
+                  +{fields.filter(field => visibleFields.has(field.key)).length - 10} more fields
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Preview Section */}
+      {filters.length > 0 && (
+        <div className="mt-4 p-3 bg-green-50 rounded-lg">
+          <h3 className="text-sm font-medium text-green-800 mb-2">
+            Preview Results ({previewLoading ? 'Loading...' : previewData.length} rows)
+          </h3>
+          {previewLoading ? (
+            <div className="text-sm text-green-700">Loading preview...</div>
+          ) : previewData.length > 0 ? (
+            <div className="text-sm text-green-700">
+              <PreviewDataTable data={previewData} visibleFields={visibleFields} />
+            </div>
+          ) : (
+            <div className="text-sm text-green-700">No results match your filters</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// Preview Data Table Component
+function PreviewDataTable({ data, visibleFields = new Set() }: { data: any[]; visibleFields?: Set<string> }) {
+  const formatColumnName = (key: string) => {
+    return key
+      .split('_')
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ');
+  };
+
+  const columns = React.useMemo<ColumnDef<any>[]>(() => {
+    if (data.length === 0) return [];
+
+    const allKeys = new Set<string>();
+    data.forEach((row) => {
+      Object.keys(row).forEach((key) => allKeys.add(key));
+    });
+
+    const rowNumberColumn: ColumnDef<any> = {
+      id: 'rowNumber',
+      header: '#',
+      cell: ({ row }) => row.index + 1,
+      size: 40,
+    };
+
+    const dataColumns: ColumnDef<any>[] = Array.from(allKeys)
+      .filter(key => visibleFields.size === 0 || visibleFields.has(key)) // Show all if no visibleFields specified
+      .sort((a, b) => {
+        // Prioritize important fields first
+        const priority: Record<string, number> = {
+          pixel_id: 1,
+          event_type: 2,
+          event_timestamp: 3,
+          FIRST_NAME: 4,
+          LAST_NAME: 5,
+          BUSINESS_EMAIL: 6,
+          COMPANY_NAME: 7,
+        };
+        const priorityA = priority[a] || 100;
+        const priorityB = priority[b] || 100;
+        return priorityA - priorityB;
+      })
+      .map((key) => ({
+        accessorKey: key,
+        header: formatColumnName(key),
+        cell: ({ row }) => {
+          const value = row.original[key];
+          if (value === null || value === undefined) return '-';
+          if (typeof value === 'object') return JSON.stringify(value);
+          return String(value);
+        },
+        size: 150,
+      }));
+
+    return [rowNumberColumn, ...dataColumns];
+  }, [data]);
+
+  const table = useReactTable({
+    data,
+    columns,
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: 10,
+      },
+    },
+    getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+  });
+
+  return (
+    <div className="space-y-4">
+      <div className="rounded-md border">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead key={header.id} className="min-w-[100px]">
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {table.getRowModel().rows?.length ? (
+                table.getRowModel().rows.map((row) => (
+                  <TableRow
+                    key={row.id}
+                    data-state={row.getIsSelected() && 'selected'}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id} className="max-w-[200px] truncate">
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex items-center justify-between">
+        <div className="text-sm text-muted-foreground">
+          Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1} to{' '}
+          {Math.min(
+            (table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize,
+            table.getFilteredRowModel().rows.length
+          )}{' '}
+          of {table.getFilteredRowModel().rows.length} results
+        </div>
+        <div className="flex items-center space-x-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.previousPage()}
+            disabled={!table.getCanPreviousPage()}
+          >
+            Previous
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => table.nextPage()}
+            disabled={!table.getCanNextPage()}
+          >
+            Next
+          </Button>
+        </div>
+      </div>
     </div>
   );
 } 

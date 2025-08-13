@@ -1,76 +1,173 @@
-# AudienceLab v3 Web Application
+# AudienceLab V3 - Studio Backend
 
-## how to run
+This is the AudienceLab V3 application with a focus on the Studio backend for data ingestion and audience management.
 
-### prerequisites to have installed
+## 🚀 Quick Start
 
-- node + pnpm
-- docker
+### Prerequisites
+- Node.js 18+ 
+- pnpm
+- Supabase CLI (optional)
 
-### how to start local env
+### Local Development
 
-1. install dependencies
-
+1. **Install dependencies:**
    ```bash
-   pnpm i
+   pnpm install
    ```
 
-2. start supabase docker container
-
+2. **Set up environment variables:**
    ```bash
-   pnpm run supabase:web:start
+   cp .env.template .env.local
+   # Edit .env.local with your local values
    ```
 
-3. add necessary env values to `apps/web/.env.local`
+3. **Start Supabase (local):**
+   ```bash
+   supabase start
+   ```
 
-4. start nextjs
-
+4. **Start development server:**
    ```bash
    pnpm dev
    ```
 
-4. app is now running on [`http://localhost:3000`](http://localhost:3000)
+## 🏗️ Project Structure
 
-5. to login to the app use these credentials: `test@audiencelab.io:testingpassword`
+```
+al_v3_localdev/
+├── apps/
+│   ├── web/                    # Next.js web application
+│   │   ├── app/               # App Router pages
+│   │   ├── components/        # React components
+│   │   ├── lib/              # Utility libraries
+│   │   └── supabase/         # Database schemas
+│   └── dev-tool/             # Development tools
+├── packages/                  # Shared packages
+│   ├── @kit/shared/          # Shared utilities
+│   └── @kit/scraping-agent/  # Web scraping agent
+└── supabase/                 # Database migrations & config
+```
 
-## helpful commands & tips
+## 🎯 Key Features
 
-- reset db
+### Studio Backend
+- **Data Ingestion**: Load CSV/Parquet files from Google Cloud Storage
+- **DuckDB Integration**: In-memory SQL database for data processing
+- **Filter Builder**: Boolean logic for audience segmentation
+- **Column Picker**: Field visibility and projection
+- **Preview System**: Real-time data preview with pagination
+- **Segment Management**: Save and manage audience segments
 
-  ```bash
-  pnpm run supabase:web:reset
-  ```
+### API Endpoints
+- `/api/studio/filters/fields` - Get available fields
+- `/api/studio/preview` - Preview filtered data
+- `/api/studio/segments/*` - Segment management
+- `/api/studio/audiences/*` - Audience management
 
-- generate db types
+## 🚀 Deployment to Vercel
 
-  ```bash
-  pnpm run supabase:web:typegen
-  ```
+### 1. Set up Supabase Cloud
 
-- url to view the local db: [`http://localhost:54323`](http://localhost:54323)
+1. Create a new Supabase project at [supabase.com](https://supabase.com)
+2. Get your project URL and API keys
+3. Import the database schema:
+   ```bash
+   # Use the complete_schema.sql file
+   # Copy and paste into Supabase SQL Editor
+   ```
 
-## integration.app features
+### 2. Deploy to Vercel
 
-### how to create an integration as a user
+1. **Connect your GitHub repository to Vercel**
+2. **Set environment variables in Vercel:**
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+   SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+   # ... (see .env.template for all required variables)
+   ```
 
-1. after logging in, go to the Audience Lists page and create an audience with any filters (does not matter)
+3. **Deploy:**
+   - Vercel will automatically build and deploy from your GitHub repository
+   - The production build will use Webpack instead of Turbopack, avoiding the development API route issues
 
-   - [`http://localhost:3000/home/audience-lab`](http://localhost:3000/home/audience-lab)
+### 3. Environment Variables Required
 
-2. now go to the Sync page and click create
+Copy these from your local `.env.local` and update with production values:
 
-   - [`http://localhost:3000/home/audience-lab/sync`](http://localhost:3000/home/audience-lab/sync)
+```bash
+# Supabase (Cloud)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
-3. pick an integration and fill out the questions to get it set up
+# Google Cloud
+GOOGLE_CLOUD_PROJECT_ID=your-project-id
+GOOGLE_CLOUD_CLIENT_EMAIL=your-service-account@project.iam.gserviceaccount.com
+GOOGLE_CLOUD_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+GOOGLE_CLOUD_ENRICHMENT_BUCKET=your-bucket-name
 
-4. and that's it, the web app will call the backend endpoint that exports the audience to the integration
+# Other APIs
+AUDIENCE_API_URL=https://your-audience-api.com
+ENRICH_API_URL=https://your-enrich-api.com
+# ... (see .env.template for complete list)
+```
 
-### how to add integrations
+## 🔧 Development Notes
 
-1. add a details needed for the integration to [the new sync form schema here](/apps/web/lib/integration-app/schema/new-sync-form.schema.ts#L11-L25)
+### Current Issues
+- **Next.js 15 + Turbopack Bug**: API routes return HTML instead of JSON in development
+- **Solution**: Deploy to Vercel (uses Webpack in production)
 
-2. create a form step component for the integration to get necessary details from the user and add it to [the new sync form here](</apps/web/app/home/[account]/(integrations)/sync/new/_components/new-sync-form.tsx#L38-L43>)
+### Database Schema
+- Complete schema available in `complete_schema.sql` (297KB)
+- Includes all tables, functions, RLS policies, and seed data
+- Import directly into Supabase cloud project
 
-3. the form will save the integration details for when the audience is synced via the backend enqueue api. to send the necessary integration details to the api, be sure to update [the endpoint call here](/apps/web/lib/integration-app/audience-sync.service.ts#L129-L135)
+### Studio Features
+- ✅ Boolean Filter Editor
+- ✅ Column Picker (Field Visibility)
+- ✅ Dataset Switcher
+- ✅ Pagination & Row Selection
+- ✅ Extract Values Action
+- ✅ Segment Saving & Management
+- ❌ Preview API (works in production, broken in development)
 
-4. [in this repo](https://github.com/AudienceLabV3/audience-sync), add an endpoint that handles parsing the audience and exporting it to the integration
+## 📝 API Documentation
+
+### Preview Data
+```bash
+POST /api/studio/preview
+{
+  "audience": {
+    "url": "https://storage.googleapis.com/...",
+    "format": "csv"
+  },
+  "filterTree": {
+    "combinator": "and",
+    "rules": [...]
+  },
+  "select": ["FIRST_NAME", "LAST_NAME"],
+  "limit": 50,
+  "offset": 0
+}
+```
+
+### Get Fields
+```bash
+GET /api/studio/filters/fields
+# Returns available fields for the current dataset
+```
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## 📄 License
+
+This project is proprietary software.
