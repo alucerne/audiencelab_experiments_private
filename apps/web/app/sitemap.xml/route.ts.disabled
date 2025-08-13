@@ -14,6 +14,16 @@ const MAX_AGE = 60;
 const S_MAX_AGE = 3600;
 
 export async function GET() {
+  // For experimental deployment, return empty sitemap
+  if (process.env.NODE_ENV === 'development' || process.env.VERCEL_ENV === 'preview') {
+    return new Response('<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"></urlset>', {
+      headers: {
+        'Content-Type': 'application/xml',
+        'Cache-Control': `public, max-age=${MAX_AGE}, s-maxage=${S_MAX_AGE}`,
+      },
+    });
+  }
+
   const paths = getPaths();
   const contentItems = await getContentItems();
 
