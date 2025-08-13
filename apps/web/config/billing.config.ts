@@ -1,8 +1,34 @@
 /*
-Replace this file with your own billing configuration file.
-Copy it from billing.sample.config.ts and update the configuration to match your billing provider and products.
-This file will never be overwritten by git updates
- */
-import sampleSchema from './billing.sample.config';
+Simple billing configuration for experimental deployment
+This avoids requiring external billing provider keys
+*/
+import { createBillingSchema } from '@kit/billing';
 
-export default sampleSchema;
+export default createBillingSchema({
+  provider: 'stripe',
+  products: [
+    {
+      id: 'free',
+      name: 'Free',
+      description: 'Free tier for experimentation',
+      currency: 'USD',
+      plans: [
+        {
+          name: 'Free',
+          id: 'free',
+          paymentType: 'one-time',
+          interval: 'month',
+          lineItems: [
+            {
+              id: 'free',
+              name: 'Free',
+              cost: 0,
+              type: 'flat' as const,
+            },
+          ],
+        },
+      ],
+      features: ['Basic features'],
+    },
+  ],
+});
