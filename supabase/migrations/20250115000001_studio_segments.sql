@@ -13,9 +13,9 @@ create table if not exists public.segments (
   source_type text not null check (source_type in ('audience', 'webhook_upload', 'csv_upload')),
   source_id text not null, -- audience_id or upload_id
   filters jsonb not null default '[]'::jsonb, -- Array of filter objects
-  enrichment_fields text[] not null default '[]', -- Array of enrichment field names
+  enrichment_fields text[] not null default array[]::text[], -- Array of enrichment field names
   custom_columns jsonb not null default '[]'::jsonb, -- Array of custom column definitions
-  tags text[] not null default '[]', -- Array of tags
+  tags text[] not null default array[]::text[], -- Array of tags
   created_by uuid not null references auth.users(id) on delete cascade,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),
@@ -99,13 +99,13 @@ create trigger set_timestamps_segments
 create or replace function public.create_studio_segment(
   p_account_id uuid,
   p_name text,
-  p_description text default null,
   p_source_type text,
   p_source_id text,
+  p_description text default null,
   p_filters jsonb default '[]'::jsonb,
-  p_enrichment_fields text[] default '[]',
+  p_enrichment_fields text[] default array[]::text[],
   p_custom_columns jsonb default '[]'::jsonb,
-  p_tags text[] default '[]'
+  p_tags text[] default array[]::text[]
 )
 returns uuid
 language plpgsql
