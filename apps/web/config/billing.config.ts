@@ -1,10 +1,8 @@
 /*
-Simple billing configuration for experimental deployment
-This avoids requiring external billing provider keys
+Minimal billing configuration for experimental deployment
+This avoids any external dependencies or validation
 */
-import { createBillingSchema } from '@kit/billing';
-
-export default createBillingSchema({
+export default {
   provider: 'stripe',
   products: [
     {
@@ -23,7 +21,7 @@ export default createBillingSchema({
               id: 'free',
               name: 'Free',
               cost: 0,
-              type: 'flat' as const,
+              type: 'flat',
             },
           ],
         },
@@ -31,4 +29,4 @@ export default createBillingSchema({
       features: ['Basic features'],
     },
   ],
-});
+};
