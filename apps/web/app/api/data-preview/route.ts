@@ -1,5 +1,39 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getConn } from '~/lib/duck';
+
+// Simple CSV parser for Vercel deployment (no native dependencies)
+async function parseCSV(url: string): Promise<any[]> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`Failed to fetch CSV: ${response.statusText}`);
+    }
+    
+    const text = await response.text();
+    const lines = text.split('\n').filter(line => line.trim());
+    
+    if (lines.length === 0) {
+      return [];
+    }
+    
+    // Parse headers
+    const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+    
+    // Parse data rows
+    const rows = lines.slice(1).map(line => {
+      const values = line.split(',').map(v => v.trim().replace(/"/g, ''));
+      const row: any = {};
+      headers.forEach((header, index) => {
+        row[header] = values[index] || null;
+      });
+      return row;
+    });
+    
+    return rows;
+  } catch (error) {
+    console.error('CSV parsing error:', error);
+    throw error;
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,51 +52,41 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const con = getConn();
+    // For Vercel deployment, only support CSV for now
+    if (audience.format !== 'csv') {
+      return NextResponse.json(
+        { error: 'Only CSV format is supported in this deployment' },
+        { status: 400 }
+      );
+    }
 
-    // Load data
-    const loaderSQL = audience.format === 'parquet'
-      ? `DROP TABLE IF EXISTS data_preview_current; CREATE TABLE data_preview_current AS SELECT * FROM read_parquet('${audience.url}');`
-      : `DROP TABLE IF EXISTS data_preview_current; CREATE TABLE data_preview_current AS SELECT * FROM read_csv_auto('${audience.url}', header=true);`;
-
-    await new Promise<void>((resolve, reject) => {
-      con.run(loaderSQL, (e: any) => e ? reject(e) : resolve());
-    });
-
-    // Build SELECT clause
-    const selectClause = select.length > 0
-      ? select.map((s: string) => `"${s}"`).join(', ')
-      : '*';
-
-    // Execute query
-    const sql = `
-      SELECT ${selectClause}
-      FROM data_preview_current
-      LIMIT ${Math.min(1000, Number(limit) || 200)}
-      OFFSET ${Math.max(0, Number(offset) || 0)}
-    `;
-
-    const rows = await new Promise<any[]>((resolve, reject) => {
-      con.all(sql, (err: any, rows: any[]) => {
-        if (err) reject(err);
-        else resolve(rows || []);
+    // Parse CSV data
+    const allRows = await parseCSV(audience.url);
+    
+    // Apply column selection
+    let filteredRows = allRows;
+    if (select.length > 0) {
+      filteredRows = allRows.map(row => {
+        const filtered: any = {};
+        select.forEach(key => {
+          if (row.hasOwnProperty(key)) {
+            filtered[key] = row[key];
+          }
+        });
+        return filtered;
       });
-    });
-
-    // Convert BigInts
-    const convertedRows = rows.map(row => {
-      const converted: any = {};
-      for (const [key, value] of Object.entries(row)) {
-        converted[key] = typeof value === 'bigint' ? Number(value) : value;
-      }
-      return converted;
-    });
+    }
+    
+    // Apply pagination
+    const startIndex = Math.max(0, Number(offset) || 0);
+    const endIndex = startIndex + Math.min(1000, Number(limit) || 200);
+    const paginatedRows = filteredRows.slice(startIndex, endIndex);
 
     return NextResponse.json({
-      rows: convertedRows,
-      limit,
-      offset,
-      total: convertedRows.length
+      rows: paginatedRows,
+      limit: Number(limit) || 200,
+      offset: Number(offset) || 0,
+      total: filteredRows.length
     });
 
   } catch (error: any) {
